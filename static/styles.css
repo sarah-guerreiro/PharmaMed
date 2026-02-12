@@ -1,0 +1,57 @@
+.navbar {
+    background-color: #6f42c1; /* Bootstrap purple */
+}
+
+.products-toggle {
+  opacity: 0.7;
+}
+
+.products-toggle:hover {
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .search-form {
+    max-width: 600px;
+  }
+}
+
+.products-menu {
+  max-width: 300px;
+}
+
+footer {
+  background-color: #E6E6FA;
+  text-align: center;
+}
+
+.footer-top {
+  padding-top: 30px;
+}
+
+.footer-top-left, .footer-top-right {
+  text-align: left;
+}
+
+footer a {
+  color: #212529;
+  text-decoration: none;
+}
+
+footer a:hover {
+    color: #6f42c1;
+}
+
+h6 {
+  padding-bottom: 10px;
+}
+
+@media (max-width: 576px) {
+  .footer-top-left {
+    padding-right: 10px;
+  }
+
+  .footer-top-right {
+    padding-left: 10px;
+  }
+}
