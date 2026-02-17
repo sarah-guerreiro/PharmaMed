@@ -12,7 +12,7 @@
 
 .form-control:focus {
   border-color: #6f42c1; 
-  box-shadow: 0 0 0.15rem 0.25rem rgba(255, 6255, 255, 0.4);
+  box-shadow: 0 0 0.15rem 0.25rem rgba(255, 255, 255, 0.4);
 }
 
 @media (min-width: 768px) {
@@ -32,13 +32,24 @@
   }
 }
 
+#productsMenu .accordion-item {
+  border: 0;
+}
+
 #productsMenu .accordion-button {
   padding: 0.7rem 1rem;
-  border: 1px solid rgba(0,0,0,.125);
-  border-left: 0;
+  border: 0;
+  opacity: 0.8;
+}
+
+#productsMenu .list-group-item {
   border-right: 0;
   border-top: 0;
-  opacity: 0.8;
+}
+
+#productsMenu .accordion-button,
+#productsMenu .list-group-item {
+  border-bottom: 1px solid rgba(0,0,0,.125);
 }
 
 #productsMenu .accordion-button:hover {
@@ -60,11 +71,7 @@
 }
 
 #productsMenu .accordion-button:focus {
-    box-shadow: none;
-}
-
-#productsMenu .accordion-collapse {
-    border-bottom: 1px solid rgba(0,0,0,.125);
+  box-shadow: none;
 }
 
 footer {
