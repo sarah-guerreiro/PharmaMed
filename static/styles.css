@@ -52,6 +52,10 @@
   border-bottom: 1px solid rgba(0,0,0,.125);
 }
 
+#productsMenu .accordion-item .list-group-item {
+  background-color: #F8F8FF;
+}
+
 #productsMenu .accordion-button:hover {
   background-color: #E6E6FA;
   opacity: 1;
