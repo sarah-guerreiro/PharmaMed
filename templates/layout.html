@@ -17,7 +17,7 @@
          
         <link href="/static/styles.css" rel="stylesheet">
 
-        <title>PharmaMed</title>
+        <title>{% block title %}PharmaMed{% endblock %}</title>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -82,256 +82,51 @@
                 <div class="list-group list-group-flush">
                     <div class="accordion accordion-flush" id="productsAccordion">
                         
-                        <!-- Medicines accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesItems" aria-expanded="false" aria-controls="medicinesItems">
-                                    <i class="fa-solid fa-tablets fa-lg me-2"></i>Medicines
-                                </button>
-                            </h2>
-                            <div id="medicinesItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Pain Relief
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Cold & Flu
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Cough
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Nose
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Soar Throat
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hay Fever
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Digestive Health
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Ears
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Anxiety & Sleep
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Leg Heaviness
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                        <a href="/" class="list-group-item list-group-item-action"> 
-                            <i class="fa-solid fa-capsules fa-lg me-2"></i>Supplements
-                        </a>
+                        <!-- Product Categories -->
+                        {% for parent_id, item in categories_menu.items() %}
 
-                        <!-- Skincare accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#skincareItems" aria-expanded="false" aria-controls="skincareItems">
-                                    <i class="fa-solid fa-hand-sparkles fa-lg me-2"></i>Skincare
-                                </button>
-                            </h2>
-                            <div id="skincareItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Face
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Body
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hands
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Feet
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            {% if item.subcategories %}
 
-                        <!-- Hair care accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#haircareItems" aria-expanded="false" aria-controls="haircareItems">
-                                    <i class="fa-solid fa-pump-soap fa-lg me-2"></i>Hair Care
-                                </button>
-                            </h2>
-                            <div id="haircareItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Shampoos
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hair Loss
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Lice Treatment
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                        <!-- Oral care accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oralcareItems" aria-expanded="false" aria-controls="oralcareItems">
-                                    <i class="fa-solid fa-tooth fa-lg me-2"></i>Oral Care
-                                </button>
-                            </h2>
-                            <div id="oralcareItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Toothbrushes
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Toothpastes
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Mouthwash
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Dental Floss
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Orthodontics
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Mouth Care
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                        <!-- Eye care accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#eyecareItems" aria-expanded="false" aria-controls="eyecareItems">
-                                    <i class="fa-solid fa-eye fa-lg me-2"></i>Eye Care
-                                </button>
-                            </h2>
-                            <div id="eyecareItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Artificial Tears
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Allergy & Hay Fever
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hygiene
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                <!-- Accordion button for categories with subcategories -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#category{{ parent_id }}" aria-expanded="false" aria-controls="categoryItems">
+                                            <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                            {{ item.category_data.name }}
+                                        </button>
+                                    </h2>
 
-                        <!-- Maternity accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#maternityItems" aria-expanded="false" aria-controls="maternityItems">
-                                    <i class="fa-solid fa-person-breastfeeding fa-lg me-2"></i>Maternity
-                                </button>
-                            </h2>
-                            <div id="maternityItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Breast Pumps
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Nipple Care
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Anti-Stretch Mark Care
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Pregnancy Support Belts
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Postpartum Belts
-                                        </a>
+                                    <!-- Product Subcategories -->
+                                    <div id="category{{ parent_id }}" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group list-group-flush">
+                                                {% for subcategory in item.subcategories %}
+                                                <a href="{{ url_for('display_category', category_id=subcategory.category_id) }}" class="list-group-item list-group-item-action ps-5">
+                                                    {{ subcategory.name }}
+                                                </a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Baby accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#babyItems" aria-expanded="false" aria-controls="babyItems">
-                                    <i class="fa-solid fa-baby fa-lg me-2"></i>Baby
-                                </button>
-                            </h2>
-                            <div id="babyItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hygiene
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Skin Moisturisers
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Nappy Care
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Bottles & Teats
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Pacifiers
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Nutrition
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            {% else %}
 
-                        <!-- Pet care accordion -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#petcareItems" aria-expanded="false" aria-controls="petcareItems">
-                                    <i class="fa-solid fa-paw fa-lg me-2"></i>Pet Care
-                                </button>
-                            </h2>
-                            <div id="petcareItems" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
-                                <div class="accordion-body p-0">
-                                    <div class="list-group list-group-flush">
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Fleas & Ticks
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Hygiene
-                                        </a>
-                                        <a href="/" class="list-group-item list-group-item-action ps-5">
-                                            Eyes & Ears
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                <!-- Simple link for categories without subcategories -->
+                                <a href="{{ url_for('display_category', category_id=item.category_data.category_id) }}" class="list-group-item list-group-item-action">
+                                    <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                    {{ item.category_data.name }}
+                                </a>
+                                
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
-                
-        <main class="flex-grow-1">
 
+        <main class="flex-grow-1">
+            {% block main %}{% endblock %}
         </main>
 
         <footer>

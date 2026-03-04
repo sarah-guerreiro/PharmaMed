@@ -1,5 +1,6 @@
 .navbar {
   background-color: #6f42c1; /* Bootstrap purple */
+  position: relative;
 }
 
 .products-toggle {
@@ -22,7 +23,12 @@
 }
 
 .products-menu {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
   max-width: 300px;
+  border-bottom: 1px solid rgba(0,0,0,.2);
+  border-right: 1px solid rgba(0,0,0,.2);
 }
 
 @media (max-width: 576px) {
@@ -76,6 +82,78 @@
 
 #productsMenu .accordion-button:focus {
   box-shadow: none;
+}
+
+.bread {
+  background-color: #E6E6FA;
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
+}
+
+.breadcrumb a {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  font-weight: 500;
+}
+
+.category-name {
+  color: #4B0082;
+}
+
+.card:hover {
+  border: 1px solid #6f42c1;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  margin: auto
+}
+
+.product-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.card-text {
+  color: #6f42c1;
+}
+
+.add-to-cart-button {
+  background-color: #4B0082;
+  color: white;
+}
+
+.add-to-cart-button:hover {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.pagination .page-link {
+  color: #6f42c1;
+}
+
+.pagination .page-item.active .page-link {
+  color: #fff;           
+  background-color: #6f42c1; 
+  border-color: #6f42c1;
+}
+
+.pagination .page-link:hover {
+  background-color: #F8F8FF;
 }
 
 footer {

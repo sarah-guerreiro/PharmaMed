@@ -2,6 +2,7 @@ CREATE TABLE categories (
     category_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     parent_id INTEGER DEFAULT 0,
+    icon TEXT,
     FOREIGN KEY (parent_id) REFERENCES categories(category_id),
     UNIQUE (name, parent_id)
 );

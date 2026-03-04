@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ category_name }}
+{% endblock %}
+
+{% block main %}
+
+<!-- Breadcrumb -->
+<nav class="bread" aria-label="breadcrumb">
+    <ol class="breadcrumb p-3">
+        <li class="breadcrumb-item">
+            <a href="/">Home</a>
+        </li>
+
+        {% for category in breadcrumb %}
+            {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="true">
+                    {{ category.name }}
+                </li>
+            {% else %}
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('display_category', category_id=category.category_id) }}">
+                        {{ category.name }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+
+<!-- Product cards -->
+<div class="container my-4">
+    <h2 class="category-name fs-5 py-4">{{ category_name }}</h2>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <!-- Product image -->
+                <div class="card-img-top d-flex justify-content-center align-items-center">
+                    <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
+                </div>
+                <div class="card-body">
+
+                    <!-- Product name -->
+                    <h5 class="card-title fs-6 ">{{ product.name }}</h5>
+
+                    <!-- Product price -->
+                    <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
+
+                    <!-- Add to cart button -->
+                    <a href="/" class="btn add-to-cart-button mb-3">Add To Cart</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <p>No products found</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav>
+    <ul class="pagination justify justify-content-center py-5">
+        {% if page > 1 %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=page-1) }}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=p) }}">
+                {{ p }}
+            </a>
+        </li>
+        {% endfor %}
+
+        {% if page < total_pages %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=page+1) }}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
