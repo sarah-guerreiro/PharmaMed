@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    PharmaMed
+{% endblock %}
+
+{% block main %}
+
+<!-- Carousel -->
+<div class="container my-4">
+    <div id="autoplayingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-pause="hover">
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            {% for category in carousel_categories %}
+                <button type="button" data-bs-target="#autoplayingCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-label="{{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            {% for category in carousel_categories %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <a href="{{ url_for('display_category', category_id=category.id) }}">
+                        <img src="{{ url_for('static', filename='images/' + category.image) }}" class="d-block w-100" alt="{{ category.name }}">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+ 
+{% endblock %}

@@ -63,9 +63,26 @@ def load_categories_menu():
 
 @app.route("/")
 def index():
-    return render_template("layout.html")
+    carousel_categories = [
+        {
+            "name": "Pain Relief",
+            "id": 10,
+            "image": "carousel/pain_relief_banner.png"
+        },
+        {
+            "name": "Supplements",
+            "id": 2,
+            "image": "carousel/supplements_banner.png"
+        },
+        {
+            "name": "Skincare",
+            "id": 3,
+            "image": "carousel/skincare_banner.png"
+        }
+    ]
+    return render_template("index.html", carousel_categories=carousel_categories)
 
-@app.route("/category/<int:category_id>")
+@app.route("/products/<int:category_id>")
 def display_category(category_id):
     conn = sqlite3.connect("pharmamed.db")
     conn.row_factory = sqlite3.Row
@@ -109,4 +126,4 @@ def display_category(category_id):
 
     conn.close()
 
-    return render_template("category_products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, products=products, page=page, total_pages=total_pages)
+    return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, products=products, page=page, total_pages=total_pages)
