@@ -6,7 +6,7 @@
 
 {% block main %}
 
-<!-- Carousel -->
+<!-- Autoplaying carousel -->
 <div class="container my-4">
     <div id="autoplayingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-pause="hover">
 
@@ -27,6 +27,21 @@
                 </div>
             {% endfor %}
         </div>
+    </div>
+</div>
+
+<!-- Brands logo slider -->
+<h3 class="brands-section">Our Brands</h3>
+<div class="brands-slider my-5">
+    <div class="brands-track">
+        {% for brand in brands %}
+        <img src="{{ url_for('static', filename='images/brands/' + brand.file) }}" class="brand-logo" alt="{{ brand.name }}">
+        {% endfor %}
+
+        <!-- Repeat logo for seamless loop -->
+        {% for brand in brands %}
+        <img src="{{ url_for('static', filename='images/brands/' + brand.file) }}" class="brand-logo" alt="{{ brand.name }}">
+        {% endfor %}
     </div>
 </div>
  

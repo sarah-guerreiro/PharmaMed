@@ -64,23 +64,32 @@ def load_categories_menu():
 @app.route("/")
 def index():
     carousel_categories = [
-        {
-            "name": "Pain Relief",
-            "id": 10,
-            "image": "carousel/pain_relief_banner.png"
-        },
-        {
-            "name": "Supplements",
-            "id": 2,
-            "image": "carousel/supplements_banner.png"
-        },
-        {
-            "name": "Skincare",
-            "id": 3,
-            "image": "carousel/skincare_banner.png"
-        }
+        {"name": "Pain Relief", "id": 10, "image": "carousel/pain_relief_banner.png"},
+        {"name": "Supplements", "id": 2, "image": "carousel/supplements_banner.png"},
+        {"name": "Skincare", "id": 3, "image": "carousel/skincare_banner.png"}
     ]
-    return render_template("index.html", carousel_categories=carousel_categories)
+
+    brands = [
+        {"file": "centrum.png", "name": "Centrum"},
+        {"file": "now.png", "name": "Now"},
+        {"file": "uriage.png", "name": "Uriage"},
+        {"file": "bioderma.png", "name": "Bioderma"},
+        {"file": "avène.png", "name": "Avène"},
+        {"file": "a-derma.png", "name": "A-Derma"},
+        {"file": "neutrogena.png", "name": "Neutrogena"},
+        {"file": "isdin.png", "name": "ISDIN"},
+        {"file": "klorane.png", "name": "Klorane"},
+        {"file": "elgydium.png", "name": "Elgydium"},
+        {"file": "eludril.png", "name": "Eludril"},
+        {"file": "medela.png", "name": "Medela"},
+        {"file": "chicco.png", "name": "Chicco"},
+        {"file": "philips_avent.png", "name": "Philips Avent"},
+        {"file": "nan.png", "name": "Nan"},
+        {"file": "advantage.png", "name": "Advantage"},
+        {"file": "seresto.png", "name": "Seresto"},
+        {"file": "adtab.png", "name": "AdTab"},
+    ]
+    return render_template("index.html", carousel_categories=carousel_categories, brands=brands)
 
 @app.route("/products/<int:category_id>")
 def display_category(category_id):

@@ -94,9 +94,57 @@
     border-radius: 10px;
 }
 
-.carousel-indicators button {
-  height: 10px;
-  width: 10px;
+.brands-section {
+  color: #4B0082;
+  text-align: center;
+}
+
+.brands-slider {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.brands-slider::before, .brands-slider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.brands-slider::before {
+  left: 0;
+  background: linear-gradient(to right, white, transparent);
+}
+
+.brands-slider::after {
+  right: 0;
+  background: linear-gradient(to left, white, transparent);
+}
+
+.brands-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: scrollBrands 45s linear infinite;
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  margin: 0 20px;
+}
+
+@keyframes scrollBrands {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .breadcrumb-nav {
