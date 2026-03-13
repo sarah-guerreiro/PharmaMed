@@ -30,8 +30,33 @@
     </div>
 </div>
 
+<!-- Category shortcuts -->
+<div class="container my-5">
+    <h4 class="category-shortcuts text-center mb-4">Shop by Category</h4>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+        {% for category in main_categories %}
+        <div class="col">
+            <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="text-decoration-none">
+                <div class="card category-card h-100 text-center">
+
+                    <!-- Category image -->
+                    <div class="card-img-top d-flex justify-content-center align-items-center mt-4">
+                        <img src="{{ url_for('static', filename=category.image_url) }}" class="category-image" alt="{{ category.name }}">
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Category name -->
+                        <h5 class="card-title">{{ category.name }}</h5>
+                    </div>                
+                </div>
+            </a>    
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 <!-- Brands logo slider -->
-<h3 class="brands-section">Our Brands</h3>
+<h4 class="brands-section text-center">Our Brands</h4>
 <div class="brands-slider my-5">
     <div class="brands-track">
         {% for brand in brands %}

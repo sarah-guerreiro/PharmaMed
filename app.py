@@ -89,7 +89,16 @@ def index():
         {"file": "seresto.png", "name": "Seresto"},
         {"file": "adtab.png", "name": "AdTab"},
     ]
-    return render_template("index.html", carousel_categories=carousel_categories, brands=brands)
+
+    conn = sqlite3.connect("pharmamed.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get main categories name, id and image
+    cursor.execute("""SELECT category_id, name, image_url FROM categories WHERE parent_id = 0""")
+    main_categories = cursor.fetchall()
+
+    return render_template("index.html", carousel_categories=carousel_categories, main_categories=main_categories, brands=brands)
 
 @app.route("/products/<int:category_id>")
 def display_category(category_id):
@@ -97,7 +106,7 @@ def display_category(category_id):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Get category/subcategory name for page title
+    # Get category/subcategory
     cursor.execute("SELECT * FROM categories WHERE category_id = ?", (category_id,))
     category = cursor.fetchone()
 

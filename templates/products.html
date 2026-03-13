@@ -35,7 +35,7 @@
     <div class="row row-cols-1 row-cols-md-4 g-4 pb-5">
         {% for product in products %}
         <div class="col">
-            <div class="card h-100 text-center">
+            <div class="card product-card h-100 text-center">
                 <!-- Product image -->
                 <div class="card-img-top d-flex justify-content-center align-items-center">
                     <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
@@ -43,7 +43,7 @@
                 <div class="card-body">
 
                     <!-- Product name -->
-                    <h5 class="card-title fs-6 ">{{ product.name }}</h5>
+                    <h5 class="card-title fs-6">{{ product.name }}</h5>
 
                     <!-- Product price -->
                     <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>

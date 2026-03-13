@@ -3,6 +3,7 @@ CREATE TABLE categories (
     name TEXT NOT NULL,
     parent_id INTEGER DEFAULT 0,
     icon TEXT,
+    image_url TEXT,
     FOREIGN KEY (parent_id) REFERENCES categories(category_id),
     UNIQUE (name, parent_id)
 );
