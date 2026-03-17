@@ -1,6 +1,5 @@
 .navbar {
   background-color: #6f42c1; /* Bootstrap purple */
-  position: relative;
 }
 
 .products-toggle {
@@ -23,18 +22,24 @@
 }
 
 .products-menu {
-  position: absolute;
+  position: fixed;
+  top: 77px;
+  left: 0;
   z-index: 100;
   width: 100%;
   max-width: 300px;
+  max-height: calc(100vh - 77px);
+  overflow-y: auto;
   border-bottom: 1px solid rgba(0,0,0,.2);
   border-right: 1px solid rgba(0,0,0,.2);
 }
 
 @media (max-width: 576px) {
   .products-menu {
+    top: 101px;
     width: 100%;
     max-width: none;
+    max-height: calc(100vh - 101px);
   }
 }
 
@@ -84,18 +89,24 @@
   box-shadow: none;
 }
 
+.carousel {
+  background-color: #E6E6FA;
+}
+
 #autoplayingCarousel {
   max-width: 1000px;
   margin: auto;
 }
 
 .carousel-item img {
-    width: 100%;
-    border-radius: 10px;
+  width: 100%;
 }
 
 .category-shortcuts {
   color: #4B0082;
+  text-transform: uppercase;
+  margin-top: 4rem;
+  margin-bottom: 3rem;
 }
 
 .category-card .card-img-top {
@@ -152,8 +163,26 @@
   color: #4B0082;
 }
 
+.trust-badges {
+  margin-top: 5rem;
+  margin-bottom: 3rem;
+}
+
+.trust-badges p {
+  text-transform: uppercase;
+  color: dimgray;
+}
+
+.trust-badges i {
+  font-size: 2rem;
+  color: #4B0082;
+}
+
 .brands-section {
   color: #4B0082;
+  text-transform: uppercase;
+  margin-top: 4rem;
+  margin-bottom: 3rem;
 }
 
 .brands-slider {

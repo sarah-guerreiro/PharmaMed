@@ -7,32 +7,34 @@
 {% block main %}
 
 <!-- Autoplaying carousel -->
-<div class="container my-4">
-    <div id="autoplayingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-pause="hover">
+<section class="carousel">
+    <div class="container carousel mb-4">
+        <div id="autoplayingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-pause="hover">
 
-        <!-- Indicators -->
-        <div class="carousel-indicators">
-            {% for category in carousel_categories %}
-                <button type="button" data-bs-target="#autoplayingCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-label="{{ loop.index }}"></button>
-            {% endfor %}
-        </div>
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                {% for category in carousel_categories %}
+                    <button type="button" data-bs-target="#autoplayingCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-label="{{ loop.index }}"></button>
+                {% endfor %}
+            </div>
 
-        <!-- Slides -->
-        <div class="carousel-inner">
-            {% for category in carousel_categories %}
-                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                    <a href="{{ url_for('display_category', category_id=category.id) }}">
-                        <img src="{{ url_for('static', filename='images/' + category.image) }}" class="d-block w-100" alt="{{ category.name }}">
-                    </a>
-                </div>
-            {% endfor %}
+            <!-- Slides -->
+            <div class="carousel-inner">
+                {% for category in carousel_categories %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <a href="{{ url_for('display_category', category_id=category.id) }}">
+                            <img src="{{ url_for('static', filename='images/' + category.image) }}" class="d-block w-100" alt="{{ category.name }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Category shortcuts -->
 <div class="container my-5">
-    <h4 class="category-shortcuts text-center mb-4">Shop by Category</h4>
+    <h4 class="category-shortcuts text-center">Shop by Category</h4>
     <div class="row row-cols-2 row-cols-md-3 g-4">
         {% for category in main_categories %}
         <div class="col">
@@ -52,6 +54,28 @@
             </a>    
         </div>
         {% endfor %}
+    </div>
+</div>
+
+<!-- Trust badges -->
+<div class="container trust-badges">
+    <div class="row text-center gy-5">
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-truck-fast mb-4"></i>
+            <p>Fast Delivery</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-phone mb-4"></i>
+            <p>Costumer Support</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-file-circle-check mb-4"></i>
+            <p>Licensed Pharmacy</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-lock mb-4"></i>
+            <p>Secure Payments</p>
+        </div>
     </div>
 </div>
 
