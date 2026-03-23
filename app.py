@@ -113,7 +113,6 @@ def display_category(category_id):
     # Build breadcrumb list
     breadcrumb = []
     current = category
-
     while current:
         breadcrumb.insert(0, current)
         if current["parent_id"] == 0:
@@ -121,27 +120,68 @@ def display_category(category_id):
         cursor.execute("SELECT * FROM categories WHERE category_id = ?", (current["parent_id"],))
         current = cursor.fetchone()
 
+    # Get all subcategories in current category
+    cursor.execute("SELECT category_id, name FROM categories WHERE parent_id = ?", (category_id,))
+    subcategories = cursor.fetchall()
+    category_ids = [category_id] + [subcategory["category_id"] for subcategory in subcategories]
+
+    # Get selected filters from the URL query parameters
+    selected_subcategories = request.args.getlist('subcategory')
+    selected_brands = request.args.getlist('brand')
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+
+    # Base query
+    query = "FROM products p WHERE p.category_id IN ({})".format(",".join("?"*len(category_ids)))
+    query_params = category_ids.copy() 
+
+    # Subcategory filter
+    if selected_subcategories:
+        query += " AND p.category_id IN ({})".format(",".join("?"*len(selected_subcategories)))
+        query_params.extend([int(subcategory) for subcategory in selected_subcategories])
+
+    # Brand filter
+    if selected_brands:
+        query += " AND p.brand_id IN ({})".format(",".join("?"*len(selected_brands)))
+        query_params.extend([int(brand) for brand in selected_brands])
+
+    # Get brands based on filtered subcategories and brands
+    cursor.execute(f"""SELECT DISTINCT b.brand_id, b.name FROM brands b JOIN products p ON b.brand_id = p.brand_id """ + query.replace("FROM products p", "") 
+                   + """ORDER BY b.name""", query_params)
+    brands = cursor.fetchall()
+
+    # Apply min price and max price filter if set
+    if min_price is not None:
+        query += " AND p.price >= ?"
+        query_params.append(min_price)
+
+    if max_price is not None:
+        query += " AND p.price <= ?"
+        query_params.append(max_price)
+    
+    # Count products
+    count_query = "SELECT COUNT(*) " + query
+    cursor.execute(count_query, query_params)
+    total_products = cursor.fetchone()[0]
+
     # Set the number of products per page
     page = request.args.get("page", 1, type=int)
     products_per_page = 16
     offset = (page - 1) * products_per_page
 
-    # Get all subcategories
-    cursor.execute("SELECT category_id FROM categories WHERE parent_id = ?", (category_id,))
-    subcategories = cursor.fetchall()
-    category_ids = [category_id] + [subcategory["category_id"] for subcategory in subcategories]
-
-    # Count products from each category
-    cursor.execute(f"""SELECT COUNT(*) FROM products WHERE category_id IN ({','.join('?'*len(category_ids))})""", category_ids)
-    total_products = cursor.fetchone()[0]
-
     # Calculate the total number of pages
     total_pages = math.ceil(total_products / products_per_page)
 
-    # Get products for that category/subcategory
-    cursor.execute(f"""SELECT name, price, image_url FROM products WHERE category_id IN ({','.join('?'*len(category_ids))}) LIMIT ? OFFSET ?""", category_ids + [products_per_page, offset])
+    # Add LIMIT and OFFSET for pagination
+    query += " LIMIT ? OFFSET ?"
+    query_params.extend([products_per_page, offset])
+
+    # Get products in current category/subcategory
+    products_query = "SELECT p.name, p.price, p.image_url " + query
+    cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
     conn.close()
 
-    return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, products=products, page=page, total_pages=total_pages)
+    return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, 
+                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands)

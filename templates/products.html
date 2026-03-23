@@ -29,33 +29,157 @@
     </ol>
 </nav>
 
-<!-- Product cards -->
 <div class="container my-4">
-    <h2 class="category-name fs-5 py-4">{{ category_name }}</h2>
-    <div class="row row-cols-1 row-cols-md-4 g-4 pb-5">
-        {% for product in products %}
-        <div class="col">
-            <div class="card product-card h-100 text-center">
-                <!-- Product image -->
-                <div class="card-img-top d-flex justify-content-center align-items-center">
-                    <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
-                </div>
-                <div class="card-body">
+    
+    <div class="row align-items-center py-4">
+        <h2 class="category-name col-md-2 fs-4">{{ category_name }}</h2>
 
-                    <!-- Product name -->
-                    <h5 class="card-title fs-6">{{ product.name }}</h5>
+        <!-- Active filter badges-->
+        {% if request.args %}
+        <div class="active-filters-badges col-md-10">
 
-                    <!-- Product price -->
-                    <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
+            <span class="active-filters me-2">Active filters: </span>
 
-                    <!-- Add to cart button -->
-                    <a href="/" class="btn add-to-cart-button mb-3">Add To Cart</a>
-                </div>
+            <!-- Subcategories-->
+            {% for subcategory in request.args.getlist('subcategory') %}
+                {% for sub in subcategories %}
+                    {% if sub.category_id|string == subcategory %}
+                    <span class="badge rounded-pill filter-badge me-1">{{ sub.name }}</span>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            <!-- Brands -->
+            {% for brand in request.args.getlist('brand') %}
+                {% for b in brands %}
+                    {% if b.brand_id|string == brand %}
+                    <span class="badge rounded-pill filter-badge me-1">{{ b.name }}</span>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            <!-- Price-->
+            {% if request.args.get('min_price') or request.args.get('max_price') %}
+            <span class="badge rounded-pill filter-badge me-1">
+                {% if request.args.get('min_price') %}€{{ request.args.get('min_price') }}{% else %}€0{% endif %}
+                -
+                {% if request.args.get('max_price') %}€{{ request.args.get('max_price') }}{% else %}500{% endif %}
+            </span>
+            {% endif %}
+
+            <!-- Clear filters -->
+            <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="ms-2">
+                Clear all
+            </a>
+
+        </div>
+        {% endif %}
+
+    </div>
+    
+    <div class="row">
+
+        <!-- Filters sidebar -->
+        <div class="col-md-2 my-4 pe-4 pb-4">
+            <div class="filters-sidebar">
+                <form method="get" action="">
+
+                    <!-- Subcategories (only for main categories)-->
+                    {% if subcategories %}
+                    <h6>Subcategories</h6>
+                    <div class="filter-section ps-1">
+                        {% for subcategory in subcategories %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="subcategory" value="{{ subcategory.category_id }}"
+                                {% if subcategory.category_id|string in request.args.getlist('subcategory') %}checked{% endif %}>
+                            <label class="form-check-label">{{ subcategory.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Brands -->
+                    <h6 class="{% if subcategories %}mt-4{% endif %}">Brands</h6>
+                    <div class="filter-section ps-1">
+                        {% for brand in brands %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="brand" value="{{ brand.brand_id }}"
+                                {% if brand.brand_id|string in request.args.getlist('brand') %}checked{% endif %}>
+                            <label class="form-check-label">{{ brand.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Price -->
+                    <h6 class="mt-4">Price</h6>
+                    <div class="row g-2 align-items-center">
+                        <!-- Min price -->
+                        <div class="col">
+                            <input type="number"
+                                class="form-control"
+                                name="min_price"
+                                placeholder="Min"
+                                step="1"
+                                min="0"
+                                value="{{ request.args.get('min_price', '') }}">
+                        </div>
+
+                        <!-- Dash -->
+                        <div class="col-auto">
+                            <span>-</span>
+                        </div>
+
+                        <!-- Max price -->
+                        <div class="col">
+                            <input type="number"
+                                class="form-control"
+                                name="max_price"
+                                placeholder="Max"
+                                step="1"
+                                min="0"
+                                value="{{ request.args.get('max_price', '') }}">
+                        </div>
+                    </div>
+                    <div id="priceError" class="text-danger small mt-1"></div>
+
+                    <!-- Buttons -->
+                    <div class="text-center mt-4 pe-1">
+                        <button type="submit" class="btn filters-section-buttons">Apply Filters</button>
+                        <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="btn filters-section-buttons mt-3">Clear Filters</a>
+                    </div>
+
+                </form>
             </div>
         </div>
-        {% else %}
-            <p>No products found</p>
-        {% endfor %}
+
+        <!-- Product cards -->
+        <div class="col-md-10">
+            <div class="row row-cols-1 row-cols-md-4 g-4 pb-5">
+                {% for product in products %}
+                <div class="col">
+                    <div class="card product-card h-100 text-center">
+                        <!-- Product image -->
+                        <div class="card-img-top d-flex justify-content-center align-items-center">
+                            <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
+                        </div>
+                        <div class="card-body">
+
+                            <!-- Product name -->
+                            <h5 class="card-title fs-6">{{ product.name }}</h5>
+
+                            <!-- Product price -->
+                            <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
+
+                            <!-- Add to cart button -->
+                            <a href="/" class="btn add-to-cart-button mb-3">Add To Cart</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                    <p>No products found</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -73,7 +197,8 @@
 
         {% for p in range(1, total_pages + 1) %}
         <li class="page-item {% if p == page %}active{% endif %}">
-            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=p) }}">
+            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=p, subcategory=request.args.getlist('subcategory'),
+                    brand=request.args.getlist('brand'), max_price=request.args.get('max_price')) }}">
                 {{ p }}
             </a>
         </li>
@@ -89,5 +214,34 @@
     </ul>
 </nav>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const minInput = document.querySelector('input[name="min_price"]');
+    const maxInput = document.querySelector('input[name="max_price"]');
+    const errorDiv = document.getElementById('priceError');
+    const applyButton = document.querySelector('.filters-sidebar button[type="submit"]')
+
+    function validatePrice() {
+        const min = parseFloat(minInput.value);
+        const max = parseFloat(maxInput.value);
+
+        if (min && max && min > max) {
+            errorDiv.textContent = "Invalid interval";
+            applyButton.disabled = true; // Disable submit
+        } else {
+            errorDiv.textContent = "";
+            applyButton.disabled = false; // Enable submit
+        }
+    }
+
+    // Listen to input changes
+    if (minInput && maxInput && errorDiv && applyButton) {
+        minInput.addEventListener('input', validatePrice);
+        maxInput.addEventListener('input', validatePrice);
+        validatePrice();
+    }
+});
+</script>
 
 {% endblock %}

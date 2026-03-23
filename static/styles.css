@@ -323,6 +323,78 @@
   background-color: #F8F8FF;
 }
 
+.pagination .page-link:focus {
+  box-shadow: 0 0 0 0.3rem rgba(111, 66, 193, 0.2);
+  border-color: #997cce;
+}
+
+.filters-sidebar {
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.form-check-input {
+  accent-color: #6f42c1;
+}
+
+.form-check-input:checked {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.2);
+  border-color: #997cce;
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: #6f42c1;
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.2);
+  background-color: #6f42c1;
+}
+
+.form-range::-moz-range-thumb {
+  background-color: #6f42c1;
+}
+
+.form-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.2);
+  background-color: #6f42c1;
+}
+
+.filters-section-buttons {
+  background-color: #6f42c1;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.filters-section-buttons:hover {
+  background-color: #4B0082;
+  color: white;
+}
+
+.active-filters {
+  font-weight: 500;
+}
+
+.badge {
+  background-color: #4B0082;
+  font-size: 0.8rem;
+}
+
+.active-filters-badges a {
+  color: black;
+}
+
+.active-filters-badges a:hover {
+  color: #6f42c1;
+}
+
 footer {
   background-color: #E6E6FA;
   text-align: center;
