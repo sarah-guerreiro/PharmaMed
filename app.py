@@ -164,6 +164,19 @@ def display_category(category_id):
     cursor.execute(count_query, query_params)
     total_products = cursor.fetchone()[0]
 
+    # Get selected sorting option
+    sort_option = request.args.get('sort', '')
+
+    # Sort products based on selected sorting option
+    if sort_option == 'name_asc' or not sort_option:
+        query += " ORDER BY p.name ASC"
+    elif sort_option == 'name_desc':
+        query += " ORDER BY p.name DESC"
+    elif sort_option == 'price_asc':
+        query += " ORDER BY p.price ASC"
+    elif sort_option == 'price_desc':
+        query += " ORDER BY p.price DESC"
+
     # Set the number of products per page
     page = request.args.get("page", 1, type=int)
     products_per_page = 16
@@ -184,4 +197,4 @@ def display_category(category_id):
     conn.close()
 
     return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, 
-                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands)
+                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products)
