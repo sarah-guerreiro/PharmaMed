@@ -194,7 +194,11 @@ def display_category(category_id):
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
+    # Count the number of active filters
+    active_filters_count = (len(selected_subcategories) + len(selected_brands) + (1 if min_price else 0) + (1 if max_price else 0))
+
     conn.close()
 
     return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, 
-                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products)
+                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products,
+                           active_filters_count=active_filters_count)

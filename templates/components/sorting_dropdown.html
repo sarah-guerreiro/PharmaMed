@@ -1,0 +1,28 @@
+<div class="dropdown w-100">
+
+    <!-- Display current sorting -->
+    {% set current_sort = request.args.get('sort', 'name_asc') %}
+    <button class="btn dropdown-toggle sort-btn" data-bs-toggle="dropdown">
+        <i class="fa-solid fa-up-down"></i>
+        {% if current_sort == 'name_desc' %}Name (Z → A)
+        {% elif current_sort == 'price_asc' %}Price (Low → High)
+        {% elif current_sort == 'price_desc' %}Price (High → Low)
+        {% else %}Name (A → Z)
+        {% endif %}
+    </button>
+
+    <!-- Preserve existing filters -->
+    {% set args = request.args.to_dict(flat=False) %}
+
+    {% set sort_options = [('name_asc', 'Name (A → Z)'), ('name_desc', 'Name (Z → A)'), ('price_asc', 'Price (Low → High)'), ('price_desc', 'Price (High → Low)')] %}
+    <ul class="dropdown-menu">
+        {% for value, label in sort_options %}
+        <li>
+            <a class="dropdown-item {% if current_sort == value %}active{% endif %}"
+            href="{{ url_for('display_category', category_id=category.category_id, sort=value, subcategory=args.get('subcategory'), 
+            brand=args.get('brand'), min_price=args.get('min_price'), max_price=args.get('max_price')) }}">{{ label }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>

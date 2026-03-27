@@ -1,0 +1,11 @@
+<button class="btn filters-btn" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas" aria-controls="filtersOffcanvas">
+    <span>
+        <i class="fa-solid fa-sliders"></i>
+        Filters{% if active_filters_count %} ({{ active_filters_count }}){% endif %}     
+    </span>    
+    {% if active_filters_count %}
+    <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
+        <i class="fa-solid fa-x"></i>
+    </a>
+    {% endif %}
+</button>

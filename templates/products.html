@@ -31,159 +31,148 @@
 
 <div class="container my-4">
     
-    <div class="row align-items-center py-4">
-        <h2 class="category-name col-md-2 fs-4">{{ category_name }}</h2>
+    <!-- Desktop layout -->
+    <div class="row align-items-center d-none d-lg-flex py-4 g-0">
+
+        <!-- Category name -->
+        <h2 class="category-name col-lg-2 fs-4">{{ category_name }}</h2>
 
         <!-- Active filter badges-->
-        {% if request.args.getlist('subcategory') or request.args.getlist('brand') or request.args.get('min_price') or request.args.get('max_price') %}
-        <div class="active-filters-badges col-md-7">
+        <div class="active-filters-badges col-lg-6">
+            {% if request.args.getlist('subcategory') or request.args.getlist('brand') or request.args.get('min_price') or request.args.get('max_price') %}
 
             <span class="active-filters me-2">Active filters: </span>
 
-            <!-- Subcategories-->
-            {% for subcategory in request.args.getlist('subcategory') %}
-                {% for sub in subcategories %}
-                    {% if sub.category_id|string == subcategory %}
-                    <span class="badge rounded-pill filter-badge me-1">{{ sub.name }}</span>
-                    {% endif %}
+                <!-- Subcategories-->
+                {% for subcategory in request.args.getlist('subcategory') %}
+                    {% for sub in subcategories %}
+                        {% if sub.category_id|string == subcategory %}
+                        <span class="badge rounded-pill filter-badge me-1">{{ sub.name }}</span>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
 
-            <!-- Brands -->
-            {% for brand in request.args.getlist('brand') %}
-                {% for b in brands %}
-                    {% if b.brand_id|string == brand %}
-                    <span class="badge rounded-pill filter-badge me-1">{{ b.name }}</span>
-                    {% endif %}
+                <!-- Brands -->
+                {% for brand in request.args.getlist('brand') %}
+                    {% for b in brands %}
+                        {% if b.brand_id|string == brand %}
+                        <span class="badge rounded-pill filter-badge me-1">{{ b.name }}</span>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
 
-            <!-- Price-->
-            {% if request.args.get('min_price') or request.args.get('max_price') %}
-            <span class="badge rounded-pill filter-badge me-1">
-                {% if request.args.get('min_price') %}€{{ request.args.get('min_price') }}{% else %}€0{% endif %}
-                -
-                {% if request.args.get('max_price') %}€{{ request.args.get('max_price') }}{% else %}500{% endif %}
-            </span>
+                <!-- Price-->
+                {% if request.args.get('min_price') or request.args.get('max_price') %}
+                    <span class="badge rounded-pill filter-badge me-1">
+                        {% if request.args.get('min_price') %}€{{ request.args.get('min_price') }}{% else %}€0{% endif %}
+                        -
+                        {% if request.args.get('max_price') %}€{{ request.args.get('max_price') }}{% else %}500{% endif %}
+                    </span>
+                {% endif %}
+
+                <!-- Clear filters -->
+                <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="ms-2">
+                    Clear all
+                </a>
             {% endif %}
-
-            <!-- Clear filters -->
-            <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="ms-2">
-                Clear all
-            </a>
-
         </div>
-        {% endif %}
 
         <!-- Number of products -->
-        <div class="number-products col-md-1 ms-auto">{{ total_products }}{% if total_products > 1 %} products{% else %} product{% endif %}</div>
+        <div class="number-products col-lg-2 text-end pe-3">{{ total_products }}{% if total_products > 1 %} products{% else %} product{% endif %}</div>
+        
+        <!-- Sorting dropdown -->
+        <div class="sorting-dropdown col-lg-2">
+            
+            {% include "components/sorting_dropdown.html" %}
+
+        </div>
+    </div>
+
+    <!-- Tablet layout -->
+     <div class="row align-items-center d-none d-md-flex d-lg-none py-4 g-3">
+
+        <!-- Category name -->
+        <h2 class="category-name col-md-3 fs-4">{{ category_name }}</h2>
+
+        <!-- Number of products -->
+        <div class="col-md-3 text-end">
+            <div class="number-products">{{ total_products }}{% if total_products > 1 %} products{% else %} product{% endif %}</div>
+        </div>
+
+        <!-- Filters offcanvas button -->
+        <div class="col-md-3">
+            
+            {% include "components/offcanvas_button.html" %}
+
+        </div>
 
         <!-- Sorting dropdown -->
-        <div class="dropdown sorting-dropdown col-md-2">
+        <div class="sorting-dropdown col-md-3">
+            
+            {% include "components/sorting_dropdown.html" %}
 
-            <!-- Display current sorting -->
-            {% set current_sort = request.args.get('sort', 'name_asc') %}
-            <button class="btn dropdown-toggle sort-button" data-bs-toggle="dropdown">
-                {% if current_sort == 'name_desc' %}Name (Z → A)
-                {% elif current_sort == 'price_asc' %}Price (Low → High)
-                {% elif current_sort == 'price_desc' %}Price (High → Low)
-                {% else %}Name (A → Z)
-                {% endif %}
-            </button>
+        </div>
+     </div>
 
-            <!-- Preserve existing filters -->
-            {% set args = request.args.to_dict(flat=False) %}
+    <!-- Smartphone layout -->
+    <div class="row d-md-none align-items-center mb-2">
+        
+        <!-- Category name -->
+        <div class="col-8">
+            <h2 class="category-name fs-4">{{ category_name }}</h2>
+        </div>
 
-            {% set sort_options = [('name_asc', 'Name (A → Z)'), ('name_desc', 'Name (Z → A)'), ('price_asc', 'Price (Low → High)'), ('price_desc', 'Price (High → Low)')] %}
-            <ul class="dropdown-menu">
-                {% for value, label in sort_options %}
-                <li>
-                    <a class="dropdown-item {% if current_sort == value %}active{% endif %}"
-                    href="{{ url_for('display_category', category_id=category.category_id, sort=value, subcategory=args.get('subcategory'), 
-                    brand=args.get('brand'), min_price=args.get('min_price'), max_price=args.get('max_price')) }}">{{ label }}</a>
-                </li>
-                {% endfor %}
-            </ul>
+        <!-- Number of products -->
+        <div class="col-4 text-end">
+            <div class="number-products">{{ total_products }}{% if total_products > 1 %} products{% else %} product{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="row d-md-none align-items-center mb-4">
+        
+        <!-- Filters offcanvas button -->
+        <div class="col-6">
+            
+            {% include "components/offcanvas_button.html" %}
+
+        </div>
+
+        <!-- Sorting dropdown -->
+        <div class="col-6">
+            <div class="sorting-dropdown">
+                
+                {% include "components/sorting_dropdown.html" %}
+
+            </div>
+        </div>
+    </div>    
+
+    <!-- Filters offcanvas, smartphone and tablet-->
+    <div class="offcanvas offcanvas-start w-100" tabindex="-1" id="filtersOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Filters</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            
+            {% include "components/filters_form.html" %}
+
         </div>
     </div>
     
     <div class="row">
 
-        <!-- Filters sidebar -->
-        <div class="col-md-2 my-4 pe-4 pb-4">
+        <!-- Filters sidebar, desktop only -->
+        <div class="col-lg-2 my-4 pb-4 d-none d-lg-block">
             <div class="filters-sidebar">
-                <form method="get" action="">
 
-                    <!-- Subcategories (only for main categories)-->
-                    {% if subcategories %}
-                    <h6>Subcategories</h6>
-                    <div class="filter-section ps-1">
-                        {% for subcategory in subcategories %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="subcategory" value="{{ subcategory.category_id }}"
-                                {% if subcategory.category_id|string in request.args.getlist('subcategory') %}checked{% endif %}>
-                            <label class="form-check-label">{{ subcategory.name }}</label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                {% include "components/filters_form.html" %}
 
-                    <!-- Brands -->
-                    <h6 class="{% if subcategories %}mt-4{% endif %}">Brands</h6>
-                    <div class="filter-section ps-1">
-                        {% for brand in brands %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="brand" value="{{ brand.brand_id }}"
-                                {% if brand.brand_id|string in request.args.getlist('brand') %}checked{% endif %}>
-                            <label class="form-check-label">{{ brand.name }}</label>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <!-- Price -->
-                    <h6 class="mt-4">Price</h6>
-                    <div class="row g-2 align-items-center me-1">
-                        <!-- Min price -->
-                        <div class="col">
-                            <input type="number"
-                                class="form-control"
-                                name="min_price"
-                                placeholder="Min"
-                                step="1"
-                                min="0"
-                                value="{{ request.args.get('min_price', '') }}">
-                        </div>
-
-                        <!-- Dash -->
-                        <div class="col-auto">
-                            <span>-</span>
-                        </div>
-
-                        <!-- Max price -->
-                        <div class="col">
-                            <input type="number"
-                                class="form-control"
-                                name="max_price"
-                                placeholder="Max"
-                                step="1"
-                                min="0"
-                                value="{{ request.args.get('max_price', '') }}">
-                        </div>
-                    </div>
-                    <div id="priceError" class="text-danger small mt-1"></div>
-
-                    <!-- Buttons -->
-                    <div class="text-center mt-4 pe-1">
-                        <button type="submit" class="btn filters-section-buttons">Apply Filters</button>
-                        <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="btn filters-section-buttons mt-3">Clear Filters</a>
-                    </div>
-
-                </form>
             </div>
         </div>
 
         <!-- Product cards -->
-        <div class="col-md-10">
+        <div class="col-lg-10">
             <div class="row row-cols-1 row-cols-md-4 g-4 pb-5">
                 {% for product in products %}
                 <div class="col">
@@ -201,7 +190,7 @@
                             <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
 
                             <!-- Add to cart button -->
-                            <a href="/" class="btn add-to-cart-button mb-3">Add To Cart</a>
+                            <a href="/" class="btn add-to-cart-btn mb-3">Add To Cart</a>
                         </div>
                     </div>
                 </div>
@@ -248,30 +237,36 @@
 <script>
 
     document.addEventListener("DOMContentLoaded", function () {
-        const minInput = document.querySelector('input[name="min_price"]');
-        const maxInput = document.querySelector('input[name="max_price"]');
-        const errorDiv = document.getElementById('priceError');
-        const applyButton = document.querySelector('.filters-sidebar button[type="submit"]')
 
-        function validatePrice() {
-            const min = parseFloat(minInput.value);
-            const max = parseFloat(maxInput.value);
+        const forms = document.querySelectorAll('.filters-form');
 
-            if (min && max && min > max) {
-                errorDiv.textContent = "Invalid interval";
-                applyButton.disabled = true; // Disable submit
-            } else {
-                errorDiv.textContent = "";
-                applyButton.disabled = false; // Enable submit
+        forms.forEach(form => {
+
+            const minInput = form.querySelector('input[name="min_price"]');
+            const maxInput = form.querySelector('input[name="max_price"]');
+            const errorDiv = form.querySelector('.priceError');
+            const applyButton = form.querySelector('button[type="submit"]')
+
+            function validatePrice() {
+                const min = parseFloat(minInput.value);
+                const max = parseFloat(maxInput.value);
+
+                if (min && max && min > max) {
+                    errorDiv.textContent = "Invalid interval";
+                    applyButton.disabled = true; // Disable submit
+                } else {
+                    errorDiv.textContent = "";
+                    applyButton.disabled = false; // Enable submit
+                }
             }
-        }
 
-        // Listen to input changes
-        if (minInput && maxInput && errorDiv && applyButton) {
-            minInput.addEventListener('input', validatePrice);
-            maxInput.addEventListener('input', validatePrice);
-            validatePrice();
-        }
+            // Listen to input changes
+            if (minInput && maxInput && errorDiv && applyButton) {
+                minInput.addEventListener('input', validatePrice);
+                maxInput.addEventListener('input', validatePrice);
+                validatePrice();
+            }
+        });
     });
     
 </script>
