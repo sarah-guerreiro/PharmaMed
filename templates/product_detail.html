@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ product.name }}
+{% endblock %}
+
+{% block main %}
+
+<!-- Breadcrumb -->
+
+{% include "components/breadcrumb.html" %}
+
+<!-- Product info -->
+<div class="container my-5">
+    <div class="row align-items-center">
+
+        <!-- Product image -->
+        <div class="col-md-6 d-flex justify-content-center mb-5 mb-md-0">
+            <img src="{{ url_for('static', filename=product.image_url) }}" class="img-fluid product-detail-image" alt="{{ product.name }}">
+        </div>
+
+        <div class="col-md-6">
+
+            <!-- Product brand -->
+            <a href="{{ url_for('display_brand', brand_id=product.brand_id) }}" class="product-brand">{{ product.brand }}</a>
+
+            <!-- Product name -->
+            <h2 class="product-name my-4">{{ product.name }}</h2>
+
+            <!-- Product description -->
+            <p>{{ product.description }}</p>
+
+            <!-- Porduct pack size -->
+            <p class="my-4">{{ product.pack_size }}</p>
+
+            <!-- Product price -->
+            <h4 class="product-price fw-bold">€{{ "%.2f"|format(product.price) }}</h4>
+
+            <!-- Add to cart button -->
+            <div class="product-detail-btn">
+                <a href="/" class="btn add-to-cart-btn mt-4 mb-2">Add To Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

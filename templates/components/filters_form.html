@@ -1,20 +1,21 @@
 <form class="filters-form" method="get" action="">
 
     <!-- Subcategories (only for main categories)-->
-    {% if subcategories %}
-    <h6>Subcategories</h6>
-    <div class="filter-section ps-1 pb-4 me-2">
-        {% for subcategory in subcategories %}
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="subcategory" value="{{ subcategory.category_id }}"
-                {% if subcategory.category_id|string in request.args.getlist('subcategory') %}checked{% endif %}>
-            <label class="form-check-label">{{ subcategory.name }}</label>
+    {% if page_type == 'category' and subcategories %}
+        <h6>Subcategories</h6>
+        <div class="filter-section ps-1 pb-4 me-2">
+            {% for subcategory in subcategories %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="subcategory" value="{{ subcategory.category_id }}"
+                    {% if subcategory.category_id|string in request.args.getlist('subcategory') %}checked{% endif %}>
+                <label class="form-check-label">{{ subcategory.name }}</label>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
     {% endif %}
 
     <!-- Brands -->
+    {% if page_type == 'category' %}
     <h6 class="{% if subcategories %}mt-4{% endif %}">Brands</h6>
     <div class="filter-section ps-1 pb-4 me-2">
         {% for brand in brands %}
@@ -25,9 +26,10 @@
         </div>
         {% endfor %}
     </div>
+    {% endif %}
 
     <!-- Price -->
-    <h6 class="mt-4">Price</h6>
+    <h6 class="{% if page_type == 'category' %}mt-4{% endif %}">Price</h6>
     <div class="d-flex align-items-center gap-1 gap-lg-2">
         
         <!-- Min price -->
@@ -58,7 +60,11 @@
     <!-- Buttons -->
     <div class="d-flex flex-row flex-md-column justify-content-evenly align-items-center mt-4 pe-1">
         <button type="submit" class="btn filters-section-btn mt-3">Apply Filters</button>
-        <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
+        {% if route_name == 'display_category' %}
+            <a href="{{ url_for(route_name, category_id=base_params.category_id) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
+        {% elif route_name == 'display_brand' %}
+            <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
+        {% endif %}
     </div>
 
 </form>

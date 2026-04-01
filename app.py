@@ -1,6 +1,7 @@
 import math, os, sqlite3
 
-from flask import Flask, g, render_template, request
+from flask import Flask, g, render_template, request, url_for
+from helpers import get_breadcrumb
 
 # Configure application
 app = Flask(__name__)
@@ -110,15 +111,13 @@ def display_category(category_id):
     cursor.execute("SELECT * FROM categories WHERE category_id = ?", (category_id,))
     category = cursor.fetchone()
 
-    # Build breadcrumb list
-    breadcrumb = []
-    current = category
-    while current:
-        breadcrumb.insert(0, current)
-        if current["parent_id"] == 0:
-            break
-        cursor.execute("SELECT * FROM categories WHERE category_id = ?", (current["parent_id"],))
-        current = cursor.fetchone()
+    # Get breadcrumb list
+    breadcrumb = [
+        {
+            "name": category["name"], "url": url_for("display_category", category_id=category["category_id"])
+        }
+        for category in get_breadcrumb(category["category_id"], conn)
+    ]
 
     # Get all subcategories in current category
     cursor.execute("SELECT category_id, name FROM categories WHERE parent_id = ?", (category_id,))
@@ -165,17 +164,17 @@ def display_category(category_id):
     total_products = cursor.fetchone()[0]
 
     # Get selected sorting option
-    sort_option = request.args.get('sort', '')
+    sort_option = request.args.get('sort', 'name_asc')
 
     # Sort products based on selected sorting option
-    if sort_option == 'name_asc' or not sort_option:
-        query += " ORDER BY p.name ASC"
-    elif sort_option == 'name_desc':
+    if sort_option == 'name_desc':
         query += " ORDER BY p.name DESC"
     elif sort_option == 'price_asc':
         query += " ORDER BY p.price ASC"
     elif sort_option == 'price_desc':
         query += " ORDER BY p.price DESC"
+    else:
+        query += " ORDER BY p.name ASC" 
 
     # Set the number of products per page
     page = request.args.get("page", 1, type=int)
@@ -190,15 +189,147 @@ def display_category(category_id):
     query_params.extend([products_per_page, offset])
 
     # Get products in current category/subcategory
-    products_query = "SELECT p.name, p.price, p.image_url " + query
+    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
     # Count the number of active filters
-    active_filters_count = (len(selected_subcategories) + len(selected_brands) + (1 if min_price else 0) + (1 if max_price else 0))
+    active_filters_count = (len(selected_subcategories) + len(selected_brands) + (1 if min_price is not None else 0) + (1 if max_price is not None else 0))
+
+    # Route for url_for
+    route_name = 'display_category'
+
+    # Parameters for url_for
+    base_params = {
+        "category_id": category["category_id"],
+        "subcategory": request.args.getlist('subcategory'),
+        "brand": request.args.getlist('brand'),
+        "min_price": request.args.get('min_price'),
+        "max_price": request.args.get('max_price')
+    }
+
+    # Get page type
+    page_type = "category"
 
     conn.close()
 
-    return render_template("products.html", category=category, category_name=category["name"] if category else "Products", breadcrumb=breadcrumb, 
-                           products=products, page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products,
-                           active_filters_count=active_filters_count)
+    return render_template("products.html", category=category, page_title=category["name"] if category else "Products", breadcrumb=breadcrumb, products=products, 
+                           page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products,
+                           active_filters_count=active_filters_count, route_name=route_name, base_params=base_params, page_type=page_type)
+
+@app.route("/product/<int:product_id>")
+def product_detail(product_id):
+    conn = sqlite3.connect("pharmamed.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get product info
+    cursor.execute("""
+        SELECT p.product_id, p.name, p.price, p.image_url, p.description, p.pack_size, p.category_id, b.brand_id, b.name as brand 
+        FROM products p
+        JOIN brands b ON p.brand_id = b.brand_id
+        WHERE p.product_id = ?
+    """, (product_id,))
+
+    product = cursor.fetchone()
+
+    # Get breadcrumb list
+    breadcrumb = [
+        {
+            "name": category["name"], "url": url_for("display_category", category_id=category["category_id"])
+        }
+        for category in get_breadcrumb(product["category_id"], conn)
+    ]
+
+    return render_template("product_detail.html", product=product, breadcrumb=breadcrumb)
+
+@app.route("/brands/<int:brand_id>")
+def display_brand(brand_id):
+    conn = sqlite3.connect("pharmamed.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get brand
+    cursor.execute("SELECT * FROM brands WHERE brand_id = ?", (brand_id,))
+    brand = cursor.fetchone()
+
+    if not brand:
+        abort(404)
+
+    # Get selected filters from the URL query parameters
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+
+    # Base query
+    query = "FROM products p WHERE p.brand_id = ?"
+    query_params = [brand_id] 
+
+    # Apply min price and max price filter if set
+    if min_price is not None:
+        query += " AND p.price >= ?"
+        query_params.append(min_price)
+
+    if max_price is not None:
+        query += " AND p.price <= ?"
+        query_params.append(max_price)
+    
+    # Count products
+    count_query = "SELECT COUNT(*) " + query
+    cursor.execute(count_query, query_params)
+    total_products = cursor.fetchone()[0]
+
+    # Get selected sorting option
+    sort_option = request.args.get('sort', 'name_asc')
+
+    # Sort products based on selected sorting option 
+    if sort_option == 'name_desc':
+        query += " ORDER BY p.name DESC"
+    elif sort_option == 'price_asc':
+        query += " ORDER BY p.price ASC"
+    elif sort_option == 'price_desc':
+        query += " ORDER BY p.price DESC"
+    else:
+        query += " ORDER BY p.name ASC"
+
+    # Set the number of products per page
+    page = request.args.get("page", 1, type=int)
+    products_per_page = 16
+    offset = (page - 1) * products_per_page
+
+    # Calculate the total number of pages
+    total_pages = math.ceil(total_products / products_per_page)
+
+    # Add LIMIT and OFFSET for pagination
+    query += " LIMIT ? OFFSET ?"
+    query_params.extend([products_per_page, offset])
+
+    # Get products in current category/subcategory
+    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
+    cursor.execute(products_query, query_params)
+    products = cursor.fetchall()
+
+    # Count the number of active filters
+    active_filters_count = ((1 if min_price is not None else 0) + (1 if max_price is not None else 0))
+
+    # Get breadcrumb list
+    breadcrumb = [
+        {"name": brand["name"], "url": None}
+    ]
+
+    # Route for url_for
+    route_name = 'display_brand'
+
+    # Parameters for url_for
+    base_params = {
+        "brand_id": brand["brand_id"],
+        "min_price": request.args.get('min_price'),
+        "max_price": request.args.get('max_price')
+    }
+
+    # Get page type
+    page_type = "brand"
+
+    conn.close()
+
+    return render_template("products.html", brand=brand, page_title=brand["name"], products=products, page=page, total_pages=total_pages, total_products=total_products, 
+                           active_filters_count=active_filters_count, breadcrumb=breadcrumb, route_name=route_name, base_params=base_params, page_type=page_type)

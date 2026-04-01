@@ -18,9 +18,17 @@
     <ul class="dropdown-menu">
         {% for value, label in sort_options %}
         <li>
-            <a class="dropdown-item {% if current_sort == value %}active{% endif %}"
-            href="{{ url_for('display_category', category_id=category.category_id, sort=value, subcategory=args.get('subcategory'), 
-            brand=args.get('brand'), min_price=args.get('min_price'), max_price=args.get('max_price')) }}">{{ label }}</a>
+            {% if route_name == 'display_category' %}
+                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, category_id=base_params.category_id, 
+                    sort=value, subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    {{ label }}
+                </a>
+            {% elif route_name == 'display_brand' %}    
+                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, brand_id=base_params.brand_id, 
+                    sort=value, min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    {{ label }}
+                </a>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>

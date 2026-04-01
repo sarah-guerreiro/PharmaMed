@@ -1,49 +1,33 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    {{ category_name }}
+    {{ page_title }}
 {% endblock %}
 
 {% block main %}
 
 <!-- Breadcrumb -->
-<nav class="breadcrumb-nav" aria-label="breadcrumb">
-    <ol class="breadcrumb p-3">
-        <li class="breadcrumb-item">
-            <a href="/">Home</a>
-        </li>
 
-        {% for category in breadcrumb %}
-            {% if loop.last %}
-                <li class="breadcrumb-item active" aria-current="true">
-                    {{ category.name }}
-                </li>
-            {% else %}
-                <li class="breadcrumb-item">
-                    <a href="{{ url_for('display_category', category_id=category.category_id) }}">
-                        {{ category.name }}
-                    </a>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ol>
-</nav>
+{% include "components/breadcrumb.html" %}
 
+<!-- Filters and product cards -->
 <div class="container my-4">
     
     <!-- Desktop layout -->
     <div class="row align-items-center d-none d-lg-flex py-4 g-0">
 
-        <!-- Category name -->
-        <h2 class="category-name col-lg-2 fs-4">{{ category_name }}</h2>
+        <!-- Category/brand name -->
+        <h2 class="category-name col-lg-2 fs-4">{{ page_title }}</h2>
 
         <!-- Active filter badges-->
         <div class="active-filters-badges col-lg-6">
-            {% if request.args.getlist('subcategory') or request.args.getlist('brand') or request.args.get('min_price') or request.args.get('max_price') %}
-
+        {% set filters = (page_type == 'category' and (request.args.getlist('subcategory') or request.args.getlist('brand'))) or request.args.get('min_price') or request.args.get('max_price') %}
+        
+        {% if filters %}
             <span class="active-filters me-2">Active filters: </span>
-
-                <!-- Subcategories-->
+            
+            <!-- Subcategories-->
+            {% if page_type == 'category' %}
                 {% for subcategory in request.args.getlist('subcategory') %}
                     {% for sub in subcategories %}
                         {% if sub.category_id|string == subcategory %}
@@ -51,8 +35,10 @@
                         {% endif %}
                     {% endfor %}
                 {% endfor %}
+            {% endif %}
 
-                <!-- Brands -->
+            <!-- Brands -->
+            {% if page_type == 'category' %}
                 {% for brand in request.args.getlist('brand') %}
                     {% for b in brands %}
                         {% if b.brand_id|string == brand %}
@@ -60,21 +46,28 @@
                         {% endif %}
                     {% endfor %}
                 {% endfor %}
+            {% endif %}
 
-                <!-- Price-->
-                {% if request.args.get('min_price') or request.args.get('max_price') %}
-                    <span class="badge rounded-pill filter-badge me-1">
-                        {% if request.args.get('min_price') %}€{{ request.args.get('min_price') }}{% else %}€0{% endif %}
-                        -
-                        {% if request.args.get('max_price') %}€{{ request.args.get('max_price') }}{% else %}500{% endif %}
-                    </span>
-                {% endif %}
+            <!-- Price-->
+            {% if request.args.get('min_price') or request.args.get('max_price') %}
+                <span class="badge rounded-pill filter-badge me-1">
+                    {% if request.args.get('min_price') %}€{{ request.args.get('min_price') }}{% else %}€0{% endif %}
+                    -
+                    {% if request.args.get('max_price') %}€{{ request.args.get('max_price') }}{% else %}500{% endif %}
+                </span>
+            {% endif %}
 
-                <!-- Clear filters -->
-                <a href="{{ url_for('display_category', category_id=category.category_id) }}" class="ms-2">
+            <!-- Clear filters -->
+            {% if route_name == 'display_category' %}
+                <a href="{{ url_for(route_name, category_id=base_params.category_id) }}" class="ms-2">
+                    Clear all
+                </a>
+            {% elif route_name == 'display_brand' %}
+                <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="ms-2">
                     Clear all
                 </a>
             {% endif %}
+        {% endif %}
         </div>
 
         <!-- Number of products -->
@@ -91,8 +84,8 @@
     <!-- Tablet layout -->
      <div class="row align-items-center d-none d-md-flex d-lg-none py-4 g-3">
 
-        <!-- Category name -->
-        <h2 class="category-name col-md-3 fs-4">{{ category_name }}</h2>
+        <!-- Category/brand name -->
+        <h2 class="category-name col-md-3 fs-4">{{ page_title }}</h2>
 
         <!-- Number of products -->
         <div class="col-md-3 text-end">
@@ -117,9 +110,9 @@
     <!-- Smartphone layout -->
     <div class="row d-md-none align-items-center mb-2">
         
-        <!-- Category name -->
+        <!-- Category/brand name -->
         <div class="col-8">
-            <h2 class="category-name fs-4">{{ category_name }}</h2>
+            <h2 class="category-name fs-4">{{ page_title }}</h2>
         </div>
 
         <!-- Number of products -->
@@ -176,23 +169,25 @@
             <div class="row row-cols-1 row-cols-md-4 g-4 pb-5">
                 {% for product in products %}
                 <div class="col">
-                    <div class="card product-card h-100 text-center">
-                        <!-- Product image -->
-                        <div class="card-img-top d-flex justify-content-center align-items-center">
-                            <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
+                    <a href="{{ url_for('product_detail', product_id=product.product_id) }}" class="text-decoration-none">
+                        <div class="card product-card h-100 text-center">
+                            <!-- Product image -->
+                            <div class="card-img-top d-flex justify-content-center align-items-center">
+                                <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
+                            </div>
+                            <div class="card-body">
+
+                                <!-- Product name -->
+                                <h5 class="card-title fs-6">{{ product.name }}</h5>
+
+                                <!-- Product price -->
+                                <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
+
+                                <!-- Add to cart button -->
+                                <a href="/" class="btn add-to-cart-btn my-3">Add To Cart</a>
+                            </div>
                         </div>
-                        <div class="card-body">
-
-                            <!-- Product name -->
-                            <h5 class="card-title fs-6">{{ product.name }}</h5>
-
-                            <!-- Product price -->
-                            <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
-
-                            <!-- Add to cart button -->
-                            <a href="/" class="btn add-to-cart-btn mb-3">Add To Cart</a>
-                        </div>
-                    </div>
+                    </a>
                 </div>
                 {% else %}
                     <p>No products found</p>
@@ -208,26 +203,45 @@
     <ul class="pagination justify justify-content-center mb-5">
         {% if page > 1 %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=page-1) }}">
-                Previous
-            </a>
+            {% if route_name == 'display_category' %}
+                <a class="page-link" href="{{ url_for(route_name, category_id=base_params.category_id, page=page-1) }}">
+                    Previous
+                </a>
+            {% elif route_name == 'display_brand' %}
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page-1) }}">
+                    Previous
+                </a>
+            {% endif %}
         </li>
         {% endif %}
 
         {% for p in range(1, total_pages + 1) %}
         <li class="page-item {% if p == page %}active{% endif %}">
-            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=p, subcategory=request.args.getlist('subcategory'),
-                    brand=request.args.getlist('brand'), max_price=request.args.get('max_price')) }}">
-                {{ p }}
-            </a>
+            {% if route_name == 'display_category' %}
+                <a class="page-link" href="{{ url_for(route_name, category_id=base_params.category_id, page=p, subcategory=base_params.subcategory,
+                        brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    {{ p }}
+                </a>
+            {% elif route_name == 'display_brand' %}  
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=p, min_price=base_params.min_price, 
+                    max_price=base_params.max_price) }}">
+                    {{ p }}
+                </a>
+            {% endif %}
         </li>
         {% endfor %}
 
         {% if page < total_pages %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('display_category', category_id=category.category_id, page=page+1) }}">
-                Next
-            </a>
+            {% if route_name == 'display_category' %}
+                <a class="page-link" href="{{ url_for(route_name, category_id=base_params.category_id, page=page+1) }}">
+                    Next
+                </a>
+            {% elif route_name == 'display_brand' %}
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page+1) }}">
+                    Next
+                </a>
+            {% endif %}
         </li>
         {% endif %}
     </ul>
