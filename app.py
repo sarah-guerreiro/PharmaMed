@@ -1,7 +1,7 @@
 import math, os, sqlite3
 
-from flask import Flask, g, render_template, request, url_for
-from helpers import get_breadcrumb
+from flask import abort, Flask, g, render_template, request, url_for
+from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
 
 # Configure application
 app = Flask(__name__)
@@ -111,7 +111,7 @@ def display_category(category_id):
     cursor.execute("SELECT * FROM categories WHERE category_id = ?", (category_id,))
     category = cursor.fetchone()
 
-    # Get breadcrumb list
+    # Build breadcrumb list
     breadcrumb = [
         {
             "name": category["name"], "url": url_for("display_category", category_id=category["category_id"])
@@ -124,16 +124,14 @@ def display_category(category_id):
     subcategories = cursor.fetchall()
     category_ids = [category_id] + [subcategory["category_id"] for subcategory in subcategories]
 
-    # Get selected filters from the URL query parameters
-    selected_subcategories = request.args.getlist('subcategory')
-    selected_brands = request.args.getlist('brand')
-    min_price = request.args.get('min_price', type=float)
-    max_price = request.args.get('max_price', type=float)
-
     # Base query
     query = "FROM products p WHERE p.category_id IN ({})".format(",".join("?"*len(category_ids)))
     query_params = category_ids.copy() 
-
+    
+    # Get selected filters from the URL query parameters
+    selected_subcategories = request.args.getlist('subcategory')
+    selected_brands = request.args.getlist('brand')
+    
     # Subcategory filter
     if selected_subcategories:
         query += " AND p.category_id IN ({})".format(",".join("?"*len(selected_subcategories)))
@@ -150,43 +148,20 @@ def display_category(category_id):
     brands = cursor.fetchall()
 
     # Apply min price and max price filter if set
-    if min_price is not None:
-        query += " AND p.price >= ?"
-        query_params.append(min_price)
-
-    if max_price is not None:
-        query += " AND p.price <= ?"
-        query_params.append(max_price)
+    min_price, max_price, query, query_params = price_filter(request.args, query, query_params)
     
     # Count products
-    count_query = "SELECT COUNT(*) " + query
-    cursor.execute(count_query, query_params)
-    total_products = cursor.fetchone()[0]
-
-    # Get selected sorting option
-    sort_option = request.args.get('sort', 'name_asc')
+    total_products = count_products(cursor, query, query_params)
 
     # Sort products based on selected sorting option
-    if sort_option == 'name_desc':
-        query += " ORDER BY p.name DESC"
-    elif sort_option == 'price_asc':
-        query += " ORDER BY p.price ASC"
-    elif sort_option == 'price_desc':
-        query += " ORDER BY p.price DESC"
-    else:
-        query += " ORDER BY p.name ASC" 
-
-    # Set the number of products per page
-    page = request.args.get("page", 1, type=int)
-    products_per_page = 16
-    offset = (page - 1) * products_per_page
+    query = sorting(request.args, query)
 
     # Calculate the total number of pages
+    products_per_page = 16
     total_pages = math.ceil(total_products / products_per_page)
 
-    # Add LIMIT and OFFSET for pagination
-    query += " LIMIT ? OFFSET ?"
-    query_params.extend([products_per_page, offset])
+    # Add pagination
+    query, query_params, page = pagination(request.args, query, query_params, products_per_page)
 
     # Get products in current category/subcategory
     products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
@@ -205,7 +180,8 @@ def display_category(category_id):
         "subcategory": request.args.getlist('subcategory'),
         "brand": request.args.getlist('brand'),
         "min_price": request.args.get('min_price'),
-        "max_price": request.args.get('max_price')
+        "max_price": request.args.get('max_price'),
+        "sort": request.args.get('sort')
     }
 
     # Get page type
@@ -256,54 +232,27 @@ def display_brand(brand_id):
     if not brand:
         abort(404)
 
-    # Get selected filters from the URL query parameters
-    min_price = request.args.get('min_price', type=float)
-    max_price = request.args.get('max_price', type=float)
-
     # Base query
     query = "FROM products p WHERE p.brand_id = ?"
     query_params = [brand_id] 
 
     # Apply min price and max price filter if set
-    if min_price is not None:
-        query += " AND p.price >= ?"
-        query_params.append(min_price)
-
-    if max_price is not None:
-        query += " AND p.price <= ?"
-        query_params.append(max_price)
+    min_price, max_price, query, query_params = price_filter(request.args, query, query_params)
     
     # Count products
-    count_query = "SELECT COUNT(*) " + query
-    cursor.execute(count_query, query_params)
-    total_products = cursor.fetchone()[0]
-
-    # Get selected sorting option
-    sort_option = request.args.get('sort', 'name_asc')
+    total_products = count_products(cursor, query, query_params)
 
     # Sort products based on selected sorting option 
-    if sort_option == 'name_desc':
-        query += " ORDER BY p.name DESC"
-    elif sort_option == 'price_asc':
-        query += " ORDER BY p.price ASC"
-    elif sort_option == 'price_desc':
-        query += " ORDER BY p.price DESC"
-    else:
-        query += " ORDER BY p.name ASC"
-
-    # Set the number of products per page
-    page = request.args.get("page", 1, type=int)
-    products_per_page = 16
-    offset = (page - 1) * products_per_page
+    query = sorting(request.args, query)
 
     # Calculate the total number of pages
+    products_per_page = 16
     total_pages = math.ceil(total_products / products_per_page)
 
-    # Add LIMIT and OFFSET for pagination
-    query += " LIMIT ? OFFSET ?"
-    query_params.extend([products_per_page, offset])
+    # Add pagination
+    query, query_params, page = pagination(request.args, query, query_params, products_per_page)
 
-    # Get products in current category/subcategory
+    # Get products in current brand
     products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
@@ -323,7 +272,8 @@ def display_brand(brand_id):
     base_params = {
         "brand_id": brand["brand_id"],
         "min_price": request.args.get('min_price'),
-        "max_price": request.args.get('max_price')
+        "max_price": request.args.get('max_price'),
+        "sort": request.args.get('sort')
     }
 
     # Get page type
