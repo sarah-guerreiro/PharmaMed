@@ -12,6 +12,10 @@
             <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
                 <i class="fa-solid fa-x"></i>
             </a>
+        {% elif route_name == 'search' %}
+            <a href="{{ url_for(route_name, search_query=base_params.search_query) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-x"></i>
+            </a>
         {% endif %}
     {% endif %}
 </button>

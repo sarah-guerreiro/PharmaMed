@@ -1,6 +1,6 @@
 import math, os, sqlite3
 
-from flask import abort, Flask, g, render_template, request, url_for
+from flask import abort, Flask, g, render_template, redirect, request, url_for
 from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
 
 # Configure application
@@ -181,7 +181,7 @@ def display_category(category_id):
         "brand": request.args.getlist('brand'),
         "min_price": request.args.get('min_price'),
         "max_price": request.args.get('max_price'),
-        "sort": request.args.get('sort')
+        "sort": request.args.get('sort'),
     }
 
     # Get page type
@@ -217,7 +217,10 @@ def product_detail(product_id):
         for category in get_breadcrumb(product["category_id"], conn)
     ]
 
-    return render_template("product_detail.html", product=product, breadcrumb=breadcrumb)
+    # Get page type
+    page_type = "product"
+
+    return render_template("product_detail.html", product=product, breadcrumb=breadcrumb, page_type=page_type)
 
 @app.route("/brands/<int:brand_id>")
 def display_brand(brand_id):
@@ -235,6 +238,19 @@ def display_brand(brand_id):
     # Base query
     query = "FROM products p WHERE p.brand_id = ?"
     query_params = [brand_id] 
+
+    # Get selected filters from the URL query parameters
+    selected_subcategories = request.args.getlist('subcategory')
+    
+    # Subcategory filter
+    if selected_subcategories:
+        query += " AND p.category_id IN ({})".format(",".join("?"*len(selected_subcategories)))
+        query_params.extend([int(subcategory) for subcategory in selected_subcategories])
+
+    # Get subcategories based on selected brand
+    cursor.execute(f"""SELECT DISTINCT c.category_id, c.name """ + query.replace("FROM products p", "FROM categories c JOIN products p ON p.category_id = c.category_id") 
+                   + """ORDER BY c.name""", query_params)
+    subcategories = cursor.fetchall()
 
     # Apply min price and max price filter if set
     min_price, max_price, query, query_params = price_filter(request.args, query, query_params)
@@ -258,7 +274,7 @@ def display_brand(brand_id):
     products = cursor.fetchall()
 
     # Count the number of active filters
-    active_filters_count = ((1 if min_price is not None else 0) + (1 if max_price is not None else 0))
+    active_filters_count = (len(selected_subcategories) + (1 if min_price is not None else 0) + (1 if max_price is not None else 0))
 
     # Get breadcrumb list
     breadcrumb = [
@@ -273,7 +289,7 @@ def display_brand(brand_id):
         "brand_id": brand["brand_id"],
         "min_price": request.args.get('min_price'),
         "max_price": request.args.get('max_price'),
-        "sort": request.args.get('sort')
+        "sort": request.args.get('sort'),
     }
 
     # Get page type
@@ -281,5 +297,88 @@ def display_brand(brand_id):
 
     conn.close()
 
-    return render_template("products.html", brand=brand, page_title=brand["name"], products=products, page=page, total_pages=total_pages, total_products=total_products, 
-                           active_filters_count=active_filters_count, breadcrumb=breadcrumb, route_name=route_name, base_params=base_params, page_type=page_type)
+    return render_template("products.html", brand=brand, page_title=brand["name"], subcategories=subcategories, page=page, total_pages=total_pages, total_products=total_products,
+                            products=products, active_filters_count=active_filters_count, breadcrumb=breadcrumb, route_name=route_name, base_params=base_params, page_type=page_type)
+
+@app.route("/search")
+def search():
+    conn = sqlite3.connect("pharmamed.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    search_query = request.args.get("search_query", "").strip()
+
+    if not search_query:
+        return redirect(url_for("index"))
+
+    # Base query (search in product name, category name or brand name)
+    query = """FROM products p JOIN categories C ON p.category_id = c.category_id JOIN brands b ON p.brand_id = b.brand_id 
+    WHERE (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ?)"""
+    query_params = [f"%{search_query}%"] * 3
+
+    # Get selected filters from the URL query parameters
+    selected_subcategories = request.args.getlist('subcategory')
+    selected_brands = request.args.getlist('brand')
+    
+    # Subcategory filter
+    if selected_subcategories:
+        query += " AND p.category_id IN ({})".format(",".join("?"*len(selected_subcategories)))
+        query_params.extend([int(subcategory) for subcategory in selected_subcategories])
+
+    # Brand filter
+    if selected_brands:
+        query += " AND p.brand_id IN ({})".format(",".join("?"*len(selected_brands)))
+        query_params.extend([int(b) for b in selected_brands])
+
+    # Price filter
+    min_price, max_price, query, query_params = price_filter(request.args, query, query_params)
+
+    # Get brands based on search query
+    cursor.execute(f"""SELECT DISTINCT b.brand_id, b.name {query} ORDER BY b.name""", query_params)
+    brands = cursor.fetchall()
+
+    # Get subcategories based on search query
+    cursor.execute(f"""SELECT DISTINCT c.category_id, c.name {query} ORDER BY b.name""", query_params)
+    subcategories = cursor.fetchall()
+
+    # Count products
+    total_products = count_products(cursor, query, query_params)
+
+    # Sorting
+    query = sorting(request.args, query)
+
+    # Pagination
+    products_per_page = 16
+    total_pages = math.ceil(total_products / products_per_page)
+
+    query, query_params, page = pagination(request.args, query, query_params, products_per_page)
+
+    # Fetch products
+    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
+    cursor.execute(products_query, query_params)
+    products = cursor.fetchall()
+
+    # Active filters count
+    active_filters_count = (len(selected_subcategories) + len(selected_brands) + (1 if min_price is not None else 0) + (1 if max_price is not None else 0))
+
+    # Route for url_for
+    route_name = "search"
+
+    # Parameters for url_for
+    base_params = {
+        "search_query": search_query,
+        "subcategory": request.args.getlist('subcategory'),
+        "brand": request.args.getlist('brand'),
+        "min_price": request.args.get('max_price'),
+        "max_price": request.args.get('max_price'),
+        "sort": request.args.get('sort'),
+    }
+
+    # Get page type
+    page_type = "search"
+
+    conn.close()
+
+    return render_template("products.html", page_title=f"Search results for '{search_query}'", products=products, page=page, total_pages=total_pages, subcategories=subcategories,
+                            brands=brands, total_products=total_products, active_filters_count=active_filters_count, route_name=route_name, base_params=base_params,
+                            page_type=page_type)

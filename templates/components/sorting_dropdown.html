@@ -25,7 +25,12 @@
                 </a>
             {% elif route_name == 'display_brand' %}    
                 <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, brand_id=base_params.brand_id, 
-                    sort=value, min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    sort=value, subcategory=base_params.subcategory, min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    {{ label }}
+                </a>
+            {% elif route_name == 'search' %}
+                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, search_query=base_params.search_query, 
+                    sort=value, subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
                     {{ label }}
                 </a>
             {% endif %}

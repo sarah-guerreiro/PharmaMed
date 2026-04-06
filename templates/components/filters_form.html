@@ -1,13 +1,24 @@
-<form class="filters-form" method="get" action="">
+<form class="filters-form" method="get" 
+{% if route_name == 'display_category' %}
+    action="{{ url_for('display_category', category_id=base_params.category_id) }}"
+{% elif route_name == 'display_brand' %}
+    action="{{ url_for('display_brand', brand_id=base_params.brand_id) }}"
+{% elif route_name == 'search' %}
+    action="{{ url_for('search') }}"
+{% endif %}>
+
+{% if route_name == 'search' %}
+    <input type="hidden" name="search_query" value="{{ base_params.search_query }}">
+{% endif %}
 
     <!-- Subcategories (only for main categories)-->
-    {% if page_type == 'category' and subcategories %}
+    {% if page_type in ['category', 'brand', 'search'] and subcategories %}
         <h6>Subcategories</h6>
         <div class="filter-section ps-1 pb-4 me-2">
             {% for subcategory in subcategories %}
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="subcategory" value="{{ subcategory.category_id }}"
-                    {% if subcategory.category_id|string in request.args.getlist('subcategory') %}checked{% endif %}>
+                    {% if subcategory.category_id|string in base_params.subcategory %}checked{% endif %}>
                 <label class="form-check-label">{{ subcategory.name }}</label>
             </div>
             {% endfor %}
@@ -15,13 +26,13 @@
     {% endif %}
 
     <!-- Brands -->
-    {% if page_type == 'category' %}
+    {% if page_type in ['category', 'search'] %}
     <h6 class="{% if subcategories %}mt-4{% endif %}">Brands</h6>
     <div class="filter-section ps-1 pb-4 me-2">
         {% for brand in brands %}
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="brand" value="{{ brand.brand_id }}"
-                {% if brand.brand_id|string in request.args.getlist('brand') %}checked{% endif %}>
+                {% if brand.brand_id|string in base_params.brand %}checked{% endif %}>
             <label class="form-check-label">{{ brand.name }}</label>
         </div>
         {% endfor %}
@@ -29,7 +40,7 @@
     {% endif %}
 
     <!-- Price -->
-    <h6 class="{% if page_type == 'category' %}mt-4{% endif %}">Price</h6>
+    <h6 class="{% if page_type in ['category', 'brand', 'search'] %}mt-4{% endif %}">Price</h6>
     <div class="d-flex align-items-center gap-1 gap-lg-2">
         
         <!-- Min price -->
@@ -64,6 +75,8 @@
             <a href="{{ url_for(route_name, category_id=base_params.category_id) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
         {% elif route_name == 'display_brand' %}
             <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
+        {% elif route_name == 'search' %}
+            <a href="{{ url_for(route_name, search_query=base_params.search_query) }}" class="btn filters-section-btn mt-3">Clear Filters</a>
         {% endif %}
     </div>
 

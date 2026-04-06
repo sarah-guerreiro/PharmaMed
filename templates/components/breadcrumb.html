@@ -1,8 +1,10 @@
+{% if page_type in ['category', 'brand', 'product'] %}
 <nav class="breadcrumb-nav" aria-label="breadcrumb">
     <ol class="breadcrumb p-3">
-        <li class="breadcrumb-item">
-            <a href="/">Home</a>
-        </li>
+            <li class="breadcrumb-item">
+                <a href="/">Home</a>
+            </li>
+{% endif %}
 
         {% for item in breadcrumb %}
             {% if loop.last or not item.url %}

@@ -21,13 +21,15 @@
 
         <!-- Active filter badges-->
         <div class="active-filters-badges col-lg-6">
-        {% set filters = (page_type == 'category' and (request.args.getlist('subcategory') or request.args.getlist('brand'))) or request.args.get('min_price') or request.args.get('max_price') %}
+        {% set filters = (page_type in ['category', 'search'] and (request.args.getlist('subcategory') or request.args.getlist('brand'))) 
+        or (page_type == 'brand' and request.args.getlist('subcategory'))
+        or request.args.get('min_price') or request.args.get('max_price') %}
         
         {% if filters %}
             <span class="active-filters me-2">Active filters: </span>
             
             <!-- Subcategories-->
-            {% if page_type == 'category' %}
+            {% if page_type in ['category', 'brand', 'search'] %}
                 {% for subcategory in request.args.getlist('subcategory') %}
                     {% for sub in subcategories %}
                         {% if sub.category_id|string == subcategory %}
@@ -38,7 +40,7 @@
             {% endif %}
 
             <!-- Brands -->
-            {% if page_type == 'category' %}
+            {% if page_type in ['category', 'search'] %}
                 {% for brand in request.args.getlist('brand') %}
                     {% for b in brands %}
                         {% if b.brand_id|string == brand %}
@@ -64,6 +66,10 @@
                 </a>
             {% elif route_name == 'display_brand' %}
                 <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="ms-2">
+                    Clear all
+                </a>
+            {% elif route_name == 'search' %}
+                <a href="{{ url_for(route_name, search_query=base_params.search_query) }}" class="ms-2">
                     Clear all
                 </a>
             {% endif %}
@@ -209,8 +215,13 @@
                     Previous
                 </a>
             {% elif route_name == 'display_brand' %}
-                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page-1, sort=base_params.sort, min_price=base_params.min_price, 
-                    max_price=base_params.max_price) }}">
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page-1, sort=base_params.sort, subcategory=base_params.subcategory, 
+                    min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    Previous
+                </a>
+            {% elif route_name == 'search' %}
+                <a class="page-link" href="{{ url_for(route_name, search_query=base_params.search_query, page=page-1, sort=base_params.sort,
+                    subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
                     Previous
                 </a>
             {% endif %}
@@ -225,8 +236,13 @@
                     {{ p }}
                 </a>
             {% elif route_name == 'display_brand' %}  
-                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=p, sort=base_params.sort, min_price=base_params.min_price, 
-                    max_price=base_params.max_price) }}">
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=p, sort=base_params.sort, subcategory=base_params.subcategory, 
+                    min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    {{ p }}
+                </a>
+            {% elif route_name == 'search' %}
+                <a class="page-link" href="{{ url_for(route_name, search_query=base_params.search_query, page=p, sort=base_params.sort, 
+                    subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
                     {{ p }}
                 </a>
             {% endif %}
@@ -241,8 +257,13 @@
                     Next
                 </a>
             {% elif route_name == 'display_brand' %}
-                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page+1, sort=base_params.sort, min_price=base_params.min_price, 
-                    max_price=base_params.max_price) }}">
+                <a class="page-link" href="{{ url_for(route_name, brand_id=base_params.brand_id, page=page+1, sort=base_params.sort, subcategory=base_params.subcategory, 
+                    min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                    Next
+                </a>
+            {% elif route_name == 'search' %}
+                <a class="page-link" href="{{ url_for(route_name, search_query=base_params.search_query, page=page+1, sort=base_params.sort,
+                    subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
                     Next
                 </a>
             {% endif %}

@@ -395,10 +395,16 @@
 }
 
 .price-input {
-  width: 70px;
+  width: 79px;
 }
 
-@media (min-width: 576px) and (max-width: 1024px) {
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .price-input {
+    width: 70px;
+  }
+}
+
+@media (width: 1024px) {
   .price-input {
     width: 55px;
   }
