@@ -52,7 +52,7 @@
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="/" aria-label="Login">
+                        <a class="nav-link" href="{{ url_for('login') }}" aria-label="Login">
                             <i class="fa-solid fa-user fa-lg"></i>
                             <span class="d-none d-md-block small">Login</span>
                         </a>
@@ -77,6 +77,20 @@
 
             </div>
         </nav>
+
+        <!-- Flash messages -->
+        <div class="flash-messages w-100">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade d-flex align-items-center justify-content-center" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        </div>
 
         <!-- Products Menu -->
         <div class="collapse" id="productsMenu">
@@ -180,7 +194,7 @@
                 // Check if the user is using a desktop
                 const isDesktop = () => window.matchMedia("(min-width: 992px)").matches;
 
-                // Open on hover (desktop only)
+                // Open products menu on hover (desktop only)
                 toggle.addEventListener("mouseenter", () => {
                     if (isDesktop()) {
                         menu.show();
@@ -206,6 +220,25 @@
 
                 toggle.addEventListener("mouseleave", closeMenu);
                 productsMenu.addEventListener("mouseleave", closeMenu);
+
+                // Smooth fade in effect for flash messages
+                document.querySelectorAll('.alert').forEach(alert => {
+                    setTimeout(() => {
+                        alert.classList.add('show');
+                    }, 100);
+                });
+                
+                // Auto-dismiss flash messages after 6 seconds
+                setTimeout(() => {
+                    document.querySelectorAll('.alert').forEach(alert => {
+                        alert.classList.remove('show');
+
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 500);
+                        
+                    });
+                }, 6000);
             });
 
             // Set current year on copyright

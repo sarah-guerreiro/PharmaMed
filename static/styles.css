@@ -303,12 +303,12 @@
   color: #6f42c1;
 }
 
-.add-to-cart-btn {
+.add-to-cart-btn, .login-btn, .register-btn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -329,7 +329,7 @@
   color: black;
 }
 
-.product-name {
+.product-name, .login, .register {
   color: #4B0082;
 }
 
@@ -514,4 +514,73 @@ h6 {
   .footer-top-right {
     padding-left: 10px;
   }
+}
+
+.login-form, .register-form {
+  border-right: solid 2px #E6E6FA;
+}
+
+@media (max-width: 576px) {
+  .login-form, .register-form {
+    border-right: none;
+  }
+}
+
+.login, .register-link, .register, .login-link {
+  border-bottom: solid 2px #E6E6FA;
+}
+
+.forgot-password a {
+  color: #6f42c1;
+  font-size: 0.9rem;
+}
+
+.forgot-password a:hover {
+  color: #4B0082;
+}
+
+.nav-tabs .nav-link {
+  color: #4B0082;
+  border-bottom: solid 1px #E6E6FA;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #E6E6FA;
+  border-color: #E6E6FA;
+}
+
+.password {
+  position: relative;
+}
+
+.password .btn {
+  position: absolute;
+  right: 0;
+  transform: translateY(-100%);
+  border: none;
+}
+
+.form-control.is-invalid {
+  background-image: none;
+}
+
+.flash-messages {
+  position: fixed;
+  top: 77px;
+  z-index: 50;
+}
+
+@media (max-width: 576px) {
+  .flash-messages {
+    top: 101px;
+  }
+}
+
+.flash-messages .alert {
+  height: 2.5rem;
+}
+
+.flash-messages .btn-close {
+  top: 50%;
+  transform: translateY(-50%);
 }

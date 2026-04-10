@@ -1,0 +1,72 @@
+<form method="post" action="{{ url_for('register')}}">
+
+{% set error = error | default({}) %}
+{% set first_name = first_name | default('') %}
+{% set last_name = last_name | default('') %}
+{% set email = email | default('') %}
+{% set terms = terms | default(false) %}
+
+    <div class="register pb-1 mb-4">
+        <h4>Create New Account</h4>
+    </div>
+    <div class="pt-2 mb-4">
+    {% set first_name_error = error.get('first_name') %}
+        <input type="text" name="first_name" class="form-control {% if first_name_error %}is-invalid{% endif %}" placeholder="First name" value="{{ first_name }}">
+        {% if first_name_error %}
+            <div class="invalid-feedback">{{ first_name_error }}</div>
+        {% endif %}
+    </div>
+    <div class="mb-4">
+    {% set last_name_error = error.get('last_name') %}
+        <input type="text" name="last_name" class="form-control {% if last_name_error %}is-invalid{% endif %}" placeholder="Last name" value="{{ last_name }}">
+        {% if last_name_error %}
+            <div class="invalid-feedback">{{ last_name_error }}</div>
+        {% endif %}
+    </div>    
+    <div class="mb-4">
+    {% set email_error = error.get('email') %}
+        <input type="text" inputmode="email" name="email" class="form-control {% if email_error %}is-invalid{% endif %}" placeholder="Email" value="{{ email }}">
+        {% if email_error %}
+            <div class="invalid-feedback">{{ email_error }}</div>
+        {% endif %}
+    </div>   
+    <div class="password mb-3">
+    {% set password_error = error.get('password') %}
+        <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+        <button type="button" class="btn toggle-password" data-target="password">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+        {% if password_error %}
+            <div class="invalid-feedback">{{ password_error }}</div>
+        {% endif %}
+    </div>
+    <div id="passwordHelp" class="form-text d-none">
+        Password must contain:
+        <ul>
+            <li id="length">At least 8 characters</li>
+            <li id="letter">A letter</li>
+            <li id="number">A number</li>
+            <li id="special">A special character (@, $, !, %, *, ? or &)</li>
+        </ul>
+    </div>  
+    <div class="password mb-4"> 
+    {% set confirm_password_error = error.get('confirm_password') %}
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
+        <button type="button" class="btn toggle-password" data-target="confirm_password">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+        {% if confirm_password_error %}
+            <div class="invalid-feedback">{{ confirm_password_error }}</div>
+        {% endif %}
+    </div>
+    <div class="mb-5"> 
+    {% set terms_error = error.get('terms') %}
+        <input type="checkbox" name="terms" class="form-check-input me-2 {% if terms_error %}is-invalid{% endif %}" {% if terms %}checked{% endif %}>I agree to the terms and privacy policy
+        {% if terms_error %}
+            <div class="invalid-feedback">{{ terms_error }}</div>
+        {% endif %}
+    </div>
+    <div class="mb-2 text-center">
+        <button class="btn register-btn" type="submit">Register</button>
+    </div>
+</form>

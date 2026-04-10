@@ -28,3 +28,12 @@ CREATE TABLE products (
     FOREIGN KEY (category_id) REFERENCES categories(category_id),
     FOREIGN KEY (brand_id) REFERENCES brands(brand_id)
 );
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,13 +1,23 @@
-import math, os, sqlite3
+import math, os, re, sqlite3
 
-from flask import abort, Flask, g, render_template, redirect, request, url_for
+from flask import abort, flash, Flask, g, render_template, redirect, request, session, url_for
 from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
+from werkzeug.security import generate_password_hash
 
 # Configure application
 app = Flask(__name__)
 
+# Get secret key
+app.secret_key = "S0j0P1g9A2a4O9u0"
+
 # Database connection
 DATABASE = "pharmamed.db"
+
+# Password pattern
+PASSWORD_PATTERN = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$')
+
+# Email pattern
+EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
 # Open database upon request
 def get_db():
@@ -382,3 +392,85 @@ def search():
     return render_template("products.html", page_title=f"Search results for '{search_query}'", products=products, page=page, total_pages=total_pages, subcategories=subcategories,
                             brands=brands, total_products=total_products, active_filters_count=active_filters_count, route_name=route_name, base_params=base_params,
                             page_type=page_type)
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "POST":
+
+        # Get data from register form
+        first_name = request.form.get("first_name", "").strip()
+        last_name = request.form.get("last_name", "").strip()
+        email = request.form.get("email", "").lower().strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        terms = request.form.get("terms") is not None
+
+        # List of errors
+        error = {}
+
+        # Input validation
+        if not first_name:
+            error["first_name"] = "First name missing"
+            
+        if not last_name:
+            error["last_name"] = "Last name missing"
+        
+        if not email:
+            error["email"] = "Email missing"
+        elif not EMAIL_PATTERN.match(email):
+            error["email"] = "Invalid email format"
+                
+        if not password:
+            error["password"] = "Password missing"
+        elif not PASSWORD_PATTERN.match(password):
+            error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
+            
+        if not confirm_password:
+            error["confirm_password"] = "Must confirm password"
+        elif password != confirm_password:
+            error["confirm_password"] = "Passwords must match"
+
+        if not terms:
+            error["terms"] = "You must accept the terms and privacy policy"
+        
+        if error:
+            return render_template("register.html", error=error, first_name=first_name, last_name=last_name, email=email, password=password, 
+                                   confirm_password=confirm_password, terms=terms)
+
+        # Hash password
+        password_hash = generate_password_hash(password)
+
+        try:
+            # Connect to database
+            conn = sqlite3.connect("pharmamed.db")
+            cursor = conn.cursor()
+
+            # Insert user into database
+            cursor.execute("""
+                INSERT INTO users (first_name, last_name, email, password_hash)
+                VALUES (?, ?, ?, ?)
+            """, (first_name, last_name, email, password_hash))
+
+            user_id =cursor.lastrowid
+
+            conn.commit()
+
+        # Check if email already exists
+        except sqlite3.IntegrityError:
+            flash("Email already registered", "error")
+            return redirect(url_for("register"))
+
+        finally:
+            conn.close()
+
+        # Auto login after register
+        session["user_id"] = user_id
+        flash("Account created successfully!", "success")
+        return redirect(url_for("index"))
+
+    return render_template("register.html")
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
