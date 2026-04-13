@@ -578,6 +578,7 @@ h6 {
 
 .flash-messages .alert {
   height: 2.5rem;
+    border-radius: 0%;
 }
 
 .flash-messages .btn-close {

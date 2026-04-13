@@ -2,7 +2,7 @@ import math, os, re, sqlite3
 
 from flask import abort, flash, Flask, g, render_template, redirect, request, session, url_for
 from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
 app = Flask(__name__)
@@ -411,18 +411,18 @@ def register():
 
         # Input validation
         if not first_name:
-            error["first_name"] = "First name missing"
+            error["first_name"] = "First name is missing"
             
         if not last_name:
-            error["last_name"] = "Last name missing"
+            error["last_name"] = "Last name is missing"
         
         if not email:
-            error["email"] = "Email missing"
+            error["email"] = "Email is missing"
         elif not EMAIL_PATTERN.match(email):
             error["email"] = "Invalid email format"
                 
         if not password:
-            error["password"] = "Password missing"
+            error["password"] = "Password is missing"
         elif not PASSWORD_PATTERN.match(password):
             error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
             
@@ -432,7 +432,7 @@ def register():
             error["confirm_password"] = "Passwords must match"
 
         if not terms:
-            error["terms"] = "You must accept the terms and privacy policy"
+            error["terms"] = "Terms and privacy policy must be accepted"
         
         if error:
             return render_template("register.html", error=error, first_name=first_name, last_name=last_name, email=email, password=password, 
@@ -447,12 +447,9 @@ def register():
             cursor = conn.cursor()
 
             # Insert user into database
-            cursor.execute("""
-                INSERT INTO users (first_name, last_name, email, password_hash)
-                VALUES (?, ?, ?, ?)
-            """, (first_name, last_name, email, password_hash))
+            cursor.execute("""INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)""", (first_name, last_name, email, password_hash))
 
-            user_id =cursor.lastrowid
+            user_id = cursor.lastrowid
 
             conn.commit()
 
@@ -468,9 +465,59 @@ def register():
         session["user_id"] = user_id
         flash("Account created successfully!", "success")
         return redirect(url_for("index"))
+    
+    else:
+        return render_template("register.html")
 
-    return render_template("register.html")
-
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+
+    if request.method == "POST":
+
+        # Get data from login form
+        email = request.form.get("email", "").lower().strip()
+        password = request.form.get("password", "")
+
+        # List of errors
+        error = {}
+
+        # Input validation
+        if not email:
+            error["email"] = "Email is missing"
+
+        if not password:
+            error["password"] = "Password is missing"
+
+        if error:
+            return render_template("login.html", error=error)
+        
+        # Clear any open session
+        session.clear()
+
+        try:
+            # Connect to database
+            conn = sqlite3.connect("pharmamed.db")
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Query database for email
+            cursor.execute("SELECT id, password_hash FROM users WHERE email = ?", (email,))
+            user = cursor.fetchone()
+
+        finally:
+            # Close database
+            conn.close()
+
+        # Check if email exists and password is correct
+        if user is None or not check_password_hash(user["password_hash"], password):
+            flash("Invalid username or password", "error")
+            return redirect(url_for("login"))
+
+        # Remember which user has logged in
+        session["user_id"] = user["id"]
+
+        # Redirect user to index page
+        return redirect(url_for("index"))
+
+    else:
+        return render_template("login.html")
