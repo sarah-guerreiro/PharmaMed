@@ -494,7 +494,6 @@ def login():
         
         # Clear any open session
         session.clear()
-
   
         # Connect to database
         conn = sqlite3.connect("pharmamed.db")
@@ -642,3 +641,12 @@ def reset_password(token):
     finally:
         # Close database
         conn.close()
+
+@app.route("/logout", methods=["POST"])
+def logout():
+
+    # Clear any open session
+    session.clear()
+
+    # Redirect user to index page
+    return redirect(url_for("index"))

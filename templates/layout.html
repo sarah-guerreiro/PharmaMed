@@ -43,8 +43,30 @@
                     </a>
                 </div>
             
-                <!-- Admin, Login and Cart icons-->
+                <!-- Icons (Admin, Login, Cart, Account, Logout) -->
                 <ul class="navbar-nav flex-row align-items-center gap-3 gap-md-2 order-1 order-md-2">
+                {% if session.get("user_id") %}
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link" href="/" aria-label="Account">
+                            <i class="fa-solid fa-user fa-lg"></i>
+                            <span class="d-none d-md-block small">Account</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link" href="/" aria-label="Cart">
+                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                            <span class="d-none d-md-block small">Cart</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <form action="{{ url_for('logout') }}" method="post" class="d-inline">
+                            <button class="nav-link btn btn-link p-0" type="submit">
+                                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+                                <span class="d-none d-md-block small">Logout</span>
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
                     <li class="nav-item d-flex flex-column text-center">
                         <a class="nav-link" href="/" aria-label="Admin">
                             <i class="fa-solid fa-gear fa-lg"></i>
@@ -63,6 +85,7 @@
                             <span class="d-none d-md-block small">Cart</span>
                         </a>
                     </li>
+                {% endif %}
                 </ul>
 
                 <!-- Search form -->
