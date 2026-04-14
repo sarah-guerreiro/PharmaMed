@@ -303,12 +303,12 @@
   color: #6f42c1;
 }
 
-.add-to-cart-btn, .login-btn, .register-btn {
+.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -329,7 +329,7 @@
   color: black;
 }
 
-.product-name, .login, .register {
+.product-name, .login, .register, .forgot-password, .reset-password {
   color: #4B0082;
 }
 
@@ -526,16 +526,16 @@ h6 {
   }
 }
 
-.login, .register-link, .register, .login-link {
+.login, .register-link, .register, .login-link, .forgot-password, .reset-password {
   border-bottom: solid 2px #E6E6FA;
 }
 
-.forgot-password a {
+.forgot-password-link a {
   color: #6f42c1;
   font-size: 0.9rem;
 }
 
-.forgot-password a:hover {
+.forgot-password-link a:hover {
   color: #4B0082;
 }
 
@@ -584,4 +584,8 @@ h6 {
 .flash-messages .btn-close {
   top: 50%;
   transform: translateY(-50%);
+}
+
+.forgot-password-form, .reset-password-form {
+  max-width: 600px;
 }

@@ -83,8 +83,9 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade d-flex align-items-center justify-content-center" role="alert">
-                        {{ message }}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else ('info' if category == 'persistent' else category) }} alert-dismissible fade 
+                    d-flex align-items-center justify-content-center" role="alert" data-persistent="{{ 'true' if category == 'persistent' else 'false' }}">
+                        {{ message | safe }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
@@ -231,6 +232,10 @@
                 // Auto-dismiss flash messages after 6 seconds
                 setTimeout(() => {
                     document.querySelectorAll('.alert').forEach(alert => {
+
+                        // Skip for persistent alerts
+                        if (alert.dataset.persistent === 'true') return;
+
                         alert.classList.remove('show');
 
                         setTimeout(() => {

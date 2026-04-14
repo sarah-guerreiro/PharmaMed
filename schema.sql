@@ -36,4 +36,6 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    reset_token TEXT;
+    reset_token_expiry TEXT;
 );

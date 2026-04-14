@@ -1,5 +1,6 @@
-import math, os, re, sqlite3
+import math, os, re, secrets, sqlite3
 
+from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, g, render_template, redirect, request, session, url_for
 from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -489,24 +490,24 @@ def login():
             error["password"] = "Password is missing"
 
         if error:
-            return render_template("login.html", error=error)
+            return render_template("login.html", error=error, email=email)
         
         # Clear any open session
         session.clear()
 
-        try:
-            # Connect to database
-            conn = sqlite3.connect("pharmamed.db")
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
+  
+        # Connect to database
+        conn = sqlite3.connect("pharmamed.db")
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
 
-            # Query database for email
-            cursor.execute("SELECT id, password_hash FROM users WHERE email = ?", (email,))
-            user = cursor.fetchone()
+        # Query database for user and password
+        cursor.execute("SELECT id, password_hash FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
 
-        finally:
-            # Close database
-            conn.close()
+
+        # Close database
+        conn.close()
 
         # Check if email exists and password is correct
         if user is None or not check_password_hash(user["password_hash"], password):
@@ -521,3 +522,123 @@ def login():
 
     else:
         return render_template("login.html")
+
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+
+    if request.method == "POST":
+
+        # Get user email
+        email = request.form.get("email", "").lower().strip()
+
+        # List of errors
+        error = {}
+
+        # Input validation
+        if not email:
+            error["email"] = "Email is missing"
+
+        if error:
+            return render_template("forgot_password.html", error=error)
+
+        # Connect to database
+        conn = sqlite3.connect("pharmamed.db")
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Query database for user
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+
+        if user:
+
+            # Generate token and expiry
+            token = secrets.token_urlsafe(32)
+            expiry = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+
+            # Update users table with generated token and expiry
+            cursor.execute("""UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?""", (token, expiry, user["id"]))
+            conn.commit()
+
+            # Show reset link
+            reset_link = url_for("reset_password", token=token, _external=True)
+
+            flash(f'<a href="{reset_link}">Click here to reset password</a>', "persistent")
+
+        else:
+            # For security
+            flash("If that email exists, a reset link was generated.", "info")
+
+    
+        # Close database
+        conn.close()
+
+        return redirect(url_for("login"))
+
+    else:
+        return render_template("forgot_password.html")
+    
+@app.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+
+    # Connect to database
+    conn = sqlite3.connect("pharmamed.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    try: 
+        # Query for user data
+        cursor.execute("SELECT * FROM users WHERE reset_token = ?", (token,))
+        user = cursor.fetchone()
+
+        if not user:
+            flash("Invalid or expired token", "error")
+            return redirect(url_for("login"))
+        
+        # Check expiry
+        expiry = datetime.fromisoformat(user["reset_token_expiry"])
+        if datetime.now(timezone.utc) > expiry:
+            flash("Reset link expired", "error")
+            return redirect(url_for("login"))
+
+        if request.method == "POST":
+
+            # Get data from form
+            password = request.form.get("password", "")
+            confirm_password = request.form.get("confirm_password", "")
+
+            # List of errors
+            error = {}
+
+            # Input validation     
+            if not password:
+                error["password"] = "Password is missing"
+            elif not PASSWORD_PATTERN.match(password):
+                error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
+            elif check_password_hash(user["password_hash"], password):
+                error["password"] = "New password must be different from the old password"
+                
+            if not confirm_password:
+                error["confirm_password"] = "Must confirm password"
+            elif password != confirm_password:
+                error["confirm_password"] = "Passwords must match"
+            
+            if error:
+                return render_template("reset_password.html", token=token, error=error, password=password, confirm_password=confirm_password)
+
+            # Hash password
+            password_hash = generate_password_hash(password)
+
+            # Update user password
+            cursor.execute("""UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?""", (password_hash, user["id"]))
+            conn.commit()
+
+            flash("Password reset successful! Please, login.", "success")
+            return redirect(url_for("login"))
+
+        else:
+            return render_template("reset_password.html", token=token)
+
+    finally:
+        # Close database
+        conn.close()
