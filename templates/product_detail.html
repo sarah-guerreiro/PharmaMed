@@ -38,10 +38,25 @@
 
             <!-- Add to cart button -->
             <div class="product-detail-btn">
-                <a href="/" class="btn add-to-cart-btn mt-4 mb-2">Add To Cart</a>
+                <a class="btn add-to-cart-btn mt-4 mb-2" data-product-id="{{ product.product_id }}">Add To Cart</a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Connect addToCart to "add to cart" button
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                addToCart(productId);
+            });
+        });
+    });
+    
+</script>
 
 {% endblock %}

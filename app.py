@@ -1,18 +1,18 @@
 import math, os, re, secrets, sqlite3
 
 from datetime import datetime, timedelta, timezone
-from flask import abort, flash, Flask, g, render_template, redirect, request, session, url_for
-from helpers import get_breadcrumb, price_filter, count_products, sorting, pagination
+from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
+from helpers import close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, cart_count, add_to_session_cart, add_to_db_cart
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
 app = Flask(__name__)
 
+# Close database after request
+app.teardown_appcontext(close_db)
+
 # Get secret key
 app.secret_key = "S0j0P1g9A2a4O9u0"
-
-# Database connection
-DATABASE = "pharmamed.db"
 
 # Password pattern
 PASSWORD_PATTERN = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$')
@@ -20,58 +20,13 @@ PASSWORD_PATTERN = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$')
 # Email pattern
 EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
-# Open database upon request
-def get_db():
-    if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
-
-        # Enable foreign keys
-        g.db.execute("PRAGMA foreign_keys = ON")
-        
-    return g.db
-
-# Build database structure
-def init_db():
-    db = get_db()
-    with open("schema.sql") as schema_file:
-        db.executescript(schema_file.read())
-    db.commit()
-
-# Close database after request
-@app.teardown_appcontext
-def close_db(exception):
-    db = g.pop("db", None)
-    if db is not None:
-        db.close()
-
-# Make categories menu available in all templates
+# Make variables available in all templates
 @app.context_processor
-def load_categories_menu():
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM categories")
-    rows = cursor.fetchall()
-    conn.close()
-
-    categories_menu = {}
-
-    # Create main categories
-    for row in rows:
-        if row["parent_id"] == 0:
-            categories_menu[row["category_id"]] = {
-                "category_data": row,
-                "subcategories": []
-            }
-    
-    # Attach subcategories
-    for row in rows:
-        if row["parent_id"] != 0 and row["parent_id"] in categories_menu:
-            categories_menu[row["parent_id"]]["subcategories"].append(row)
-
-    return dict(categories_menu=categories_menu)
+def inject_globals():
+    return {
+        "categories_menu": load_categories_menu(),
+        "cart_count": cart_count()
+    }
 
 @app.route("/")
 def index():
@@ -650,3 +605,19 @@ def logout():
 
     # Redirect user to index page
     return redirect(url_for("index"))
+
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    product_id = request.form.get('product_id')
+    quantity = int(request.form.get('quantity', 1))
+
+    user_id = session.get('user_id')
+
+    if user_id:
+        add_to_db_cart(user_id, product_id, quantity)
+    else:
+        add_to_session_cart(product_id, quantity)
+
+    return jsonify({
+        "cart_count": cart_count()
+    })

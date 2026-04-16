@@ -44,7 +44,7 @@
                 </div>
             
                 <!-- Icons (Admin, Login, Cart, Account, Logout) -->
-                <ul class="navbar-nav flex-row align-items-center gap-3 gap-md-2 order-1 order-md-2">
+                <ul class="navbar-nav flex-row align-items-center gap-2 order-1 order-md-2">
                 {% if session.get("user_id") %}
                     <li class="nav-item d-flex flex-column text-center">
                         <a class="nav-link" href="/" aria-label="Account">
@@ -53,14 +53,17 @@
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="/" aria-label="Cart">
+                        <a class="nav-link cart-icon position-relative" href="/" aria-label="Cart">
                             <i class="fa-solid fa-cart-shopping fa-lg"></i>
                             <span class="d-none d-md-block small">Cart</span>
+                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                {{ cart_count }}
+                            </span>
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
                         <form action="{{ url_for('logout') }}" method="post" class="d-inline">
-                            <button class="nav-link btn btn-link p-0" type="submit">
+                            <button class="nav-link btn btn-link" type="submit">
                                 <i class="fa-solid fa-right-from-bracket fa-lg"></i>
                                 <span class="d-none d-md-block small">Logout</span>
                             </button>
@@ -80,9 +83,12 @@
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="/" aria-label="Cart">
+                        <a class="nav-link cart-icon position-relative" href="/" aria-label="Cart">
                             <i class="fa-solid fa-cart-shopping fa-lg"></i>
                             <span class="d-none d-md-block small">Cart</span>
+                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                {{ cart_count }}
+                            </span>
                         </a>
                     </li>
                 {% endif %}
@@ -268,6 +274,34 @@
                     });
                 }, 6000);
             });
+
+            function addToCart(productId) {
+                fetch('/add_to_cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `product_id=${productId}&quantity=1`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    updateCartBadge(data.cart_count);
+                });
+            }
+
+            function updateCartBadge(count) {
+                const cartIcons = document.querySelectorAll('.cart-icon');
+
+                cartIcons.forEach(icon => {
+                    let badge = icon.querySelector('.cart-badge');
+
+                    badge.innerText = count;
+
+                    if (count > 0) {
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                });
+            }
 
             // Set current year on copyright
             document.getElementById("copyright").innerHTML = new Date().getFullYear() + " | PharmaMed. All rights reserved.";

@@ -190,7 +190,7 @@
                                 <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
 
                                 <!-- Add to cart button -->
-                                <a href="/" class="btn add-to-cart-btn my-3">Add To Cart</a>
+                                <a class="btn add-to-cart-btn my-3" data-product-id="{{ product.product_id }}">Add To Cart</a>
                             </div>
                         </div>
                     </a>
@@ -277,6 +277,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
+        // Check if min price > max price in price filter
         const forms = document.querySelectorAll('.filters-form');
 
         forms.forEach(form => {
@@ -305,6 +306,14 @@
                 maxInput.addEventListener('input', validatePrice);
                 validatePrice();
             }
+        });
+
+        // Connect addToCart to "add to cart" button
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                addToCart(productId);
+            });
         });
     });
     

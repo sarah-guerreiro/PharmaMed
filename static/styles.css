@@ -589,3 +589,17 @@ h6 {
 .forgot-password-form, .reset-password-form {
   max-width: 600px;
 }
+
+.cart-badge {
+  color: #4B0082;
+  background-color: #E6E6FA;
+  border: solid 1px #4B0082;
+  font-size: 0.6rem;
+}
+
+@media (max-width: 576px) {
+  .cart-badge {
+    left: 13px;
+
+  }
+}
