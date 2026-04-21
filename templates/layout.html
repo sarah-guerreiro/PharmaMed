@@ -53,7 +53,7 @@
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link cart-icon position-relative" href="/" aria-label="Cart">
+                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart') }}" aria-label="Cart">
                             <i class="fa-solid fa-cart-shopping fa-lg"></i>
                             <span class="d-none d-md-block small">Cart</span>
                             <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
@@ -83,7 +83,7 @@
                         </a>
                     </li>
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link cart-icon position-relative" href="/" aria-label="Cart">
+                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart') }}" aria-label="Cart">
                             <i class="fa-solid fa-cart-shopping fa-lg"></i>
                             <span class="d-none d-md-block small">Cart</span>
                             <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
@@ -251,7 +251,7 @@
                 toggle.addEventListener("mouseleave", closeMenu);
                 productsMenu.addEventListener("mouseleave", closeMenu);
 
-                // Smooth fade in effect for flash messages
+                // Trigger smooth fade in effect for flash messages
                 document.querySelectorAll('.alert').forEach(alert => {
                     setTimeout(() => {
                         alert.classList.add('show');
@@ -284,10 +284,11 @@
                 .then(res => res.json())
                 .then(data => {
                     updateCartBadge(data.cart_count);
+                    addFlashMessage(data.message, data.category);
                 });
             }
 
-            function updateCartBadge(count) {
+            function updateCartBadge (count) {
                 const cartIcons = document.querySelectorAll('.cart-icon');
 
                 cartIcons.forEach(icon => {
@@ -301,6 +302,37 @@
                         badge.classList.add('d-none');
                     }
                 });
+            }
+
+            function addFlashMessage(message, category) {
+
+                const container = document.querySelector('.flash-messages');
+
+                const alertDiv = document.createElement('div');
+
+                let alertClass = category === 'error' ? 'danger' : (category === 'persistent' ? 'info' : category);
+
+                alertDiv.className = `alert alert-${alertClass} alert-dismissible fade d-flex align-items-center justify-content-center`;
+
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.dataset.persistent = (category === 'persistent') ? 'true' : 'false';
+
+                alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+
+                container.appendChild(alertDiv);
+
+                // Trigger smooth fade in effect
+                setTimeout(() => {
+                    alertDiv.classList.add('show');
+                }, 100);
+
+                // Auto-dismiss flash messages after 6 seconds
+                if (alertDiv.dataset.persistent !== 'true') {
+                    setTimeout(() => {
+                        alertDiv.classList.remove('show');
+                        setTimeout(() => alertDiv.remove(), 500);
+                    }, 6000);
+                }
             }
 
             // Set current year on copyright

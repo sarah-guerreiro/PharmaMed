@@ -303,12 +303,12 @@
   color: #6f42c1;
 }
 
-.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn {
+.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .buy-btn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .buy-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -329,7 +329,7 @@
   color: black;
 }
 
-.product-name, .login, .register, .forgot-password, .reset-password {
+.product-name, .login, .register, .forgot-password, .reset-password, .cart-top, .item-name {
   color: #4B0082;
 }
 
@@ -526,7 +526,7 @@ h6 {
   }
 }
 
-.login, .register-link, .register, .login-link, .forgot-password, .reset-password {
+.login, .register-link, .register, .login-link, .forgot-password, .reset-password, .cart-top {
   border-bottom: solid 2px #E6E6FA;
 }
 
@@ -602,4 +602,62 @@ h6 {
     left: 13px;
 
   }
+}
+
+.cart-body {
+  border-top: solid 2px #F8F8FF;
+}
+
+.item-image {
+  height: 150px;
+  width: 150px;
+  margin: auto;
+}
+
+.item-name {
+  font-size: 1.1rem;
+}
+
+.item-total {
+  color: #6f42c1;
+}
+
+.total-items, .cart-bottom {
+  background-color: #F8F8FF;
+}
+
+.cart-bottom {
+  border-top: solid 2px #E6E6FA;
+}
+
+.decrease-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.increase-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.quantity-value {
+  border-top: solid 1px #E6E6FA;
+  border-bottom: solid 1px #E6E6FA;
+  padding-bottom: 0.15rem;
+  padding-top: 0.15rem;
+}
+
+.remove-btn {
+  color: #696969;
+}
+
+@media (max-width: 576px) {
+  .item-quantity {
+    margin-right: auto;
+  }
+}
+
+.increase-btn:disabled {
+  border: solid 1px #4B0082;
+  color: #4B0082;
 }

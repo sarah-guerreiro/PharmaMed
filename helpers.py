@@ -114,7 +114,7 @@ def pagination(args, query, query_params, products_per_page):
 
     return query, query_params, page
 
-def cart_count():
+def get_cart_count():
     db = get_db()
     user_id = session.get('user_id')
 
@@ -123,8 +123,8 @@ def cart_count():
         return db_cart_count(db, user_id)
 
     # Anonymous user
-    cart = session.get('cart', {})
-    return sum(cart.values())
+    session_cart = session.get('cart', {})
+    return sum(session_cart.values())
 
 def db_cart_count(db, user_id):
     cart_count = db.execute("""SELECT SUM(quantity) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id WHERE c.user_id = ?""", (user_id,)).fetchone()
@@ -144,37 +144,55 @@ def add_to_db_cart(user_id, product_id, quantity):
     db = get_db()
 
     # Get or create new cart
-    cart = db.execute(
-        "SELECT id FROM cart WHERE user_id = ?",
-        (user_id,)
-    ).fetchone()
+    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
 
     if not cart:
         db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
         db.commit()
-        cart = db.execute(
-            "SELECT id FROM cart WHERE user_id = ?",
-            (user_id,)
-        ).fetchone()
+        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
 
     cart_id = cart["id"]
 
     # Check if item exists
-    item = db.execute("""
-        SELECT quantity FROM cart_items
-        WHERE cart_id = ? AND product_id = ?
-    """, (cart_id, product_id)).fetchone()
+    item = db.execute("""SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?""", (cart_id, product_id)).fetchone()
 
     if item:
-        db.execute("""
-            UPDATE cart_items
-            SET quantity = quantity + ?
-            WHERE cart_id = ? AND product_id = ?
-        """, (quantity, cart_id, product_id))
+        db.execute("""UPDATE cart_items SET quantity = quantity + ? WHERE cart_id = ? AND product_id = ?""", (quantity, cart_id, product_id))
     else:
-        db.execute("""
-            INSERT INTO cart_items (cart_id, product_id, quantity)
-            VALUES (?, ?, ?)
-        """, (cart_id, product_id, quantity))
+        db.execute("""INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)""", (cart_id, product_id, quantity))
 
     db.commit()
+
+def get_cart_total(db, user_id=None):
+
+    # Logged in user
+    if user_id:
+        result = db.execute("""SELECT SUM(ci.quantity * p.price) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id 
+                            WHERE c.user_id = ?""", (user_id,)).fetchone()
+
+        return result["total"] or 0
+    
+    # Anonymous session
+    else:
+        session_cart = session.get("cart", {})
+        total = 0
+
+        for product_id, quantity in session_cart.items():
+            product = db.execute("SELECT price FROM products WHERE product_id = ?", (product_id,)).fetchone()
+
+            if product:
+                total += product["price"] * quantity
+
+        return total
+    
+def apply_cart_action(quantity, stock, action):
+    if action == "increase":
+        return min(quantity + 1, stock)
+
+    elif action == "decrease":
+        return quantity - 1 if quantity > 1 else 0
+
+    elif action == "remove":
+        return 0
+
+    return quantity

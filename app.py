@@ -2,7 +2,7 @@ import math, os, re, secrets, sqlite3
 
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
-from helpers import close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, cart_count, add_to_session_cart, add_to_db_cart
+from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
@@ -25,7 +25,7 @@ EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 def inject_globals():
     return {
         "categories_menu": load_categories_menu(),
-        "cart_count": cart_count()
+        "cart_count": get_cart_count()
     }
 
 @app.route("/")
@@ -608,16 +608,186 @@ def logout():
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    product_id = request.form.get('product_id')
+    
+    product_id = int(request.form.get('product_id'))
     quantity = int(request.form.get('quantity', 1))
 
     user_id = session.get('user_id')
 
+    # Logged in user
     if user_id:
         add_to_db_cart(user_id, product_id, quantity)
+    
+    # Anonymous session
     else:
         add_to_session_cart(product_id, quantity)
 
+    # Return updated data
     return jsonify({
-        "cart_count": cart_count()
+        "cart_count": get_cart_count(),
+        "message": "Item successfully added to cart!",
+        "category": "success"
+    })
+
+@app.route('/cart')
+def cart():
+
+    db = get_db()
+    user_id = session.get("user_id")
+
+    # Logged in user
+    if user_id:
+
+        # Get cart items data
+        rows = db.execute("""SELECT p.product_id, p.image_url, p.name, b.name as brand, p.pack_size, p.price, p.stock, ci.quantity FROM cart_items ci 
+                                JOIN cart c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id JOIN brands b ON p.brand_id = b.brand_id 
+                                WHERE c.user_id = ?""", (user_id,)).fetchall()
+
+        cart_items = []
+        for row in rows:
+            item = dict(row)
+            item["image"] = item["image_url"]
+            cart_items.append(item)
+    
+    # Anonymous session
+    else:
+
+        # Get session cart
+        session_cart = session.get("cart", {})
+
+        if not session_cart:
+            return render_template("cart.html", items=[], total=0)
+
+        placeholders = ",".join("?" * len(session_cart.keys()))
+
+        # Get product data
+        products = db.execute(f"""SELECT p.product_id, p.image_url, p.name, b.name as brand, p.pack_size, p.price, p.stock FROM products p JOIN brands b ON p.brand_id = b.brand_id 
+                              WHERE p.product_id IN ({placeholders})""", tuple(session_cart.keys())).fetchall()
+
+        # Build cart items list
+        cart_items = []
+        for product in products:
+            p_id = str(product["product_id"])
+            cart_items.append({
+                "product_id": product["product_id"],
+                "image": product["image_url"],
+                "name": product["name"],
+                "brand": product["brand"],
+                "pack_size": product["pack_size"],
+                "price": product["price"],
+                "quantity": session_cart[p_id],
+                "stock": product["stock"]
+            })
+
+    # Get total number of cart items
+    total_items = get_cart_count()
+
+    # Get item total price
+    for item in cart_items:
+        item["item_total"] = item["price"] * item["quantity"] 
+
+    # Get cart total price
+    cart_total = get_cart_total(db, user_id)
+
+    return render_template("cart.html", cart_items=cart_items, total_items=total_items, cart_total=cart_total)
+
+@app.route("/update_cart", methods=["POST"])
+def update_cart():
+    
+    db = get_db()
+    
+    try:
+        product_id = int(request.form.get("product_id"))
+    except (TypeError, ValueError):
+        return jsonify({"success": False}), 400
+    
+    action = request.form.get("action") 
+    if action not in ["increase", "decrease", "remove"]:
+        return jsonify({"success": False}), 400
+    
+    user_id = session.get("user_id")
+
+    # Initialize updated cart item quantity, stock and item total
+    updated_quantity = 0
+    stock = 0
+    item_total = 0
+
+    # Logged in user
+    if user_id:
+
+        # Get cart
+        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+        
+        if not cart:
+            return jsonify({"success": False, "message": "Cart not found"}), 400
+        
+        cart_id = cart["id"]
+
+        item = db.execute("""SELECT ci.quantity, p.stock, p.price FROM cart_items ci JOIN products p ON ci.product_id = p.product_id WHERE ci.cart_id = ? 
+                            AND ci.product_id = ?""", (cart_id, product_id)).fetchone()
+
+        if not item:
+            return jsonify({"success": False, "message": "Item not in cart"}), 400
+
+        # Get item quantity, stock and price
+        quantity = item["quantity"]
+        stock = item["stock"]
+        price = item["price"]
+
+        # Get item updated quantity
+        updated_quantity = apply_cart_action(quantity, stock, action)
+        
+        if updated_quantity > 0:
+            db.execute("""UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND product_id = ?""", (updated_quantity, cart_id, product_id))
+        else:
+            db.execute("""DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?""", (cart_id, product_id))  
+        
+        db.commit()
+
+    # Anonymous session
+    else:
+
+        # Get session cart
+        cart = session.get("cart", {})
+        p_id = str(product_id)
+
+        if p_id not in cart:
+            return jsonify({"success": False, "message": "Item not in cart"}), 400
+
+        item = db.execute("SELECT stock, price FROM products WHERE product_id = ?", (product_id,)).fetchone()
+
+        if not item:
+            return jsonify({"success": False, "message": "Product not found"}), 400
+        
+        # Get item quantity, stock and price
+        quantity = cart[p_id]
+        stock = item["stock"]
+        price = item["price"]
+
+        # Get item updated quantity
+        updated_quantity = apply_cart_action(quantity, stock, action)
+
+        if updated_quantity > 0:
+            cart[p_id] = updated_quantity
+        else:
+            del cart[p_id]
+
+        session["cart"] = cart
+        session.modified = True     
+
+    # Get item total price
+    item_total = price * updated_quantity
+
+    # Get cart total price
+    cart_total = get_cart_total(db, user_id)
+
+    # Return updated data
+    return jsonify({
+        "success": True,
+        "cart_count": get_cart_count(),
+        "product_id": product_id,
+        "updated_quantity": updated_quantity,
+        "item_total": item_total,
+        "cart_total": cart_total,
+        "stock": stock
     })
