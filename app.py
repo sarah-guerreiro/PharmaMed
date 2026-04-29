@@ -563,7 +563,7 @@ def reset_password(token):
         if not confirm_password:
             error["confirm_password"] = "Must confirm password"
         elif password != confirm_password:
-            error["confirm_password"] = "Passwords must match"
+            error["confirm_password"] = "Passwords do not match"
         
         if error:
             return render_template("reset_password.html", token=token, error=error, password=password, confirm_password=confirm_password)
@@ -614,7 +614,10 @@ def add_to_cart():
 @app.route('/cart')
 def cart():
 
+    # Connect to database
     db = get_db()
+
+    # Get user id
     user_id = current_user.id if current_user.is_authenticated else None
 
     # Logged in user
@@ -676,6 +679,7 @@ def cart():
 @app.route("/update_cart", methods=["POST"])
 def update_cart():
     
+    # Connect to database
     db = get_db()
     
     try:
@@ -687,6 +691,7 @@ def update_cart():
     if action not in ["increase", "decrease", "remove"]:
         return jsonify({"success": False}), 400
     
+    # Get user id
     user_id = current_user.id if current_user.is_authenticated else None
 
     # Initialize updated cart item quantity, stock and item total
@@ -777,6 +782,8 @@ def update_cart():
 @app.route("/account")
 @login_required
 def account_home():
+
+    # Connect to database
     db = get_db()
 
     # Get user first name
@@ -788,6 +795,8 @@ def account_home():
 @app.route("/account/profile", methods=["GET", "POST"])
 @login_required
 def profile():
+
+    # Connect to database
     db = get_db()
 
     # Get user current first and last names
@@ -833,6 +842,8 @@ def profile():
 @app.route("/account/addresses", methods=["GET", "POST"])
 @login_required
 def addresses():
+
+    # Connect to database
     db = get_db()
 
     # Get user current first and last names
@@ -905,6 +916,8 @@ def addresses():
 @app.route("/account/addresses/edit", methods=["POST"])
 @login_required
 def edit_address():
+
+    # Connect to database
     db = get_db()
 
     # Get user current first and last names
@@ -936,7 +949,17 @@ def edit_address():
     if edit_error:
         addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
 
-        return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], addresses=addresses, edit_error=edit_error, edit_address_id=address_id)
+        # Get form values
+        edit_form={
+            "full_name": full_name,
+            "address_line": address_line,
+            "postal_code": postal_code,
+            "city": city,
+            "country": country
+        }
+
+        return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], addresses=addresses, edit_error=edit_error, edit_address_id=address_id, edit_form=edit_form)
+    
     # Update address in database
     db.execute("""UPDATE addresses SET full_name = ?, address_line = ?, postal_code = ?, city = ?, country = ? WHERE id = ? AND user_id = ?""", 
                (full_name, address_line, postal_code, city, country, address_id, current_user.id))
@@ -949,6 +972,8 @@ def edit_address():
 @app.route("/account/addresses/delete", methods=["POST"])
 @login_required
 def delete_address():
+
+    # Connect to database
     db = get_db()
 
     # Get user address id
@@ -968,8 +993,56 @@ def orders():
 
     return render_template("account/orders.html", active_page="orders")
 
-@app.route("/account/security")
+@app.route("/account/security", methods=["GET", "POST"])
 @login_required
-def security():
+def change_password():
 
-    return render_template("account/security.html", active_page="security")
+    # Connect to database
+    db = get_db()
+
+    if request.method == "POST":
+
+        # Get data from form
+        current_password = request.form.get("current_password", "")
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        # List of errors
+        error = {}
+
+        # Get current password
+        user = db.execute("SELECT password_hash FROM users WHERE id = ?", (current_user.id,)).fetchone()
+
+        # Input validation
+        if not current_password:
+            error["current_password"] = "Current password is required"
+        elif not check_password_hash(user["password_hash"], current_password):
+            error["current_password"] = "Incorrect current password"
+
+        if not password:
+            error["password"] = "Password is required"
+        elif not PASSWORD_PATTERN.match(password):
+            error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
+        elif check_password_hash(user["password_hash"], password):
+            error["password"] = "New password must be different from the old password"
+
+        if not confirm_password:
+            error["confirm_password"] = "Must confirm password"
+        elif password != confirm_password:
+            error["confirm_password"] = "Passwords do not match"
+
+        if error:
+            return render_template("account/security.html", active_page="security", error=error)
+        
+        # Hash new password
+        password_hash = generate_password_hash(password)
+
+        # Update user password
+        db.execute("""UPDATE users SET password_hash = ? WHERE id = ?""", (password_hash, current_user.id))
+        db.commit()
+
+        flash("Password updated successfully!", "success")
+        return redirect(url_for("change_password"))
+
+    else:
+        return render_template("account/security.html", active_page="security")

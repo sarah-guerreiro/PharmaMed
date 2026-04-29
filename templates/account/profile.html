@@ -9,7 +9,7 @@
     <form method="post" action="{{ url_for('profile') }}">
     {% set profile_error = profile_error | default({}) %}
         <div class="row mb-3">
-            <div class="col-6">
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
             {% set first_name_error = profile_error.get('first_name') %}
                 <label class="form-label">First name:</label>
                 <input type="text" name="first_name" class="form-control {% if first_name_error %}is-invalid{% endif %}" value="{{ request.form.get('first_name', first_name) }}">
@@ -19,7 +19,7 @@
                     </div>
                 {% endif %}
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6">
             {% set last_name_error = profile_error.get('last_name') %}
                 <label class="form-label">Last name:</label>
                 <input type="text" name="last_name" class="form-control {% if last_name_error %}is-invalid{% endif %}" value="{{ request.form.get('last_name', last_name) }}">
@@ -31,11 +31,11 @@
             </div>
         </div>   
         <div class="row">
-            <div class="col-6 mb-3">
+            <div class="col-12 col-md-6 mb-4 mb-md-3">
                 <label class="form-label">Email:</label>
                 <input type="email" name="email" class="form-control" value="{{ current_user.email }}" disabled>
             </div>
-            <div class="col-6 mb-3 d-flex justify-content-center align-items-end">
+            <div class="col-12 col-md-6 mb-3 d-flex justify-content-center align-items-end">
                 <button id="saveChangesBtn" class="btn" disabled>Save Changes</button>
             </div>
         </div> 
@@ -48,7 +48,7 @@
     {% if addresses %}
         <div class="row">
         {% for address in addresses %}
-            <div class="col-4 mb-3">
+            <div class="col-12 col-md-4 mb-3">
                 <div id="address-{{ address.id }}" class="card p-3">
 
                     <!-- Display address -->
@@ -72,10 +72,11 @@
                     <div class="address-edit d-none {% if edit_address_id == address.id %}d-block{% endif %}">
                         <form method="POST" action="/account/addresses/edit">
                         {% set edit_error = edit_error | default({}) %}
+                        {% set edit_form = edit_form | default({}) %}
                             <input type="hidden" name="address_id" class="form-control mb-2" value="{{ address.id }}">
                             <div class="mb-3">
                                 {% set full_name_error = edit_error.get('full_name') if edit_address_id|string == address.id|string else None %}
-                                    <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ request.form.get('full_name', address.full_name) }}">
+                                    <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ edit_form.get('full_name', address.full_name) }}">
                                     {% if full_name_error %}
                                         <div class="invalid-feedback">
                                             {{ full_name_error }}
@@ -84,7 +85,7 @@
                             </div>       
                             <div class="mb-3">
                                 {% set address_line_error = edit_error.get('address_line') if edit_address_id|string == address.id|string else None %}
-                                    <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ request.form.get('address_line', address.address_line) }}">
+                                    <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ edit_form.get('address_line', address.address_line) }}">
                                     {% if address_line_error %}
                                         <div class="invalid-feedback">
                                             {{ address_line_error }}
@@ -93,7 +94,7 @@
                             </div>        
                             <div class="mb-3">
                                 {% set postal_code_error = edit_error.get('postal_code') if edit_address_id|string == address.id|string else None %}
-                                    <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ request.form.get('postal_code', address.postal_code) }}">
+                                    <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ edit_form.get('postal_code', address.postal_code) }}">
                                     {% if postal_code_error %}
                                         <div class="invalid-feedback">
                                             {{ postal_code_error }}
@@ -102,7 +103,7 @@
                             </div>
                             <div class="mb-3">
                                 {% set city_error = edit_error.get('city') if edit_address_id|string == address.id|string else None %}
-                                    <input name="city" class="form-control mb-3 {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ request.form.get('city', address.city) }}">
+                                    <input name="city" class="form-control mb-3 {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ edit_form.get('city', address.city) }}">
                                     {% if city_error %}
                                         <div class="invalid-feedback">
                                             {{ city_error }}
@@ -111,7 +112,7 @@
                             </div>
                             <div class="mb-3">
                                 {% set country_error = edit_error.get('country') if edit_address_id|string == address.id|string else None %}
-                                    <input name="country" class="form-control mb-3 {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ request.form.get('country', address.country) }}">
+                                    <input name="country" class="form-control mb-3 {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ edit_form.get('country', address.country) }}">
                                     {% if country_error %}
                                         <div class="invalid-feedback">
                                             {{ country_error }}
@@ -140,7 +141,7 @@
         <form method="post" action="{{ url_for('addresses') }}">
         {% set add_form = add_form | default({}) %}
             <div class="row">
-                <div class="col-4 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                 {% set full_name_error = add_error.get('full_name') %}
                     <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ add_form.get('full_name', '') }}">
                     {% if full_name_error %}
@@ -149,7 +150,7 @@
                         </div>
                     {% endif %}
                 </div> 
-                <div class="col-8 mb-3"> 
+                <div class="col-12 col-md-8 mb-3"> 
                 {% set address_line_error = add_error.get('address_line') %}
                     <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ add_form.get('address_line', '') }}">
                     {% if address_line_error %}
@@ -158,7 +159,7 @@
                         </div>
                     {% endif %}
                 </div>   
-                <div class="col-4 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                 {% set postal_code_error = add_error.get('postal_code') %}
                     <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ add_form.get('postal_code', '') }}">
                     {% if postal_code_error %}
@@ -167,7 +168,7 @@
                         </div>
                     {% endif %}
                 </div> 
-                <div class="col-4 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                 {% set city_error = add_error.get('city') %}
                     <input name="city" class="form-control {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ add_form.get('city', '') }}">
                     {% if city_error %}
@@ -176,7 +177,7 @@
                         </div>
                     {% endif %}
                 </div>  
-                <div class="col-4 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                 {% set country_error = add_error.get('country') %}
                     <input name="country" class="form-control {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ add_form.get('country', '') }}">
                     {% if country_error %}
@@ -263,6 +264,23 @@
                 card.querySelector(".address-view").classList.remove("d-none");
                 card.querySelector(".address-edit").classList.add("d-none");
             });
+        });
+
+        // Remove red border and hide error message when users inputs on invalid field
+        document.querySelectorAll("input").forEach(input => {
+
+            input.addEventListener("input", () => {
+
+                input.classList.remove("is-invalid");
+
+                const error = input.parentElement.querySelector(".invalid-feedback");
+
+                if (error) {
+                    error.classList.add("d-none");
+                }
+
+            });
+
         });
     });
 
