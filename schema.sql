@@ -35,9 +35,9 @@ CREATE TABLE users (
     last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    reset_token TEXT;
-    reset_token_expiry TEXT;
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reset_token TEXT,
+    reset_token_expiry TEXT
 );
 
 CREATE TABLE cart (
@@ -59,4 +59,16 @@ CREATE TABLE cart_items (
     FOREIGN KEY (product_id) REFERENCES products(product_id),
 
     UNIQUE(cart_id, product_id)
+);
+
+CREATE TABLE addresses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    full_name TEXT NOT NULL,
+    address_line TEXT NOT NULL,
+    postal_code TEXT NOT NULL,
+    city TEXT NOT NULL,
+    country TEXT NOT NULL,
+    is_default INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

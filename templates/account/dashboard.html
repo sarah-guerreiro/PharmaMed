@@ -1,0 +1,15 @@
+{% extends "account/account.html" %}
+
+{% block account_content %}
+
+<div class="page-header pb-1">
+    <h4>Welcome, {{ current_user.first_name }}!</h4>
+</div>
+<div class="recent-orders pt-3">
+    <p>No recent orders</p>
+    <div id="dashboard-image" class="d-flex justify-content-center align-items-center mt-5">
+        <img src="{{ url_for('static', filename='images/no_orders.png') }}" id="noOrders" alt="No recent orders">
+    </div>
+</div>
+
+{% endblock %}

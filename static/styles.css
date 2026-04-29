@@ -259,11 +259,11 @@
   color: #4B0082;
 }
 
-.card {
+.product-card, .category-card {
   transition: all 0.25s ease-in-out;
 }
 
-.card:hover {
+.product-card:hover, .category-card:hover {
   border: 1px solid #6f42c1;
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
 }
@@ -276,7 +276,7 @@
   transition: 0.25s ease-in-out;
 }
 
-.product-image {
+.product-image, #noOrders {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -303,12 +303,12 @@
   color: #6f42c1;
 }
 
-.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .buy-btn {
+.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .buy-btn, #saveChangesBtn, #addAddressBtn, #saveAddressBtn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .buy-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .buy-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -329,7 +329,7 @@
   color: black;
 }
 
-.product-name, .login, .register, .forgot-password, .reset-password, .cart-top, .item-name {
+.product-name, .login, .register, .forgot-password, .reset-password, .cart-top, .item-name, .page-header, .section-header {
   color: #4B0082;
 }
 
@@ -526,7 +526,7 @@ h6 {
   }
 }
 
-.login, .register-link, .register, .login-link, .forgot-password, .reset-password, .cart-top {
+.login, .register-link, .register, .login-link, .forgot-password, .reset-password, .cart-top, .page-header, .section-header {
   border-bottom: solid 2px #E6E6FA;
 }
 
@@ -660,4 +660,26 @@ h6 {
 .increase-btn:disabled {
   border: solid 1px #4B0082;
   color: #4B0082;
+}
+
+#accountSidebar .list-group-item {
+  background-color: #F8F8FF;
+  height: 3rem;
+}
+
+#accountSidebar .list-group-item:hover {
+  background-color: #E6E6FA;
+}
+
+#accountSidebar .list-group-item.active {
+  background-color: #E6E6FA;
+  color: #212529;
+  border: solid 1px #dcdcdc;
+  border-left: solid 4px #4B0082;
+}
+
+#dashboard-image {
+  width: 150px;
+  height: 150px;
+  margin: auto;
 }

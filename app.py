@@ -2,17 +2,43 @@ import math, os, re, secrets, sqlite3
 
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
+from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
 from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
 app = Flask(__name__)
 
-# Close database after request
-app.teardown_appcontext(close_db)
-
 # Get secret key
 app.secret_key = "S0j0P1g9A2a4O9u0"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(UserMixin):
+    def __init__(self, id, email, first_name, last_name):
+        self.id = id
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+
+# Load user
+@login_manager.user_loader
+def load_user(user_id):
+    db = get_db()
+    if db is None: 
+        return None
+    
+    user = db.execute("SELECT id, email, first_name, last_name FROM users WHERE id = ?",(user_id,)).fetchone()
+
+    if user is None:
+        return None
+
+    return User(user["id"], user["email"], user["first_name"], user["last_name"])
+
+# Close database after request
+app.teardown_appcontext(close_db)
 
 # Password pattern
 PASSWORD_PATTERN = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$')
@@ -57,24 +83,22 @@ def index():
         {"file": "adtab.png", "name": "AdTab"},
     ]
 
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
     # Get main categories name, id and image
-    cursor.execute("""SELECT category_id, name, image_url FROM categories WHERE parent_id = 0""")
+    cursor = db.execute("""SELECT category_id, name, image_url FROM categories WHERE parent_id = 0""")
     main_categories = cursor.fetchall()
 
     return render_template("index.html", carousel_categories=carousel_categories, main_categories=main_categories, brands=brands)
 
 @app.route("/products/<int:category_id>")
 def display_category(category_id):
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
     # Get category/subcategory
-    cursor.execute("SELECT * FROM categories WHERE category_id = ?", (category_id,))
+    cursor = db.execute("SELECT * FROM categories WHERE category_id = ?", (category_id,))
     category = cursor.fetchone()
 
     # Build breadcrumb list
@@ -82,11 +106,11 @@ def display_category(category_id):
         {
             "name": category["name"], "url": url_for("display_category", category_id=category["category_id"])
         }
-        for category in get_breadcrumb(category["category_id"], conn)
+        for category in get_breadcrumb(category["category_id"], db)
     ]
 
     # Get all subcategories in current category
-    cursor.execute("SELECT category_id, name FROM categories WHERE parent_id = ?", (category_id,))
+    cursor = db.execute("SELECT category_id, name FROM categories WHERE parent_id = ?", (category_id,))
     subcategories = cursor.fetchall()
     category_ids = [category_id] + [subcategory["category_id"] for subcategory in subcategories]
 
@@ -109,7 +133,7 @@ def display_category(category_id):
         query_params.extend([int(brand) for brand in selected_brands])
 
     # Get brands based on filtered subcategories and brands
-    cursor.execute(f"""SELECT DISTINCT b.brand_id, b.name FROM brands b JOIN products p ON b.brand_id = p.brand_id """ + query.replace("FROM products p", "") 
+    cursor = db.execute(f"""SELECT DISTINCT b.brand_id, b.name FROM brands b JOIN products p ON b.brand_id = p.brand_id """ + query.replace("FROM products p", "") 
                    + """ORDER BY b.name""", query_params)
     brands = cursor.fetchall()
 
@@ -153,25 +177,18 @@ def display_category(category_id):
     # Get page type
     page_type = "category"
 
-    conn.close()
-
     return render_template("products.html", category=category, page_title=category["name"] if category else "Products", breadcrumb=breadcrumb, products=products, 
                            page=page, total_pages=total_pages, subcategories=subcategories, brands=brands, total_products=total_products,
                            active_filters_count=active_filters_count, route_name=route_name, base_params=base_params, page_type=page_type)
 
 @app.route("/product/<int:product_id>")
 def product_detail(product_id):
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
     # Get product info
-    cursor.execute("""
-        SELECT p.product_id, p.name, p.price, p.image_url, p.description, p.pack_size, p.category_id, b.brand_id, b.name as brand 
-        FROM products p
-        JOIN brands b ON p.brand_id = b.brand_id
-        WHERE p.product_id = ?
-    """, (product_id,))
+    cursor.execute("""SELECT p.product_id, p.name, p.price, p.image_url, p.description, p.pack_size, p.category_id, b.brand_id, b.name as brand FROM products p 
+                   JOIN brands b ON p.brand_id = b.brand_id WHERE p.product_id = ?""", (product_id,))
 
     product = cursor.fetchone()
 
@@ -180,7 +197,7 @@ def product_detail(product_id):
         {
             "name": category["name"], "url": url_for("display_category", category_id=category["category_id"])
         }
-        for category in get_breadcrumb(product["category_id"], conn)
+        for category in get_breadcrumb(product["category_id"], db)
     ]
 
     # Get page type
@@ -190,9 +207,8 @@ def product_detail(product_id):
 
 @app.route("/brands/<int:brand_id>")
 def display_brand(brand_id):
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
     # Get brand
     cursor.execute("SELECT * FROM brands WHERE brand_id = ?", (brand_id,))
@@ -261,16 +277,13 @@ def display_brand(brand_id):
     # Get page type
     page_type = "brand"
 
-    conn.close()
-
     return render_template("products.html", brand=brand, page_title=brand["name"], subcategories=subcategories, page=page, total_pages=total_pages, total_products=total_products,
                             products=products, active_filters_count=active_filters_count, breadcrumb=breadcrumb, route_name=route_name, base_params=base_params, page_type=page_type)
 
 @app.route("/search")
 def search():
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+    cursor = db.cursor()
 
     search_query = request.args.get("search_query", "").strip()
 
@@ -343,8 +356,6 @@ def search():
     # Get page type
     page_type = "search"
 
-    conn.close()
-
     return render_template("products.html", page_title=f"Search results for '{search_query}'", products=products, page=page, total_pages=total_pages, subcategories=subcategories,
                             brands=brands, total_products=total_products, active_filters_count=active_filters_count, route_name=route_name, base_params=base_params,
                             page_type=page_type)
@@ -399,26 +410,21 @@ def register():
 
         try:
             # Connect to database
-            conn = sqlite3.connect("pharmamed.db")
-            cursor = conn.cursor()
+            db = get_db()
 
             # Insert user into database
-            cursor.execute("""INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)""", (first_name, last_name, email, password_hash))
+            cursor = db.execute("""INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)""", (first_name, last_name, email, password_hash))
 
             user_id = cursor.lastrowid
-
-            conn.commit()
+            db.commit()
 
         # Check if email already exists
         except sqlite3.IntegrityError:
             flash("Email already registered", "error")
             return redirect(url_for("register"))
 
-        finally:
-            conn.close()
-
         # Auto login after register
-        session["user_id"] = user_id
+        login_user(User(user_id, email, first_name, last_name))
         flash("Account created successfully!", "success")
         return redirect(url_for("index"))
     
@@ -446,22 +452,13 @@ def login():
 
         if error:
             return render_template("login.html", error=error, email=email)
-        
-        # Clear any open session
-        session.clear()
   
         # Connect to database
-        conn = sqlite3.connect("pharmamed.db")
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        db = get_db()
 
-        # Query database for user and password
-        cursor.execute("SELECT id, password_hash FROM users WHERE email = ?", (email,))
+        # Query database for user id, email and password
+        cursor = db.execute("SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
-
-
-        # Close database
-        conn.close()
 
         # Check if email exists and password is correct
         if user is None or not check_password_hash(user["password_hash"], password):
@@ -469,7 +466,7 @@ def login():
             return redirect(url_for("login"))
 
         # Remember which user has logged in
-        session["user_id"] = user["id"]
+        login_user(User(user["id"], email, user["first_name"], user["last_name"]))
 
         # Redirect user to index page
         return redirect(url_for("index"))
@@ -496,12 +493,10 @@ def forgot_password():
             return render_template("forgot_password.html", error=error)
 
         # Connect to database
-        conn = sqlite3.connect("pharmamed.db")
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        db = get_db()
 
         # Query database for user
-        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        cursor = db.execute("SELECT id FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
 
         if user:
@@ -512,7 +507,7 @@ def forgot_password():
 
             # Update users table with generated token and expiry
             cursor.execute("""UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?""", (token, expiry, user["id"]))
-            conn.commit()
+            db.commit()
 
             # Show reset link
             reset_link = url_for("reset_password", token=token, _external=True)
@@ -523,10 +518,6 @@ def forgot_password():
             # For security
             flash("If that email exists, a reset link was generated.", "info")
 
-    
-        # Close database
-        conn.close()
-
         return redirect(url_for("login"))
 
     else:
@@ -536,72 +527,65 @@ def forgot_password():
 def reset_password(token):
 
     # Connect to database
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    db = get_db()
+ 
+    # Query for user data
+    cursor = db.execute("SELECT * FROM users WHERE reset_token = ?", (token,))
+    user = cursor.fetchone()
 
-    try: 
-        # Query for user data
-        cursor.execute("SELECT * FROM users WHERE reset_token = ?", (token,))
-        user = cursor.fetchone()
+    if not user:
+        flash("Invalid or expired token", "error")
+        return redirect(url_for("login"))
+    
+    # Check expiry
+    expiry = datetime.fromisoformat(user["reset_token_expiry"])
+    if datetime.now(timezone.utc) > expiry:
+        flash("Reset link expired", "error")
+        return redirect(url_for("login"))
 
-        if not user:
-            flash("Invalid or expired token", "error")
-            return redirect(url_for("login"))
-        
-        # Check expiry
-        expiry = datetime.fromisoformat(user["reset_token_expiry"])
-        if datetime.now(timezone.utc) > expiry:
-            flash("Reset link expired", "error")
-            return redirect(url_for("login"))
+    if request.method == "POST":
 
-        if request.method == "POST":
+        # Get data from form
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
 
-            # Get data from form
-            password = request.form.get("password", "")
-            confirm_password = request.form.get("confirm_password", "")
+        # List of errors
+        error = {}
 
-            # List of errors
-            error = {}
-
-            # Input validation     
-            if not password:
-                error["password"] = "Password is missing"
-            elif not PASSWORD_PATTERN.match(password):
-                error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
-            elif check_password_hash(user["password_hash"], password):
-                error["password"] = "New password must be different from the old password"
-                
-            if not confirm_password:
-                error["confirm_password"] = "Must confirm password"
-            elif password != confirm_password:
-                error["confirm_password"] = "Passwords must match"
+        # Input validation     
+        if not password:
+            error["password"] = "Password is missing"
+        elif not PASSWORD_PATTERN.match(password):
+            error["password"] = "Password must be at least 8 characters long and include a letter, a number, and a special character"
+        elif check_password_hash(user["password_hash"], password):
+            error["password"] = "New password must be different from the old password"
             
-            if error:
-                return render_template("reset_password.html", token=token, error=error, password=password, confirm_password=confirm_password)
+        if not confirm_password:
+            error["confirm_password"] = "Must confirm password"
+        elif password != confirm_password:
+            error["confirm_password"] = "Passwords must match"
+        
+        if error:
+            return render_template("reset_password.html", token=token, error=error, password=password, confirm_password=confirm_password)
 
-            # Hash password
-            password_hash = generate_password_hash(password)
+        # Hash password
+        password_hash = generate_password_hash(password)
 
-            # Update user password
-            cursor.execute("""UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?""", (password_hash, user["id"]))
-            conn.commit()
+        # Update user password
+        cursor.execute("""UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?""", (password_hash, user["id"]))
+        db.commit()
 
-            flash("Password reset successful! Please, login.", "success")
-            return redirect(url_for("login"))
+        flash("Password reset successful! Please, login.", "success")
+        return redirect(url_for("login"))
 
-        else:
-            return render_template("reset_password.html", token=token)
-
-    finally:
-        # Close database
-        conn.close()
+    else:
+        return render_template("reset_password.html", token=token)
 
 @app.route("/logout", methods=["POST"])
 def logout():
 
     # Clear any open session
-    session.clear()
+    logout_user()
 
     # Redirect user to index page
     return redirect(url_for("index"))
@@ -612,11 +596,9 @@ def add_to_cart():
     product_id = int(request.form.get('product_id'))
     quantity = int(request.form.get('quantity', 1))
 
-    user_id = session.get('user_id')
-
     # Logged in user
-    if user_id:
-        add_to_db_cart(user_id, product_id, quantity)
+    if current_user.is_authenticated:
+        add_to_db_cart(current_user.id, product_id, quantity)
     
     # Anonymous session
     else:
@@ -633,7 +615,7 @@ def add_to_cart():
 def cart():
 
     db = get_db()
-    user_id = session.get("user_id")
+    user_id = current_user.id if current_user.is_authenticated else None
 
     # Logged in user
     if user_id:
@@ -705,7 +687,7 @@ def update_cart():
     if action not in ["increase", "decrease", "remove"]:
         return jsonify({"success": False}), 400
     
-    user_id = session.get("user_id")
+    user_id = current_user.id if current_user.is_authenticated else None
 
     # Initialize updated cart item quantity, stock and item total
     updated_quantity = 0
@@ -791,3 +773,203 @@ def update_cart():
         "cart_total": cart_total,
         "stock": stock
     })
+
+@app.route("/account")
+@login_required
+def account_home():
+    db = get_db()
+
+    # Get user first name
+    user = db.execute("SELECT first_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    first_name = user["first_name"]
+
+    return render_template("account/dashboard.html", first_name=first_name, active_page=None)
+
+@app.route("/account/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    db = get_db()
+
+    # Get user current first and last names
+    user = db.execute("SELECT first_name, last_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
+
+    # Get user addresses
+    addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+    # List of error
+    error = {}
+
+    if request.method == "POST":
+
+        # Get first and last names from form
+        first_name = request.form.get("first_name", "").strip().title()
+        last_name = request.form.get("last_name", "").strip().title()
+
+        # Prevent empty fields 
+        if not first_name:
+            error["first_name"] = "First name is required"
+            
+        if not last_name:
+            error["last_name"] = "Last name is required"
+
+        if error:
+            return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], profile_error=error, addresses=addresses)
+
+        # Update DB if first name or last name changed
+        if (first_name != user["first_name"] or last_name != user["last_name"]):
+            db.execute("UPDATE users SET first_name = ?, last_name = ? WHERE id = ?", (first_name, last_name, current_user.id))
+            db.commit()
+
+            flash("Profile updated successfully!", "success")
+
+            # Get updated names
+            user = db.execute("SELECT first_name, last_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
+
+        return redirect(url_for('profile'))
+    
+    else:
+        return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], profile_error=error, addresses=addresses)
+
+@app.route("/account/addresses", methods=["GET", "POST"])
+@login_required
+def addresses():
+    db = get_db()
+
+    # Get user current first and last names
+    user = db.execute("SELECT first_name, last_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
+
+    # Get user addresses
+    addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+    # List of errors
+    add_error = {}
+
+    if request.method == "POST":
+
+        # Get data from address form
+        full_name = request.form.get("full_name", "").strip().title()
+        address_line = request.form.get("address_line", "").strip().title()
+        postal_code = request.form.get("postal_code", "").strip()
+        city = request.form.get("city", "").strip().title()
+        country = request.form.get("country", "").strip().title()
+        is_default = 1 if request.form.get("is_default") else 0
+     
+        # Input validation
+        if not full_name:
+            add_error["full_name"] = "Full name is required"
+        if not address_line:
+            add_error["address_line"] = "Address is required"
+        if not postal_code:
+            add_error["postal_code"] = "Postal code is required"
+        if not city:
+            add_error["city"] = "City is required"
+        if not country:
+            add_error["country"] = "Country is required"
+
+        if add_error:
+            addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+            # Get form values
+            add_form={
+                "full_name": full_name,
+                "address_line": address_line,
+                "postal_code": postal_code,
+                "city": city,
+                "country": country
+            }
+
+            return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], addresses=addresses, add_error=add_error, add_form=add_form)
+        
+        # Reset existing addresses
+        if is_default:
+            db.execute("UPDATE addresses SET is_default = 0 WHERE user_id = ?", (current_user.id,))
+
+        # Auto-set first address to default
+        existing_addresses = db.execute("SELECT COUNT(*) FROM addresses WHERE user_id = ?", (current_user.id,)).fetchone()[0]
+
+        if existing_addresses == 0:
+            is_default = 1
+
+        # Insert new address into database
+        db.execute("""INSERT INTO addresses (user_id, full_name, address_line, postal_code, city, country, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)""", 
+                   (current_user.id, full_name, address_line, postal_code, city, country, is_default))
+
+        db.commit()
+
+        flash("Address added successfully!", "success")
+        return redirect(url_for('addresses'))
+
+    else:     
+        return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], addresses=addresses, add_error=add_error)
+
+@app.route("/account/addresses/edit", methods=["POST"])
+@login_required
+def edit_address():
+    db = get_db()
+
+    # Get user current first and last names
+    user = db.execute("SELECT first_name, last_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
+
+    # Get data from edit address form
+    address_id = request.form.get("address_id")
+    full_name = request.form.get("full_name", "").strip().title()
+    address_line = request.form.get("address_line", "").strip().title()
+    postal_code = request.form.get("postal_code", "").strip()
+    city = request.form.get("city", "").strip().title()
+    country = request.form.get("country", "").strip().title()
+
+    # List of errors
+    edit_error = {}
+
+    # Input validation
+    if not full_name:
+        edit_error["full_name"] = "Full name is required"
+    if not address_line:
+        edit_error["address_line"] = "Address is required"
+    if not postal_code:
+        edit_error["postal_code"] = "Postal code is required"
+    if not city:
+        edit_error["city"] = "City is required"
+    if not country:
+        edit_error["country"] = "Country is required"
+
+    if edit_error:
+        addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+        return render_template("account/profile.html", active_page="profile", first_name=user["first_name"], last_name=user["last_name"], addresses=addresses, edit_error=edit_error, edit_address_id=address_id)
+    # Update address in database
+    db.execute("""UPDATE addresses SET full_name = ?, address_line = ?, postal_code = ?, city = ?, country = ? WHERE id = ? AND user_id = ?""", 
+               (full_name, address_line, postal_code, city, country, address_id, current_user.id))
+
+    db.commit()
+
+    flash("Address updated!", "success")
+    return redirect(url_for("addresses"))
+
+@app.route("/account/addresses/delete", methods=["POST"])
+@login_required
+def delete_address():
+    db = get_db()
+
+    # Get user address id
+    address_id = request.form.get("address_id")
+
+    # Delete address from database
+    db.execute("""DELETE FROM addresses WHERE id = ? AND user_id = ?""", (address_id, current_user.id))
+
+    db.commit()
+
+    flash("Address deleted!", "success")
+    return redirect(url_for("addresses"))
+
+@app.route("/account/orders")
+@login_required
+def orders():
+
+    return render_template("account/orders.html", active_page="orders")
+
+@app.route("/account/security")
+@login_required
+def security():
+
+    return render_template("account/security.html", active_page="security")

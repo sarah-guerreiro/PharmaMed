@@ -45,9 +45,9 @@
             
                 <!-- Icons (Admin, Login, Cart, Account, Logout) -->
                 <ul class="navbar-nav flex-row align-items-center gap-2 order-1 order-md-2">
-                {% if session.get("user_id") %}
+                {% if current_user.is_authenticated %}
                     <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="/" aria-label="Account">
+                        <a class="nav-link" href="{{ url_for('account_home') }}" aria-label="Account">
                             <i class="fa-solid fa-user fa-lg"></i>
                             <span class="d-none d-md-block small">Account</span>
                         </a>

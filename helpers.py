@@ -1,5 +1,6 @@
 import sqlite3
 from flask import g, url_for, session
+from flask_login import current_user
 
 # Open database upon request
 def get_db():
@@ -26,13 +27,9 @@ def close_db(exception=None):
         db.close()
 
 def load_categories_menu():
-    conn = sqlite3.connect("pharmamed.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM categories")
-    rows = cursor.fetchall()
-    conn.close()
+    db = get_db()
+    
+    rows = db.execute("SELECT * FROM categories").fetchall()
 
     categories_menu = {}
 
@@ -116,11 +113,10 @@ def pagination(args, query, query_params, products_per_page):
 
 def get_cart_count():
     db = get_db()
-    user_id = session.get('user_id')
 
     # Logged in user
-    if user_id:
-        return db_cart_count(db, user_id)
+    if current_user.is_authenticated:
+        return db_cart_count(db, current_user.id)
 
     # Anonymous user
     session_cart = session.get('cart', {})
@@ -128,7 +124,7 @@ def get_cart_count():
 
 def db_cart_count(db, user_id):
     cart_count = db.execute("""SELECT SUM(quantity) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id WHERE c.user_id = ?""", (user_id,)).fetchone()
-    return cart_count["total"] if cart_count["total"] else 0
+    return cart_count["total"] or 0
 
 def add_to_session_cart(product_id, quantity):
     cart = session.get('cart', {})
@@ -147,11 +143,11 @@ def add_to_db_cart(user_id, product_id, quantity):
     cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
 
     if not cart:
-        db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
+        cursor = db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
+        cart_id = cursor.lastrowid
         db.commit()
-        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
-
-    cart_id = cart["id"]
+    else:
+        cart_id = cart["id"]
 
     # Check if item exists
     item = db.execute("""SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?""", (cart_id, product_id)).fetchone()
@@ -177,11 +173,13 @@ def get_cart_total(db, user_id=None):
         session_cart = session.get("cart", {})
         total = 0
 
-        for product_id, quantity in session_cart.items():
-            product = db.execute("SELECT price FROM products WHERE product_id = ?", (product_id,)).fetchone()
+        if session_cart:
+            placeholders = ",".join("?" * len(session_cart.keys()))
+            products = db.execute(f"SELECT product_id, price FROM products WHERE product_id IN ({placeholders})", tuple(session_cart.keys())).fetchall()
 
-            if product:
-                total += product["price"] * quantity
+            for product in products:
+                p_id = str(product["product_id"])
+                total += product["price"] * session_cart[p_id]
 
         return total
     
