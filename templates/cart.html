@@ -70,9 +70,13 @@
                 </div>
             </div>
         </div>
-
     {% else %}
-        <p class="empty-cart pt-3">Your cart is empty</p>
+        <div class="empty-cart pt-3">
+            <p>Your cart is empty</p>
+            <div class="empty-cart-image d-flex justify-content-center align-items-center mt-5">
+                <img src="{{ url_for('static', filename='images/empty_cart.png') }}" id="emptyCart" alt="Empty cart">
+            </div>
+        </div>
     {% endfor %}
 
     {% if cart_items %}
@@ -81,9 +85,13 @@
             <h6 class="cart-total">Total: €{{ "%.2f"|format(cart_total) }}</h6>
         </div>
 
-        <!-- Buy button -->
-        <div class="buy-button mt-4 text-center">
-            <a href="{{ url_for('cart') }}" class="btn buy-btn">Buy</a>
+        <!-- Checkout button -->
+        <div class="checkout-button mt-4 text-center">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('checkout') }}" class="btn checkout-btn">Checkout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn checkout-btn">Checkout</a>
+            {% endif %}
         </div>
     {% endif %}
      
@@ -159,12 +167,17 @@
 
                         if (!document.querySelector('.empty-cart')) {
                             const container = document.querySelector('.container');
+                            const emptyDiv = document.createElement('div');
+                            emptyDiv.className = 'empty-cart pt-3';
 
-                            const emptyMessage = document.createElement('p');
-                            emptyMessage.className = 'empty-cart pt-3';
-                            emptyMessage.innerText = 'Your cart is empty';
+                            emptyDiv.innerHTML = `
+                                <p>Your cart is empty</p>
+                                <div class="empty-cart-image d-flex justify-content-center align-items-center mt-5">
+                                    <img src="/static/images/empty_cart.png" id="emptyCart" alt="Empty cart">
+                                </div>
+                            `;
 
-                            container.appendChild(emptyMessage);
+                            container.appendChild(emptyDiv);
                         }
 
                         const buyButton = document.querySelector('.buy-button');

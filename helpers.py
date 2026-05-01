@@ -194,3 +194,53 @@ def apply_cart_action(quantity, stock, action):
         return 0
 
     return quantity
+
+def merge_carts(db, user_id):
+
+    # Get session cart
+    session_cart = session.get("cart", {})
+
+    if not session_cart:
+        return
+
+    # Ensure cart exists
+    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+
+    if not cart:
+        db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
+
+        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+
+    # Get user cart id
+    cart_id = cart["id"]
+
+    for product_id, session_quantity in session_cart.items():
+
+        # Check if item already exists in database cart
+        item = db.execute("""SELECT ci.quantity, p.stock FROM cart_items ci JOIN products p ON ci.product_id = p.product_id WHERE ci.cart_id = ? AND ci.product_id = ?""", 
+                          (cart_id, product_id)).fetchone()
+
+        if item:
+
+            # Get item quantity, respecting stock
+            new_quantity = min(item["quantity"] + session_quantity, item["stock"])
+
+            # Update database
+            db.execute("""UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND product_id = ?""", (new_quantity, cart_id, product_id))
+
+        else:
+            # Get stock
+            product = db.execute("SELECT stock FROM products WHERE product_id = ?", (product_id,)).fetchone()
+
+            if product:
+
+                # Get item quantity, respecting stock
+                quantity = min(session_quantity, product["stock"])
+
+                # Update database
+                db.execute("""INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)""", (cart_id, product_id, quantity))
+
+    db.commit()
+
+    # Clear session cart
+    session["cart"] = {}

@@ -3,7 +3,7 @@ import math, os, re, secrets, sqlite3
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
-from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action
+from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
@@ -415,7 +415,9 @@ def register():
             # Insert user into database
             cursor = db.execute("""INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)""", (first_name, last_name, email, password_hash))
 
+            # Get user id
             user_id = cursor.lastrowid
+            
             db.commit()
 
         # Check if email already exists
@@ -425,6 +427,10 @@ def register():
 
         # Auto login after register
         login_user(User(user_id, email, first_name, last_name))
+
+        # Merge carts
+        merge_carts(db, user_id)
+
         flash("Account created successfully!", "success")
         return redirect(url_for("index"))
     
@@ -457,8 +463,7 @@ def login():
         db = get_db()
 
         # Query database for user id, email and password
-        cursor = db.execute("SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ?", (email,))
-        user = cursor.fetchone()
+        user = db.execute("SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ?", (email,)).fetchone()
 
         # Check if email exists and password is correct
         if user is None or not check_password_hash(user["password_hash"], password):
@@ -468,7 +473,9 @@ def login():
         # Remember which user has logged in
         login_user(User(user["id"], email, user["first_name"], user["last_name"]))
 
-        # Redirect user to index page
+        # Merge carts
+        merge_carts(db, user["id"])
+
         return redirect(url_for("index"))
 
     else:
@@ -1046,3 +1053,136 @@ def change_password():
 
     else:
         return render_template("account/security.html", active_page="security")
+
+@app.route("/checkout", methods=["GET", "POST"])
+@login_required
+def checkout():
+
+    # Connect to database
+    db = get_db()
+
+    # Get user addresses
+    addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+    # List of errors
+    address_error = {}
+    form_error = {}
+    shipping_error = {}
+
+    if request.method == "POST":
+
+        # Check if user wants to add a new address
+        adding_address = any([
+            request.form.get("full_name"),
+            request.form.get("address_line"),
+            request.form.get("postal_code"),
+            request.form.get("city"),
+            request.form.get("country")
+        ])
+
+        if adding_address:
+            
+            # Get data from address form
+            full_name = request.form.get("full_name", "").strip().title()
+            address_line = request.form.get("address_line", "").strip().title()
+            postal_code = request.form.get("postal_code", "").strip()
+            city = request.form.get("city", "").strip().title()
+            country = request.form.get("country", "").strip().title()
+            is_default = 1 if request.form.get("is_default") else 0
+            
+
+            # Input validation
+            if not full_name:
+                form_error["full_name"] = "Full name is required"
+            if not address_line:
+                form_error["address_line"] = "Address is required"
+            if not postal_code:
+                form_error["postal_code"] = "Postal code is required"
+            if not city:
+                form_error["city"] = "City is required"
+            if not country:
+                form_error["country"] = "Country is required"
+
+            if form_error:
+                addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+                return render_template("checkout.html", addresses=addresses, form_error=form_error)
+            
+            # Reset existing addresses
+            if is_default:
+                db.execute("UPDATE addresses SET is_default = 0 WHERE user_id = ?", (current_user.id,))
+
+            # Auto-set first address to default
+            existing_addresses = db.execute("SELECT COUNT(*) FROM addresses WHERE user_id = ?", (current_user.id,)).fetchone()[0]
+
+            if existing_addresses == 0:
+                is_default = 1
+
+            # Insert new address into database
+            db.execute("""INSERT INTO addresses (user_id, full_name, address_line, postal_code, city, country, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)""", 
+                    (current_user.id, full_name, address_line, postal_code, city, country, is_default))
+
+            db.commit()
+
+            return redirect(url_for('checkout'))
+        
+        else:
+            # Get address id and shipping method
+            address_id = request.form.get("address_id", "")
+            shipping_method = request.form.get("shipping_method", "")
+
+            # Check if user selected shipping address and method
+            if not address_id:
+                address_error["address"] = "Please select or add a shipping address"
+            if not shipping_method:
+                shipping_error["shipping"] = "Please select a shipping method"
+
+            if address_error or shipping_error:
+                addresses = db.execute("SELECT * FROM addresses WHERE user_id = ?", (current_user.id,)).fetchall()
+
+                return render_template("checkout.html", addresses=addresses, address_error=address_error, shipping_error=shipping_error)
+        
+        # Store selected address id and shipping method
+        session["checkout"] = {
+            "address_id": address_id,
+            "shipping_method": shipping_method
+        }
+
+        return redirect(url_for("order_summary"))
+
+    else:
+        return render_template("checkout.html", addresses=addresses, address_error=address_error, shipping_error=shipping_error, form_error=form_error)
+    
+@app.route("/order_summary")
+@login_required
+def order_summary():
+
+    # Connect to database
+    db = get_db()
+
+    # Get selected address id and shipping method on checkout
+    checkout = session.get("checkout")
+
+    if not checkout:
+        return redirect(url_for("checkout"))
+
+    address_id = checkout.get("address_id")
+    shipping_method = checkout.get("shipping_method")
+
+    # Get selected address
+    address = db.execute("SELECT * FROM addresses WHERE id = ? AND user_id = ?", (address_id, current_user.id)).fetchone()
+
+    if not address:
+        return redirect(url_for("checkout"))
+
+    # Get cart items
+    cart_items = db.execute("""SELECT p.name, p.price, p.image_url, ci.quantity, (p.price * ci.quantity) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id 
+                            JOIN products p ON ci.product_id = p.product_id WHERE c.user_id = ?""", (current_user.id,)).fetchall()
+
+    # Calculate totals
+    subtotal = sum(item["total"] for item in cart_items)
+    shipping_cost = 1.99 if shipping_method == "standard" else 5.99
+    total = subtotal + shipping_cost
+
+    return render_template("order_summary.html", address=address, cart_items=cart_items, subtotal=subtotal, shipping_cost=shipping_cost, total=total, 
+                           shipping_method=shipping_method)

@@ -276,7 +276,7 @@
   transition: 0.25s ease-in-out;
 }
 
-.product-image, #noOrders {
+.product-image, #noOrders, #emptyCart {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -299,16 +299,16 @@
   color: black;
 }
 
-.card-text, .product-price {
+.card-text, .product-price, .subsection-header {
   color: #6f42c1;
 }
 
-.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .buy-btn, #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn {
+.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .buy-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -680,8 +680,27 @@ h6 {
   border-left: solid 4px #4B0082;
 }
 
-.orders-image {
+.orders-image, .empty-cart-image {
   width: 150px;
   height: 150px;
+  margin: auto;
+}
+
+.address-card{
+  cursor: pointer;
+}
+
+.address-card:has(input[type="radio"]:checked) {
+    border: solid 1px #6f42c1;
+    background-color: #F8F8FF;
+}
+
+.order-card {
+  background-color: #F8F8FF;
+}
+
+.order-item-image {
+  height: 100px;
+  width: 100px;
   margin: auto;
 }

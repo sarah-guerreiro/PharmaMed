@@ -6,6 +6,8 @@
     <h4>Personal Information</h4>
 </div>
 <div id="personalInfo" class="mt-4">
+
+    <!-- Edit profile -->
     <form method="post" action="{{ url_for('profile') }}">
     {% set profile_error = profile_error | default({}) %}
         <div class="row mb-3">
@@ -48,7 +50,7 @@
     {% if addresses %}
         <div class="row">
         {% for address in addresses %}
-            <div class="col-12 col-md-4 mb-3">
+            <div class="col-12 col-md-6 col-xl-4 mb-3">
                 <div id="address-{{ address.id }}" class="card p-3">
 
                     <!-- Display address -->
@@ -136,6 +138,7 @@
         Add New Address
     </button>
 
+    <!-- Add address -->
     {% set add_error = add_error | default({}) %}
     <div id="addressForm" class="card p-4 mt-2 {% if add_error %}d-block{% else %}d-none{% endif %}">
         <form method="post" action="{{ url_for('addresses') }}">
@@ -186,7 +189,7 @@
                         </div>
                     {% endif %}
                 </div> 
-                <div class="form-check ms-3 mb-2">
+                <div class="form-check ms-3 mb-4 mb-md-2">
                     <input type="checkbox" name="is_default" class="form-check-input" id="defaultCheck" {% if request.form.get('is_default') %}checked{% endif %}>
                     <label class="form-check-label" for="defaultCheck">
                         Set as default address
