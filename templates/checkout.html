@@ -122,13 +122,13 @@
         <div class="form-check ms-2 mb-2">
             <input class="form-check-input" type="radio" name="shipping_method" value="standard" id="standardShipping" {% if request.form.get('shipping_method') == 'standard' %}checked{% endif %}>
             <label class="form-check-label" for="standardShipping">
-                Standard (€1.99)
+                Standard (€1.99), 5-7 days
             </label>
         </div>
         <div class="form-check ms-2">
             <input class="form-check-input" type="radio" name="shipping_method" value="express" id="expressShipping" {% if request.form.get('shipping_method') == 'express' %}checked{% endif %}>
             <label class="form-check-label" for="expressShipping">
-                Express (€5.99)
+                Express (€5.99), 1-2 days
             </label>
         </div>
 

@@ -1174,15 +1174,122 @@ def order_summary():
 
     if not address:
         return redirect(url_for("checkout"))
+    
+    # Get cart
+    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (current_user.id,)).fetchone()
+
+    if not cart:
+        return redirect(url_for("cart"))
+
+    cart_id = cart["id"]
 
     # Get cart items
-    cart_items = db.execute("""SELECT p.name, p.price, p.image_url, ci.quantity, (p.price * ci.quantity) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id 
-                            JOIN products p ON ci.product_id = p.product_id WHERE c.user_id = ?""", (current_user.id,)).fetchall()
+    cart_items = db.execute("""SELECT p.name, p.price, p.image_url, ci.product_id, ci.quantity, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
+                            WHERE ci.cart_id = ?""", (cart_id,)).fetchall()
+    
+    if not cart_items:
+        return redirect(url_for("cart"))
 
     # Calculate totals
     subtotal = sum(item["total"] for item in cart_items)
-    shipping_cost = 1.99 if shipping_method == "standard" else 5.99
+    if shipping_method == "standard":
+        shipping_cost = 1.99
+    elif shipping_method == "express":
+        shipping_cost = 5.99
+    else:
+        return redirect(url_for("checkout"))
     total = subtotal + shipping_cost
 
     return render_template("order_summary.html", address=address, cart_items=cart_items, subtotal=subtotal, shipping_cost=shipping_cost, total=total, 
                            shipping_method=shipping_method)
+
+@app.route("/place_order", methods=["POST"])
+@login_required
+def place_order():
+
+    # Connect to database
+    db = get_db()
+
+    # Get selected address id and shipping method on checkout
+    checkout = session.get("checkout")
+
+    if not checkout:
+        return redirect(url_for("checkout"))
+
+    address_id = checkout.get("address_id")
+    shipping_method = checkout.get("shipping_method")
+
+    # Get selected address
+    address = db.execute("SELECT * FROM addresses WHERE id = ? AND user_id = ?", (address_id, current_user.id)).fetchone()
+
+    if not address:
+        return redirect(url_for("checkout"))
+
+    # Get cart
+    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (current_user.id,)).fetchone()
+
+    if not cart:
+        return redirect(url_for("cart"))
+
+    cart_id = cart["id"]
+
+    # Get cart items
+    cart_items = db.execute("""SELECT ci.product_id, ci.quantity, p.name, p.stock, p.price, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
+                            WHERE ci.cart_id = ?""", (cart_id,)).fetchall()
+
+    if not cart_items:
+        return redirect(url_for("cart"))
+
+    # Stock validation
+    for item in cart_items:
+        if item["quantity"] > item["stock"]:
+            return redirect(url_for("cart"))
+
+    # Calculate totals
+    subtotal = sum(item["total"] for item in cart_items)
+    if shipping_method == "standard":
+        shipping_cost = 1.99
+    elif shipping_method == "express":
+        shipping_cost = 5.99
+    else:
+        return redirect(url_for("checkout"))
+    total = subtotal + shipping_cost
+
+    # Create order 
+    cursor = db.execute("""INSERT INTO orders (user_id, address_id, full_name, address_line, postal_code, city, country, shipping_method, subtotal, shipping_cost, total, status) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (current_user.id, address_id, address["full_name"], address["address_line"], address["postal_code"], 
+                                                                         address["city"], address["country"], shipping_method, subtotal, shipping_cost, total, "pending"))
+
+    order_id = cursor.lastrowid
+
+    # Insert order items
+    for item in cart_items:
+        db.execute("""INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)""", (order_id, item["product_id"], item["name"], item["quantity"], item["price"]))
+
+        # Update product stock
+        db.execute("""UPDATE products SET stock = stock - ? WHERE product_id = ?""", (item["quantity"], item["product_id"]))
+
+    # Clear cart
+    db.execute("DELETE FROM cart_items WHERE cart_id = ?", (cart_id,))
+
+    db.commit()
+
+    # Clear session checkout
+    session.pop("checkout", None)
+
+    return redirect(url_for("order_success", order_id=order_id))
+
+@app.route("/order_success/<int:order_id>")
+@login_required
+def order_success(order_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Get order
+    order = db.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+
+    # Get order items
+    items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
+
+    return render_template("order_success.html", order_id=order_id, order=order, items=items)

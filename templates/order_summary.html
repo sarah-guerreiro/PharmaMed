@@ -8,7 +8,7 @@
 
 <div class="container my-5 px-4">
     <div class="section-header pb-1">
-        <h4 >Order summary</h4>  
+        <h4>Order summary</h4>  
     </div>
 
     <!-- Shipping address -->
@@ -54,7 +54,7 @@
 
             <!-- Smartphone layout -->
             <div class="d-md-none">
-                <div class="row align-items-center py-3">
+                <div class="row align-items-center pt-3">
                     
                     <!-- Item image -->
                     <div class="order-item-image d-flex justify-content-center align-items-center col-5">
@@ -65,10 +65,10 @@
                     </div>
                 </div>
                 <div class="row mb-4">
-                    <div class="col-5 text-center">
+                    <div class="col-7 text-end">
                         x {{ item.quantity }}
                     </div>
-                    <div class="col-7">
+                    <div class="col-5">
                         €{{ "%.2f"|format(item.total) }}
                     </div>
 
@@ -95,7 +95,9 @@
 
     <!-- Place order button-->
     <div class="mt-4 text-center">
-        <button class="btn place-order-btn">Place Order</button>
+        <form method="POST" action="{{ url_for('place_order') }}">
+            <button class="btn place-order-btn">Place Order</button>
+        </form>
     </div>
 
 </div>
