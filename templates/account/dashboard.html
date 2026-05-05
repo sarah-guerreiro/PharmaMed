@@ -17,7 +17,7 @@
                         <strong>Order #{{ order.id }} </strong> 
                     </div>
                     <div class="col-12 col-md-6 col-lg-5">
-                        <p>Placed on: <strong>{{ order.created_at[:10] }}</strong></p>   
+                        <p>Date: <strong>{{ order.created_at | format_date }}</strong></p>   
                     </div>
                     <div class="col-12 col-md-6 col-lg-2 mt-md-3 mt-lg-0">
                         <p>Items: <strong>{{ order.item_count }}</strong></p>
@@ -33,7 +33,7 @@
             </li>
             <li class="list-group-item p-4">
                 <div class="text-center">
-                    <a href="/" class="btn btn-sm order-details-btn">
+                    <a href="{{ url_for('order_details', order_id=order.id) }}" class="btn btn-sm order-details-btn">
                         View Details
                     </a>
                 </div>

@@ -708,6 +708,6 @@ h6 {
   margin: auto;
 }
 
-.top-item {
+.top-item, .bottom-item {
   background-color: #F8F8FF;
 }

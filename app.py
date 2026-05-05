@@ -3,7 +3,7 @@ import math, os, re, secrets, sqlite3
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
-from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts
+from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts, format_date
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
@@ -45,6 +45,9 @@ PASSWORD_PATTERN = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$')
 
 # Email pattern
 EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+
+# Register date format filter
+app.jinja_env.filters['format_date'] = format_date
 
 # Make variables available in all templates
 @app.context_processor
@@ -1304,3 +1307,18 @@ def order_success(order_id):
     items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
 
     return render_template("order_success.html", order_id=order_id, order=order, items=items)
+
+@app.route("/account/order_details/<int:order_id>")
+@login_required
+def order_details(order_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Get order
+    order = db.execute("SELECT * FROM orders WHERE id = ? AND user_id = ?", (order_id, current_user.id)).fetchone()
+
+    # Get order items
+    items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
+
+    return render_template("account/order_details.html", active_page=None, order=order, items=items)

@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from flask import g, url_for, session
 from flask_login import current_user
 
@@ -244,3 +245,6 @@ def merge_carts(db, user_id):
 
     # Clear session cart
     session["cart"] = {}
+
+def format_date(value):
+    return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").strftime("%d/%m/%Y")
