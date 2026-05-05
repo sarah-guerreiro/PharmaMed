@@ -797,7 +797,11 @@ def account_home():
     user = db.execute("SELECT first_name FROM users WHERE id = ?", (current_user.id,)).fetchone()
     first_name = user["first_name"]
 
-    return render_template("account/dashboard.html", first_name=first_name, active_page=None)
+    # Get orders and number of items per order
+    orders = db.execute("""SELECT o.*, SUM(oi.quantity) AS item_count FROM orders o JOIN order_items oi ON oi.order_id = o.id WHERE o.user_id = ? 
+                        GROUP BY o.id ORDER BY o.created_at DESC LIMIT 1""", (current_user.id,)).fetchall()
+
+    return render_template("account/dashboard.html", first_name=first_name, active_page=None, orders=orders)
 
 @app.route("/account/profile", methods=["GET", "POST"])
 @login_required
@@ -998,7 +1002,14 @@ def delete_address():
 @login_required
 def orders():
 
-    return render_template("account/orders.html", active_page="orders")
+    # Connect to database
+    db = get_db()
+
+    # Get orders and number of items per order
+    orders = db.execute("""SELECT o.*, SUM(oi.quantity) AS item_count FROM orders o JOIN order_items oi ON oi.order_id = o.id WHERE o.user_id = ? 
+                        GROUP BY o.id ORDER BY o.created_at DESC""", (current_user.id,)).fetchall()
+
+    return render_template("account/orders.html", active_page="orders", orders=orders)
 
 @app.route("/account/security", methods=["GET", "POST"])
 @login_required

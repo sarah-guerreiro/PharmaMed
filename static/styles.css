@@ -303,12 +303,15 @@
   color: #6f42c1;
 }
 
-.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn {
+.add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, 
+#saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn {
   background-color: #4B0082;
   color: white;
 }
 
-.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, .checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover, .view-orders-btn:hover {
+.add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, 
+.checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover, 
+.view-orders-btn:hover, .order-details-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -703,4 +706,8 @@ h6 {
   height: 100px;
   width: 100px;
   margin: auto;
+}
+
+.top-item {
+  background-color: #F8F8FF;
 }
