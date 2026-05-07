@@ -40,7 +40,7 @@ CREATE TABLE users (
     reset_token_expiry TEXT
 );
 
-CREATE TABLE cart (
+CREATE TABLE carts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER UNIQUE,
     session_id TEXT UNIQUE,
@@ -53,7 +53,7 @@ CREATE TABLE cart_items (
     cart_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
-    FOREIGN KEY (cart_id) REFERENCES cart(id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id),
     UNIQUE(cart_id, product_id)
 );
@@ -85,8 +85,7 @@ CREATE TABLE orders (
     total REAL NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (address_id) REFERENCES addresses(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE order_items (
@@ -97,6 +96,11 @@ CREATE TABLE order_items (
     pack_size TEXT NOT NULL,
     quantity INTEGER NOT NULL,
     price REAL NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE admins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
 );

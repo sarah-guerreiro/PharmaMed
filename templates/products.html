@@ -176,9 +176,9 @@
                 {% for product in products %}
                 <div class="col">
                     <a href="{{ url_for('product_detail', product_id=product.product_id) }}" class="text-decoration-none">
-                        <div class="card product-card h-100 text-center">
+                        <div class="card product-card h-100 text-center d-flex flex-column">
                             <!-- Product image -->
-                            <div class="card-img-top d-flex justify-content-center align-items-center">
+                            <div class="card-img-top d-flex justify-content-center align-items-center mb-2">
                                 <img src="{{ url_for('static', filename=product.image_url) }}" class="product-image pt-4" alt="{{ product.name }}">
                             </div>
                             <div class="card-body">
@@ -186,11 +186,27 @@
                                 <!-- Product name -->
                                 <h5 class="card-title fs-6">{{ product.name }}</h5>
 
+                            </div>
+                            <div class="card-body">
+
                                 <!-- Product price -->
                                 <p class="card-text fs-5 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
 
+                                <!-- Stock alert -->
+                                <div class="stock-alert mb-1">
+                                    {% if product.stock <= 5 and product.stock > 0 %}
+                                        <div class="text-danger small">
+                                            Only {{ product.stock }} {% if product.stock > 1 %}units{% else %}unit{% endif %} available
+                                        </div>
+                                    {% elif product.stock == 0 %}
+                                        <div class="text-danger small">
+                                            Out of stock
+                                        </div>
+                                    {% endif %}
+                                </div>
+
                                 <!-- Add to cart button -->
-                                <a class="btn add-to-cart-btn my-3" data-product-id="{{ product.product_id }}">Add To Cart</a>
+                                <a class="btn add-to-cart-btn my-3 {% if product.stock == 0 %}disabled{% endif %}" data-product-id="{{ product.product_id }}">Add To Cart</a>
                             </div>
                         </div>
                     </a>

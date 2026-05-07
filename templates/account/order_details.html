@@ -18,7 +18,7 @@
                     <p>Date: <strong>{{ order.created_at | format_date }}</strong></p>   
                 </div>
                 <div class="col-12 col-md-4 col-lg-3 text-lg-end mt-lg-0">
-                    <p>Total: <strong>€{{ order.total }}</strong></p>
+                    <p>Total: <strong>€{{ "%.2f"|format(order.total)  }}</strong></p>
                 </div>
                 <div class="col-12 col-md-8 col-lg-5 text-md-end text-lg-start">
                     <p>Shipping method: <strong>{{ order.shipping_method|capitalize }}</strong></p>
@@ -40,7 +40,7 @@
         </li>
 
         <!-- Order items -->
-         <li class="list-group-item p-3 p-md-4">
+         <li class="list-group-item bottom-item p-3 p-md-4">
             <div class="row">
                 <div class="col-5 col-md-6 col-lg-8">
                     <h6>Items</h6>
@@ -55,7 +55,7 @@
             {% for item in items %}
                 <div class="row pb-2">
                     <div class="col-5 col-md-6 col-lg-8">
-                        {{ item.product_name }} 
+                        {{ item.name }}, {{ item.pack_size }}
                     </div>
                     <div class="col-3 col-md-3 col-lg-2 text-end">
                         x {{ item.quantity }}
@@ -68,7 +68,7 @@
         </li>
 
         <!-- Totals -->
-        <li class="list-group-item bottom-item p-3 p-md-4">
+        <li class="list-group-item p-3 p-md-4">
             <div class="row">
                 <div class="col-8 col-md-9 col-lg-10 text-end">
                     <p class="mb-2">Subtotal:</p>

@@ -157,7 +157,7 @@ def display_category(category_id):
     query, query_params, page = pagination(request.args, query, query_params, products_per_page)
 
     # Get products in current category/subcategory
-    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
+    products_query = "SELECT p.name, p.price, p.stock, p.image_url, p.product_id " + query
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
@@ -190,7 +190,7 @@ def product_detail(product_id):
     cursor = db.cursor()
 
     # Get product info
-    cursor.execute("""SELECT p.product_id, p.name, p.price, p.image_url, p.description, p.pack_size, p.category_id, b.brand_id, b.name as brand FROM products p 
+    cursor.execute("""SELECT p.product_id, p.name, p.price, p.stock, p.image_url, p.description, p.pack_size, p.category_id, b.brand_id, b.name as brand FROM products p 
                    JOIN brands b ON p.brand_id = b.brand_id WHERE p.product_id = ?""", (product_id,))
 
     product = cursor.fetchone()
@@ -254,7 +254,7 @@ def display_brand(brand_id):
     query, query_params, page = pagination(request.args, query, query_params, products_per_page)
 
     # Get products in current brand
-    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
+    products_query = "SELECT p.name, p.price, p.stock, p.image_url, p.product_id " + query
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
@@ -336,7 +336,7 @@ def search():
     query, query_params, page = pagination(request.args, query, query_params, products_per_page)
 
     # Fetch products
-    products_query = "SELECT p.name, p.price, p.image_url, p.product_id " + query
+    products_query = "SELECT p.name, p.price, p.stock, p.image_url, p.product_id " + query
     cursor.execute(products_query, query_params)
     products = cursor.fetchall()
 
@@ -635,7 +635,7 @@ def cart():
 
         # Get cart items data
         rows = db.execute("""SELECT p.product_id, p.image_url, p.name, b.name as brand, p.pack_size, p.price, p.stock, ci.quantity FROM cart_items ci 
-                                JOIN cart c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id JOIN brands b ON p.brand_id = b.brand_id 
+                                JOIN carts c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id JOIN brands b ON p.brand_id = b.brand_id 
                                 WHERE c.user_id = ?""", (user_id,)).fetchall()
 
         cart_items = []
@@ -713,7 +713,7 @@ def update_cart():
     if user_id:
 
         # Get cart
-        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+        cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (user_id,)).fetchone()
         
         if not cart:
             return jsonify({"success": False, "message": "Cart not found"}), 400
@@ -1190,7 +1190,7 @@ def order_summary():
         return redirect(url_for("checkout"))
     
     # Get cart
-    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (current_user.id,)).fetchone()
+    cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (current_user.id,)).fetchone()
 
     if not cart:
         return redirect(url_for("cart"))
@@ -1198,7 +1198,7 @@ def order_summary():
     cart_id = cart["id"]
 
     # Get cart items
-    cart_items = db.execute("""SELECT p.name, p.price, p.image_url, ci.product_id, ci.quantity, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
+    cart_items = db.execute("""SELECT p.name, p.price, p.pack_size, p.image_url, ci.product_id, ci.quantity, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
                             WHERE ci.cart_id = ?""", (cart_id,)).fetchall()
     
     if not cart_items:
@@ -1240,7 +1240,7 @@ def place_order():
         return redirect(url_for("checkout"))
 
     # Get cart
-    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (current_user.id,)).fetchone()
+    cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (current_user.id,)).fetchone()
 
     if not cart:
         return redirect(url_for("cart"))
@@ -1248,7 +1248,7 @@ def place_order():
     cart_id = cart["id"]
 
     # Get cart items
-    cart_items = db.execute("""SELECT ci.product_id, ci.quantity, p.name, p.stock, p.price, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
+    cart_items = db.execute("""SELECT ci.product_id, ci.quantity, p.name, p.stock, p.price, p.pack_size, (p.price * ci.quantity) as total FROM cart_items ci JOIN products p ON ci.product_id = p.product_id 
                             WHERE ci.cart_id = ?""", (cart_id,)).fetchall()
 
     if not cart_items:
@@ -1278,7 +1278,7 @@ def place_order():
 
     # Insert order items
     for item in cart_items:
-        db.execute("""INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)""", (order_id, item["product_id"], item["name"], item["quantity"], item["price"]))
+        db.execute("""INSERT INTO order_items (order_id, product_id, name, pack_size, quantity, price) VALUES (?, ?, ?, ?, ?, ?)""", (order_id, item["product_id"], item["name"], item["pack_size"], item["quantity"], item["price"]))
 
         # Update product stock
         db.execute("""UPDATE products SET stock = stock - ? WHERE product_id = ?""", (item["quantity"], item["product_id"]))
@@ -1321,4 +1321,4 @@ def order_details(order_id):
     # Get order items
     items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
 
-    return render_template("account/order_details.html", active_page=None, order=order, items=items)
+    return render_template("account/order_details.html", active_page="orders", order=order, items=items)

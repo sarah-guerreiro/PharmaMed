@@ -217,6 +217,7 @@
         <script>
 
             document.addEventListener("DOMContentLoaded", function() {
+
                 const toggle = document.querySelector(".products-toggle");
                 const productsMenu = document.querySelector(".products-menu");
                 const menu = new bootstrap.Collapse(document.getElementById("productsMenu"), { toggle: false });
@@ -250,6 +251,21 @@
 
                 toggle.addEventListener("mouseleave", closeMenu);
                 productsMenu.addEventListener("mouseleave", closeMenu);
+
+                // Close menu if click outside toggle and menu
+                document.addEventListener("click", function (event) {
+
+                    const productsMenuEl = document.getElementById("productsMenu");
+
+                    if (!isDesktop()) {
+                        if (
+                            !productsMenuEl.contains(event.target) &&
+                            !toggle.contains(event.target)
+                        ) {
+                            menu.hide();
+                        }
+                    }
+                });
 
                 // Trigger smooth fade in effect for flash messages
                 document.querySelectorAll('.alert').forEach(alert => {

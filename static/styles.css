@@ -303,6 +303,14 @@
   color: #6f42c1;
 }
 
+.product-card .card-title {
+  min-height: 2.4rem;
+}
+
+.product-card .stock-alert {
+  min-height: 1.4rem;
+}
+
 .add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, 
 #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn {
   background-color: #4B0082;
@@ -459,6 +467,16 @@
 
 .sort-btn.show {
   background-color: #F8F8FF;
+}
+
+@media (max-width: 1024px) {
+  .sort-btn {
+    font-size: 0.75rem;
+  }
+
+  .filters-btn {
+    font-size: 0.85rem;
+  }
 }
 
 .sorting-dropdown .dropdown-menu {

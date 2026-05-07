@@ -124,7 +124,7 @@ def get_cart_count():
     return sum(session_cart.values())
 
 def db_cart_count(db, user_id):
-    cart_count = db.execute("""SELECT SUM(quantity) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id WHERE c.user_id = ?""", (user_id,)).fetchone()
+    cart_count = db.execute("""SELECT SUM(quantity) as total FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = ?""", (user_id,)).fetchone()
     return cart_count["total"] or 0
 
 def add_to_session_cart(product_id, quantity):
@@ -141,10 +141,10 @@ def add_to_db_cart(user_id, product_id, quantity):
     db = get_db()
 
     # Get or create new cart
-    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+    cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (user_id,)).fetchone()
 
     if not cart:
-        cursor = db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
+        cursor = db.execute("INSERT INTO carts (user_id) VALUES (?)", (user_id,))
         cart_id = cursor.lastrowid
         db.commit()
     else:
@@ -164,7 +164,7 @@ def get_cart_total(db, user_id=None):
 
     # Logged in user
     if user_id:
-        result = db.execute("""SELECT SUM(ci.quantity * p.price) as total FROM cart_items ci JOIN cart c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id 
+        result = db.execute("""SELECT SUM(ci.quantity * p.price) as total FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id 
                             WHERE c.user_id = ?""", (user_id,)).fetchone()
 
         return result["total"] or 0
@@ -205,19 +205,19 @@ def merge_carts(db, user_id):
         return
 
     # Ensure cart exists
-    cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+    cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (user_id,)).fetchone()
 
     if not cart:
-        db.execute("INSERT INTO cart (user_id) VALUES (?)", (user_id,))
+        db.execute("INSERT INTO carts (user_id) VALUES (?)", (user_id,))
 
-        cart = db.execute("SELECT id FROM cart WHERE user_id = ?", (user_id,)).fetchone()
+        cart = db.execute("SELECT id FROM carts WHERE user_id = ?", (user_id,)).fetchone()
 
     # Get user cart id
     cart_id = cart["id"]
 
     for product_id, session_quantity in session_cart.items():
 
-        # Check if item already exists in database cart
+        # Check if item already exists in database carts
         item = db.execute("""SELECT ci.quantity, p.stock FROM cart_items ci JOIN products p ON ci.product_id = p.product_id WHERE ci.cart_id = ? AND ci.product_id = ?""", 
                           (cart_id, product_id)).fetchone()
 
