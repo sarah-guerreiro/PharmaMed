@@ -3,7 +3,7 @@ import math, os, re, secrets, sqlite3
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
-from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts, format_date
+from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts, format_date, admin_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure application
@@ -470,7 +470,7 @@ def login():
 
         # Check if email exists and password is correct
         if user is None or not check_password_hash(user["password_hash"], password):
-            flash("Invalid username or password", "error")
+            flash("Invalid email or password", "error")
             return redirect(url_for("login"))
 
         # Remember which user has logged in
@@ -789,7 +789,7 @@ def update_cart():
         "stock": stock
     })
 
-@app.route("/account")
+@app.route("/account/home")
 @login_required
 def account_home():
 
@@ -1322,3 +1322,58 @@ def order_details(order_id):
     items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
 
     return render_template("account/order_details.html", active_page="orders", order=order, items=items)
+
+@app.route("/admin/login", methods=['GET', 'POST'])
+def admin_login():
+
+    if request.method == 'POST':
+
+        # Get data from login form
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        # List of errors
+        error = {}
+
+        # Input validation
+        if not username:
+            error["username"] = "Username is missing"
+
+        if not password:
+            error["password"] = "Password is missing"
+
+        if error:
+            return render_template("admin_login.html", error=error, username=username)
+  
+        # Connect to database
+        db = get_db()
+
+        # Query database for admin data
+        admin = db.execute("SELECT * FROM admins WHERE username = ?", (username,)).fetchone()
+
+        # Check if email exists and password is correct
+        if admin is None or not check_password_hash(admin["password_hash"], password):
+            flash("Invalid username or password", "error")
+            return redirect(url_for("admin_login"))
+
+        else:
+            session["admin_id"] = admin["id"]
+            session["admin_username"] = admin["username"]
+
+            return redirect(url_for("index"))
+
+    else:
+        return render_template("admin_login.html")
+
+@app.route("/admin/logout")
+def admin_logout():
+
+    session.clear()
+
+    return redirect(url_for("admin_login"))
+
+@app.route("/admin")
+@admin_required
+def admin_home():
+
+    return render_template("admin.html")

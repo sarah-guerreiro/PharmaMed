@@ -1,15 +1,17 @@
 import sqlite3
-from helpers import get_db
 from werkzeug.security import generate_password_hash
 
-db = get_db()
+conn = sqlite3.connect("pharmamed.db")
+cursor = conn.cursor()
 
-username = 'admin'
-password = 'admin@123'
+username = "admin"
+password = "admin@123"
 
 hashed_password = generate_password_hash(password)
 
-db.execute("""INSERT INTO admins (username, password) VALUES (?, ?)""", (username, hashed_password))
+cursor.execute("""INSERT INTO admins (username, password_hash) VALUES (?, ?)""", (username, hashed_password))
 
-db.commit()
-db.close()
+conn.commit()
+conn.close()
+
+print("Admin created successfully.")

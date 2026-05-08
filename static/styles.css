@@ -609,7 +609,7 @@ h6 {
   transform: translateY(-50%);
 }
 
-.forgot-password-form, .reset-password-form {
+.forgot-password-form, .reset-password-form, .admin-login-form {
   max-width: 600px;
 }
 
@@ -728,4 +728,8 @@ h6 {
 
 .top-item, .bottom-item {
   background-color: #F8F8FF;
+}
+
+.admin-login-form .username, .admin-login-form .password {
+  max-width: 350px;
 }

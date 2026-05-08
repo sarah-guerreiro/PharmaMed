@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
-from flask import g, url_for, session
+from flask import g, redirect, session, url_for
 from flask_login import current_user
+from functools import wraps
 
 # Open database upon request
 def get_db():
@@ -248,3 +249,15 @@ def merge_carts(db, user_id):
 
 def format_date(value):
     return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").strftime("%d/%m/%Y")
+
+def admin_required(f):
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        if "admin_id" not in session:
+            return redirect(url_for("admin_login"))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
