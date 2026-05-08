@@ -1360,12 +1360,12 @@ def admin_login():
             session["admin_id"] = admin["id"]
             session["admin_username"] = admin["username"]
 
-            return redirect(url_for("index"))
+            return redirect(url_for("admin_home"))
 
     else:
         return render_template("admin_login.html")
 
-@app.route("/admin/logout")
+@app.route("/admin/logout", methods=["POST"])
 def admin_logout():
 
     session.clear()
@@ -1376,4 +1376,26 @@ def admin_logout():
 @admin_required
 def admin_home():
 
-    return render_template("admin.html")
+    # Connect to database
+    db = get_db()
+
+    # Get total number of orders
+    total_orders = db.execute("""SELECT COUNT(*) AS total FROM orders""").fetchone()
+    total_orders = total_orders["total"]
+
+    # Get total number of pending orders
+    pending_orders = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'""").fetchone()
+    pending_orders = pending_orders["total"]
+
+    # Get total number of low stock products
+    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE stock < 10""").fetchone()
+    low_stock_count = low_stock_count["total"]
+
+    # Get recent orders
+    recent_orders = db.execute("""SELECT * FROM orders ORDER BY created_at DESC LIMIT 5""").fetchall()
+
+    # Get low stock products
+    low_stock_products = db.execute("""SELECT * FROM products WHERE stock < 10 ORDER BY stock ASC LIMIT 10""").fetchall()
+
+    return render_template("admin/dashboard.html", total_orders=total_orders, pending_orders=pending_orders, low_stock_count=low_stock_count, recent_orders=recent_orders,
+                           low_stock_products=low_stock_products)

@@ -299,7 +299,7 @@
   color: black;
 }
 
-.card-text, .product-price, .subsection-header {
+.card-text, .product-price, .subsection-header, .number {
   color: #6f42c1;
 }
 
@@ -312,14 +312,15 @@
 }
 
 .add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, 
-#saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn {
+#saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn, 
+.view-low-stock-btn {
   background-color: #4B0082;
   color: white;
 }
 
 .add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, 
 .checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover, 
-.view-orders-btn:hover, .order-details-btn:hover {
+.view-orders-btn:hover, .order-details-btn:hover, .view-low-stock-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -726,10 +727,20 @@ h6 {
   margin: auto;
 }
 
-.top-item, .bottom-item {
+.dark-item {
   background-color: #F8F8FF;
 }
 
 .admin-login-form .username, .admin-login-form .password {
   max-width: 350px;
+}
+
+@media (min-width: 576px) and (max-width: 992px) {
+  .admin-card .text {
+    font-size: 0.88rem;
+  }
+}
+
+.recent-orders-card .card-title, .low-stock-card .card-title {
+  color: #3c4146;
 }

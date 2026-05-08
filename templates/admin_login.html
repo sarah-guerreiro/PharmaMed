@@ -21,7 +21,7 @@
             </div>
             <div class="username mx-auto pt-2 mb-4">
             {% set username_error = error.get('username') %}
-                <input type="text" name="username" class="form-control {% if username_error %}is-invalid{% endif %}" placeholder="Username" value="{{ username }}">
+                <input type="text" name="username" class="form-control {% if username_error %}is-invalid{% endif %}" placeholder="Username" value="{{ username }}" autocomplete="off">
                 {% if username_error %}
                     <div class="invalid-feedback">{{ username_error }}</div>
                 {% endif %}

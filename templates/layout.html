@@ -17,7 +17,7 @@
          
         <link href="/static/styles.css" rel="stylesheet">
 
-        <title>{% block title %}PharmaMed{% endblock %}</title>
+        <title>{% block title %}{% endblock %}</title>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -289,6 +289,9 @@
                         
                     });
                 }, 6000);
+
+                // Set current year on copyright
+                document.getElementById("copyright").innerHTML = new Date().getFullYear() + " | PharmaMed. All rights reserved.";
             });
 
             function addToCart(productId) {
@@ -350,9 +353,6 @@
                     }, 6000);
                 }
             }
-
-            // Set current year on copyright
-            document.getElementById("copyright").innerHTML = new Date().getFullYear() + " | PharmaMed. All rights reserved.";
         
         </script>
 
