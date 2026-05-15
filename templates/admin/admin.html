@@ -12,13 +12,13 @@
         <!-- Sidebar, desktop and tablets -->
         <div id="accountSidebar" class="col-3 d-none d-md-block">
             <div class="list-group shadow-sm">
-                <a href="{{ url_for('admin_home') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'products' %}active{% endif %}">
+                <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'products' %}active{% endif %}">
                     <i class="fa-solid fa-pills me-2"></i>Products
                 </a>
-                <a href="{{ url_for('admin_home') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'orders' %}active{% endif %}">
+                <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'orders' %}active{% endif %}">
                     <i class="fa-solid fa-box-open me-2"></i>Orders
                 </a>
-                <a href="{{ url_for('admin_home') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'orders' %}active{% endif %}">
+                <a href="{{ url_for('admin_inventory') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'inventory' %}active{% endif %}">
                     <i class="fa-solid fa-chart-column me-2"></i>Inventory
                 </a>
             </div>
@@ -30,21 +30,21 @@
 
                 <!-- Products tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin_home') }}" class="nav-link w-100 {% if active_page == 'products' %}active{% endif %}" >
+                    <a href="{{ url_for('admin_products') }}" class="nav-link w-100 {% if active_page == 'products' %}active{% endif %}" >
                         Products
                     </a>
                 </li>
 
                 <!-- Orders tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin_home') }}" class="nav-link w-100 {% if active_page == 'orders' %}active{% endif %}">
+                    <a href="{{ url_for('admin_orders') }}" class="nav-link w-100 {% if active_page == 'orders' %}active{% endif %}">
                         Orders
                     </a>
                 </li>
 
                 <!-- Inventory tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin_home') }}" class="nav-link w-100 {% if active_page == 'inventory' %}active{% endif %}">
+                    <a href="{{ url_for('admin_inventory') }}" class="nav-link w-100 {% if active_page == 'inventory' %}active{% endif %}">
                         Inventory
                     </a>
                 </li>

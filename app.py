@@ -3,8 +3,9 @@ import math, os, re, secrets, sqlite3
 from datetime import datetime, timedelta, timezone
 from flask import abort, flash, Flask, jsonify, render_template, redirect, request, session, url_for
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user, UserMixin
-from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts, format_date, admin_required
+from helpers import get_db, close_db, load_categories_menu, get_breadcrumb, price_filter, count_products, sorting, pagination, get_cart_count, add_to_session_cart, add_to_db_cart, get_cart_total, apply_cart_action, merge_carts, format_date, admin_required, allowed_file
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 # Configure application
 app = Flask(__name__)
@@ -48,6 +49,9 @@ EMAIL_PATTERN = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
 # Register date format filter
 app.jinja_env.filters['format_date'] = format_date
+
+# Image formats
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
 # Make variables available in all templates
 @app.context_processor
@@ -118,7 +122,7 @@ def display_category(category_id):
     category_ids = [category_id] + [subcategory["category_id"] for subcategory in subcategories]
 
     # Base query
-    query = "FROM products p WHERE p.category_id IN ({})".format(",".join("?"*len(category_ids)))
+    query = "FROM products p WHERE p.is_active = 1 AND p.category_id IN ({})".format(",".join("?"*len(category_ids)))
     query_params = category_ids.copy() 
     
     # Get selected filters from the URL query parameters
@@ -221,7 +225,7 @@ def display_brand(brand_id):
         abort(404)
 
     # Base query
-    query = "FROM products p WHERE p.brand_id = ?"
+    query = "FROM products p WHERE p.is_active = 1 AND p.brand_id = ?"
     query_params = [brand_id] 
 
     # Get selected filters from the URL query parameters
@@ -295,7 +299,7 @@ def search():
 
     # Base query (search in product name, category name or brand name)
     query = """FROM products p JOIN categories C ON p.category_id = c.category_id JOIN brands b ON p.brand_id = b.brand_id 
-    WHERE (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ?)"""
+    WHERE p.is_active = 1 AND (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ?)"""
     query_params = [f"%{search_query}%"] * 3
 
     # Get selected filters from the URL query parameters
@@ -351,7 +355,7 @@ def search():
         "search_query": search_query,
         "subcategory": request.args.getlist('subcategory'),
         "brand": request.args.getlist('brand'),
-        "min_price": request.args.get('max_price'),
+        "min_price": request.args.get('min_price'),
         "max_price": request.args.get('max_price'),
         "sort": request.args.get('sort'),
     }
@@ -636,7 +640,7 @@ def cart():
         # Get cart items data
         rows = db.execute("""SELECT p.product_id, p.image_url, p.name, b.name as brand, p.pack_size, p.price, p.stock, ci.quantity FROM cart_items ci 
                                 JOIN carts c ON ci.cart_id = c.id JOIN products p ON ci.product_id = p.product_id JOIN brands b ON p.brand_id = b.brand_id 
-                                WHERE c.user_id = ?""", (user_id,)).fetchall()
+                                WHERE c.user_id = ? AND p.is_active = 1""", (user_id,)).fetchall()
 
         cart_items = []
         for row in rows:
@@ -657,7 +661,7 @@ def cart():
 
         # Get product data
         products = db.execute(f"""SELECT p.product_id, p.image_url, p.name, b.name as brand, p.pack_size, p.price, p.stock FROM products p JOIN brands b ON p.brand_id = b.brand_id 
-                              WHERE p.product_id IN ({placeholders})""", tuple(session_cart.keys())).fetchall()
+                              WHERE p.is_active = 1 AND p.product_id IN ({placeholders})""", tuple(session_cart.keys())).fetchall()
 
         # Build cart items list
         cart_items = []
@@ -721,7 +725,7 @@ def update_cart():
         cart_id = cart["id"]
 
         item = db.execute("""SELECT ci.quantity, p.stock, p.price FROM cart_items ci JOIN products p ON ci.product_id = p.product_id WHERE ci.cart_id = ? 
-                            AND ci.product_id = ?""", (cart_id, product_id)).fetchone()
+                            AND ci.product_id = ? AND p.is_active = 1""", (cart_id, product_id)).fetchone()
 
         if not item:
             return jsonify({"success": False, "message": "Item not in cart"}), 400
@@ -751,7 +755,7 @@ def update_cart():
         if p_id not in cart:
             return jsonify({"success": False, "message": "Item not in cart"}), 400
 
-        item = db.execute("SELECT stock, price FROM products WHERE product_id = ?", (product_id,)).fetchone()
+        item = db.execute("SELECT stock, price FROM products WHERE product_id = ? AND is_active = 1", (product_id,)).fetchone()
 
         if not item:
             return jsonify({"success": False, "message": "Product not found"}), 400
@@ -1104,7 +1108,6 @@ def checkout():
             country = request.form.get("country", "").strip().title()
             is_default = 1 if request.form.get("is_default") else 0
             
-
             # Input validation
             if not full_name:
                 form_error["full_name"] = "Full name is required"
@@ -1399,3 +1402,312 @@ def admin_home():
 
     return render_template("admin/dashboard.html", total_orders=total_orders, pending_orders=pending_orders, low_stock_count=low_stock_count, recent_orders=recent_orders,
                            low_stock_products=low_stock_products)
+
+@app.route("/admin/products")
+@admin_required
+def admin_products():
+
+    # Connect to database
+    db = get_db()
+
+    # Get search query, sorting parameter and direction
+    search_query = request.args.get("search_query", "").strip()
+    sort = request.args.get("sort", "id")
+    direction = request.args.get("direction", "asc")
+
+    # Sorting mapping
+    allowed_sorts = {
+        "id": "p.product_id",
+        "name": "p.name",
+        "brand": "b.name",
+        "category": "COALESCE(parent.name, c.name)",
+        "subcategory": "c.name",
+        "price": "p.price",
+        "stock": "p.stock"
+    }
+
+    # Get sorting column
+    sort_column = allowed_sorts.get(sort, "p.product_id")
+
+    # Sorting direction validation
+    if direction not in ["asc", "desc"]:
+        direction = "asc"
+
+    query_params = []
+
+    # Base query
+    query = """FROM products p JOIN brands b ON p.brand_id = b.brand_id JOIN categories c ON p.category_id = c.category_id LEFT JOIN categories parent ON c.parent_id = parent.category_id WHERE is_active = 1"""
+    
+    if search_query:
+        query += """ AND (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ? OR parent.name LIKE ?)"""
+
+        search_term = f"%{search_query}%"
+
+        query_params = [search_term] * 4
+
+    # Base query
+    base_query = """SELECT p.product_id, p.name, p.pack_size, p.price, p.stock, b.name AS brand_name, c.name AS assigned_category, parent.name AS parent_category """ + query
+
+    # Count products
+    count_query = """SELECT COUNT(*) AS total """ + query
+
+    total_products = db.execute(count_query, query_params).fetchone()["total"]
+
+    # Calculate the total number of pages
+    products_per_page = 10
+    total_pages = math.ceil(total_products / products_per_page)
+
+    # Add sorting 
+    base_query += f" ORDER BY {sort_column} {direction.upper()}"
+
+    # Add pagination
+    base_query, query_params, page = pagination(request.args, base_query, query_params, products_per_page)
+
+    # Get products
+    products = db.execute(base_query, query_params).fetchall()
+
+    # Parameters for url_for
+    base_params = {
+        "search_query": search_query,
+        "sort": sort,
+        "direction": direction
+    }
+    
+    return render_template("admin/products.html", active_page="products", search_query=search_query, products=products, total_pages=total_pages, page=page, base_params=base_params,
+                           sort=sort, direction=direction)
+
+@app.route("/admin/products/add", methods=['GET', 'POST'])
+@admin_required
+def add_product():
+
+    # Connect to database
+    db = get_db()
+
+    # Get brands
+    brands = db.execute("SELECT brand_id, name FROM brands ORDER BY name ASC")
+
+    # Get categories
+    categories = db.execute("""SELECT category_id, name FROM categories WHERE parent_id = 0 ORDER BY name ASC""").fetchall()
+
+    # Get subcategoris
+    subcategories = db.execute("""SELECT category_id, parent_id, name FROM categories WHERE parent_id != 0 ORDER BY name ASC""").fetchall()
+
+    # Error dictionary
+    error = {}
+    
+    if request.method == 'POST':
+
+        # Get form data
+        product_name = request.form.get("product_name", "").strip().title()
+        description = request.form.get("description", "").strip()
+        brand = request.form.get("brand")
+        category = request.form.get("category")
+        subcategory = request.form.get("subcategory")
+        price = request.form.get("price", "").strip()
+        stock = request.form.get("stock", "").strip()
+        pack_size = request.form.get("pack_size", "").strip()
+        image = request.files.get("image")
+
+        # Input validation
+        if not product_name:
+            error["product_name"] = "Product name is required"
+        if not description:
+            error["description"] = "A short product description is required"
+        if not brand:
+            error["brand"] = "Please select a brand"
+        if not category:
+            error["category"] = "Please select a category"
+
+        subcat = db.execute("""SELECT category_id FROM categories WHERE parent_id = ?""", (category,)).fetchall()
+
+        if subcat and not subcategory:
+            error["subcategory"] = "Please select a subcategory"
+
+        try:
+            price = float(price)
+
+            if price < 0:
+                error["price"] = "Price cannot be negative"
+
+        except ValueError:
+            error["price"] = "Invalid price"
+        
+        try:
+            stock = int(stock)
+
+            if stock < 0:
+                error["stock"] = "Stock cannot be negative"
+
+        except ValueError:
+            error["stock"] = "Invalid stock value"
+        
+        if not pack_size:
+            error["pack_size"] = "Pack size is required"
+
+        if image and image.filename:
+
+            if not allowed_file(image.filename):
+                error["image"] = "Invalid image format"
+
+        if error:
+            return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, error=error,
+                                   product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, pack_size=pack_size)
+        
+        # Get product category
+        final_category_id = subcategory if subcategory else category
+
+        # Get product image
+        image_url = "images/products/Default.png"
+
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.static_folder,"images/products", filename)
+            image.save(image_path)
+            image_url = f"images/products/{filename}"
+
+        # Insert new product into database
+        db.execute("""INSERT INTO products (name, description, category_id, brand_id, pack_size, price, stock, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (product_name, description, 
+                                                                                                                                                 final_category_id, brand, pack_size, 
+                                                                                                                                                 price, stock, image_url))
+
+        db.commit()
+        flash("Product added successfully", "success")
+        return redirect(url_for("admin_products"))
+
+    else:
+
+        return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, error=error)
+
+@app.route("/admin/products/<int:product_id>/edit", methods=['GET', 'POST'])
+@admin_required
+def edit_product(product_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Set edit mode
+    mode = "edit"
+
+    # Get product
+    product = db.execute("""SELECT p.*, c.parent_id FROM products p JOIN categories c ON p.category_id = c.category_id WHERE p.product_id = ?""", (product_id,)).fetchone()
+
+    if not product:
+        abort(404)
+
+    # Get brands
+    brands = db.execute("SELECT brand_id, name FROM brands").fetchall()
+
+    # Get categories
+    categories = db.execute("""SELECT category_id, name FROM categories WHERE parent_id = 0""").fetchall()
+
+    # Get subcategories
+    subcategories = db.execute("""SELECT category_id, parent_id, name FROM categories WHERE parent_id != 0""").fetchall()
+
+    # Error dictionary
+    error = {}
+
+    if request.method == "POST":
+
+        # Get form data
+        product_name = request.form.get("product_name", product["name"] if mode=="edit" else "").strip().title()
+        description = request.form.get("description", product["description"] if mode=="edit" else "").strip()
+        brand = request.form.get("brand")
+        category = request.form.get("category")
+        subcategory = request.form.get("subcategory")
+        price = request.form.get("price", product["price"] if mode=="edit" else "").strip()
+        stock = request.form.get("stock", product["stock"] if mode=="edit" else "").strip()
+        pack_size = request.form.get("pack_size", product["pack_size"] if mode=="edit" else "").strip()
+        image = request.files.get("image")
+
+        # Input validation
+        if not product_name:
+            error["product_name"] = "Product name is required"
+        if not description:
+            error["description"] = "A short product description is required"
+        if not brand:
+            error["brand"] = "Please select a brand"
+        if not category:
+            error["category"] = "Please select a category"
+
+        subcat = db.execute("""SELECT category_id FROM categories WHERE parent_id = ?""", (category,)).fetchall()
+
+        if subcat and not subcategory:
+            error["subcategory"] = "Please select a subcategory"
+
+        try:
+            price = float(price)
+
+            if price < 0:
+                error["price"] = "Price cannot be negative"
+
+        except ValueError:
+            error["price"] = "Invalid price"
+        
+        try:
+            stock = int(stock)
+
+            if stock < 0:
+                error["stock"] = "Stock cannot be negative"
+
+        except ValueError:
+            error["stock"] = "Invalid stock value"
+        
+        if not pack_size:
+            error["pack_size"] = "Pack size is required"
+
+        if image and image.filename:
+
+            if not allowed_file(image.filename):
+                error["image"] = "Invalid image format"
+
+        if error:
+            return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, mode=mode, error=error,
+                                   product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, pack_size=pack_size)
+
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.static_folder,"images/products", filename)
+            image.save(image_path)
+            image_url = f"images/products/{filename}"
+
+        else:
+            image_url = product["image_url"]
+
+        # Get product category
+        final_category_id = subcategory if subcategory else category
+
+        # Update database
+        db.execute("""UPDATE products SET name = ?, description = ?, brand_id = ?, category_id = ?, pack_size = ?, price = ?, stock = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?""", 
+                   (product_name, description, brand, final_category_id, pack_size, price, stock, image_url, product_id ))
+
+        db.commit()
+
+        flash("Product updated successfully", "success")
+        return redirect(url_for("admin_products"))
+    
+    else:
+        return render_template("admin/product_form.html", active_page="products", product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, error=error)
+
+@app.route("/admin/products/<int:product_id>/deactivate")
+@admin_required
+def deactivate_product(product_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Update active state
+    db.execute("""UPDATE products SET is_active = 0 WHERE product_id = ?""", (product_id,))
+    db.commit()
+
+    flash("Product deactivated successfully", "success")
+    return redirect(url_for("admin_products"))
+
+@app.route("/admin/orders")
+@admin_required
+def admin_orders():
+    return render_template("admin/orders.html", active_page="orders")
+
+@app.route("/admin/inventory")
+@admin_required
+def admin_inventory():
+    return render_template("admin/inventory.html", active_page="inventory")

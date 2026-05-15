@@ -5,51 +5,55 @@
 <div class="page-header pb-1">
     <h4>Change Password</h4>
 </div>
-<div class="change-password-form row mt-4">
+<div class="change-password-form row mt-3">
     <form method="post" action="{{ url_for('change_password') }}">
     {% set error = error | default({}) %}
-        <div class="password col-12 col-md-6 mb-3">
-        {% set current_password_error = error.get('current_password') %}
-            <input type="password" id="current_password" name="current_password" class="form-control {% if current_password_error %}is-invalid{% endif %}" placeholder="Current password">
-            <button type="button" class="btn toggle-password" data-target="current_password">
-                <i class="fa-solid fa-eye"></i>
-            </button>
-            {% if current_password_error %}
-                <div class="invalid-feedback">{{ current_password_error }}</div>
-            {% endif %}
+        <div class="card border-0">
+            <div class="card-body">
+                <div class="password col-12 col-md-6 mb-3">
+                {% set current_password_error = error.get('current_password') %}
+                    <input type="password" id="current_password" name="current_password" class="form-control {% if current_password_error %}is-invalid{% endif %}" placeholder="Current password">
+                    <button type="button" class="btn toggle-password" data-target="current_password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    {% if current_password_error %}
+                        <div class="invalid-feedback">{{ current_password_error }}</div>
+                    {% endif %}
+                </div>
+                <div class="password col-12 col-md-6 mb-3">
+                {% set password_error = error.get('password') %}
+                    <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+                    <button type="button" class="btn toggle-password" data-target="password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    {% if password_error %}
+                        <div class="invalid-feedback">{{ password_error }}</div>
+                    {% endif %}
+                </div>
+                <div id="passwordHelp" class="form-text d-none">
+                    Password must contain:
+                    <ul>
+                        <li id="length">At least 8 characters</li>
+                        <li id="letter">A letter</li>
+                        <li id="number">A number</li>
+                        <li id="special">A special character (@, $, !, %, *, ? or &)</li>
+                    </ul>
+                </div>  
+                <div class="password col-12 col-md-6 mb-4"> 
+                {% set confirm_password_error = error.get('confirm_password') %}
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
+                    <button type="button" class="btn toggle-password" data-target="confirm_password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    {% if confirm_password_error %}
+                        <div class="invalid-feedback">{{ confirm_password_error }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-12 col-md-6 mb-2 text-center">
+                    <button class="btn change-password-btn" type="submit">Change password</button>
+                </div> 
+            </div>
         </div>
-        <div class="password col-12 col-md-6 mb-3">
-        {% set password_error = error.get('password') %}
-            <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-            <button type="button" class="btn toggle-password" data-target="password">
-                <i class="fa-solid fa-eye"></i>
-            </button>
-            {% if password_error %}
-                <div class="invalid-feedback">{{ password_error }}</div>
-            {% endif %}
-        </div>
-        <div id="passwordHelp" class="form-text d-none">
-            Password must contain:
-            <ul>
-                <li id="length">At least 8 characters</li>
-                <li id="letter">A letter</li>
-                <li id="number">A number</li>
-                <li id="special">A special character (@, $, !, %, *, ? or &)</li>
-            </ul>
-        </div>  
-        <div class="password col-12 col-md-6 mb-4"> 
-        {% set confirm_password_error = error.get('confirm_password') %}
-            <input type="password" id="confirm_password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
-            <button type="button" class="btn toggle-password" data-target="confirm_password">
-                <i class="fa-solid fa-eye"></i>
-            </button>
-            {% if confirm_password_error %}
-                <div class="invalid-feedback">{{ confirm_password_error }}</div>
-            {% endif %}
-        </div>
-        <div class="col-12 col-md-6 mb-2 text-center">
-            <button class="btn change-password-btn" type="submit">Change password</button>
-        </div> 
     </form>
 </div>
 

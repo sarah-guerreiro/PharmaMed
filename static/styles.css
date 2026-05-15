@@ -10,7 +10,7 @@
   opacity: 1;
 }
 
-.form-control:focus {
+.search-form .form-control:focus {
   border-color: #6f42c1; 
   box-shadow: 0 0 0.15rem 0.25rem rgba(255, 255, 255, 0.4);
 }
@@ -313,14 +313,14 @@
 
 .add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, 
 #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn, 
-.view-low-stock-btn {
+.view-low-stock-btn, .add-product-btn {
   background-color: #4B0082;
   color: white;
 }
 
 .add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, 
 .checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover, 
-.view-orders-btn:hover, .order-details-btn:hover, .view-low-stock-btn:hover {
+.view-orders-btn:hover, .order-details-btn:hover, .view-low-stock-btn:hover, .add-product-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -743,4 +743,37 @@ h6 {
 
 .recent-orders-card .card-title, .low-stock-card .card-title {
   color: #3c4146;
+}
+
+.search-btn {
+  border: solid 1px #4B0082;
+  color: #4B0082;
+  background-color: white;
+}
+
+.search-btn:hover {
+  color: white;
+  background-color: #4B0082;
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.2);
+  border-color: #997cce;
+}
+
+.image-preview-container {
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  margin: auto;
+}
+
+#image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.input-group.is-invalid .input-group-text {
+    border-color: #dc3545;
 }

@@ -13,32 +13,36 @@
         {% set error = error | default({}) %}
         {% set username = username | default('') %}
 
-            <div class="login pb-1 mb-3">
+            <div class="login pb-1 mb-2">
                 <h4>Administrator Login</h4>
             </div>
-            <div class="mb-4">
-                <p>Access is restricted to system administrators</p>
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <p>Access is restricted to system administrators</p>
+                    </div>
+                    <div class="username mx-auto pt-2 mb-4">
+                    {% set username_error = error.get('username') %}
+                        <input type="text" name="username" class="form-control {% if username_error %}is-invalid{% endif %}" placeholder="Username" value="{{ username }}" autocomplete="off">
+                        {% if username_error %}
+                            <div class="invalid-feedback">{{ username_error }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="password mx-auto mb-5">   
+                    {% set password_error = error.get('password') %}
+                        <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+                        <button type="button" class="btn toggle-password" data-target="password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        {% if password_error %}
+                            <div class="invalid-feedback">{{ password_error }}</div>
+                        {% endif %}
+                    </div>     
+                    <div class="mb-2 text-center">
+                        <button class="btn login-btn" type="submit">Login</button>
+                    </div>  
+                </div>
             </div>
-            <div class="username mx-auto pt-2 mb-4">
-            {% set username_error = error.get('username') %}
-                <input type="text" name="username" class="form-control {% if username_error %}is-invalid{% endif %}" placeholder="Username" value="{{ username }}" autocomplete="off">
-                {% if username_error %}
-                    <div class="invalid-feedback">{{ username_error }}</div>
-                {% endif %}
-            </div>
-            <div class="password mx-auto mb-5">   
-            {% set password_error = error.get('password') %}
-                <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-                <button type="button" class="btn toggle-password" data-target="password">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
-                {% if password_error %}
-                    <div class="invalid-feedback">{{ password_error }}</div>
-                {% endif %}
-            </div>     
-            <div class="mb-2 text-center">
-                <button class="btn login-btn" type="submit">Login</button>
-            </div>  
         </form>  
     </div>
 </div>

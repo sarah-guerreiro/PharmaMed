@@ -3,30 +3,34 @@
 {% set error = error | default({}) %}
 {% set email = email | default('') %}
 
-    <div class="login pb-1 mb-4">
+    <div class="login pb-1 mb-2">
         <h4>Login</h4>
     </div>
-    <div class="pt-2 mb-4">
-    {% set email_error = error.get('email') %}
-        <input type="text" inputmode="email" name="email" class="form-control {% if email_error %}is-invalid{% endif %}" placeholder="Email" value="{{ email }}">
-        {% if email_error %}
-            <div class="invalid-feedback">{{ email_error }}</div>
-        {% endif %}
+    <div class="card border-0">
+        <div class="card-body">
+            <div class="pt-2 mb-4">
+            {% set email_error = error.get('email') %}
+                <input type="text" inputmode="email" name="email" class="form-control {% if email_error %}is-invalid{% endif %}" placeholder="Email" value="{{ email }}">
+                {% if email_error %}
+                    <div class="invalid-feedback">{{ email_error }}</div>
+                {% endif %}
+            </div>
+            <div class="password mb-5">   
+            {% set password_error = error.get('password') %}
+                <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+                <button type="button" class="btn toggle-password" data-target="password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                {% if password_error %}
+                    <div class="invalid-feedback">{{ password_error }}</div>
+                {% endif %}
+            </div>     
+            <div class="mb-2 text-center">
+                <button class="btn login-btn" type="submit">Login</button>
+            </div>
+            <div class="forgot-password-link text-center">
+                <a href="{{ url_for('forgot_password') }}">Forgot your password?</a>
+            </div>  
+        </div>
     </div>
-    <div class="password mb-5">   
-    {% set password_error = error.get('password') %}
-        <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-        <button type="button" class="btn toggle-password" data-target="password">
-            <i class="fa-solid fa-eye"></i>
-        </button>
-        {% if password_error %}
-            <div class="invalid-feedback">{{ password_error }}</div>
-        {% endif %}
-    </div>     
-    <div class="mb-2 text-center">
-        <button class="btn login-btn" type="submit">Login</button>
-    </div>
-    <div class="forgot-password-link text-center">
-        <a href="{{ url_for('forgot_password') }}">Forgot your password?</a>
-    </div>  
 </form> 

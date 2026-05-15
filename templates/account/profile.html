@@ -13,7 +13,7 @@
         <div class="row mb-3">
             <div class="col-12 col-md-6 mb-3 mb-md-0">
             {% set first_name_error = profile_error.get('first_name') %}
-                <label class="form-label">First name:</label>
+                <label class="form-label fw-semibold">First name</label>
                 <input type="text" name="first_name" class="form-control {% if first_name_error %}is-invalid{% endif %}" value="{{ request.form.get('first_name', first_name) }}">
                 {% if first_name_error %}
                     <div class="invalid-feedback">
@@ -23,7 +23,7 @@
             </div>
             <div class="col-12 col-md-6">
             {% set last_name_error = profile_error.get('last_name') %}
-                <label class="form-label">Last name:</label>
+                <label class="form-label fw-semibold">Last name</label>
                 <input type="text" name="last_name" class="form-control {% if last_name_error %}is-invalid{% endif %}" value="{{ request.form.get('last_name', last_name) }}">
                 {% if last_name_error %}
                     <div class="invalid-feedback">
@@ -34,7 +34,7 @@
         </div>   
         <div class="row">
             <div class="col-12 col-md-6 mb-4 mb-md-3">
-                <label class="form-label">Email:</label>
+                <label class="form-label fw-semibold">Email</label>
                 <input type="email" name="email" class="form-control" value="{{ current_user.email }}" disabled>
             </div>
             <div class="col-12 col-md-6 mb-3 d-flex justify-content-center align-items-end">
@@ -122,7 +122,7 @@
                                     {% endif %}
                             </div>
                             <div class="mt-1 text-end">
-                                <button Type="submit" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-check"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-check"></i></button>
                                 <button type="button" class="btn btn-sm btn-outline-danger cancel-btn" data-id="{{ address.id }}"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </form>
@@ -133,14 +133,16 @@
         {% endfor %}
         </div>
     {% endif %}
+</div>
 
-    <button id="addAddressBtn" class="btn {% if addresses %}mt-2{% endif %} mb-3">
-        Add New Address
-    </button>
+<button id="addAddressBtn" class="btn {% if addresses %}mt-2{% endif %} mb-3">
+    Add New Address
+</button>
 
-    <!-- Add address -->
-    {% set add_error = add_error | default({}) %}
-    <div id="addressForm" class="card p-4 mt-2 {% if add_error %}d-block{% else %}d-none{% endif %}">
+<!-- Add address -->
+{% set add_error = add_error | default({}) %}
+<div id="addressForm" class="card p-4 mt-2 {% if add_error %}d-block{% else %}d-none{% endif %}">
+    <div class="card-body">
         <form method="post" action="{{ url_for('addresses') }}">
         {% set add_form = add_form | default({}) %}
             <div class="row">
@@ -202,6 +204,7 @@
         </form>
     </div>
 </div>
+
 
 <script>
 
