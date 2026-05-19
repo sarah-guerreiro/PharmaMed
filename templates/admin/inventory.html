@@ -6,4 +6,364 @@
     <h4>Inventory</h4>
 </div>
 
+<!-- Statistics cards -->
+<div class="row row-cols-1 row-cols-md-3 mb-5">
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Low Stock</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number">
+                            {{ low_stock_count }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Out of Stock</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number">
+                            {{ no_stock_count }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Inactive</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number">
+                            {{ inactive_count }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Products table -->
+<div class="card low-stock-card shadow-sm p-3 mb-5">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+
+            <!-- Search form -->
+            <div class="inventory-search-form w-100 mb-4 mb-md-0 me-md-3">
+                <form class="d-flex" role="search" method="GET" action="{{ url_for('admin_inventory') }}">
+
+                    <!-- Preserve filter when searching -->
+                    <input type="hidden" name="filter_option" value="{{ filter_option }}">
+
+                    <input class="form-control me-2" type="search" name="search_query" placeholder="Search products, brands, categories or subcategories" aria-label="Search" value="{{ search_query }}" autocomplete="off">
+                    <button class="btn search-btn me-md-2" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Filter dropdown -->
+            <div class="dropdown filter-dropdown me-auto me-md-0">
+                <button class="btn filter-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-filter me-2"></i>Filter
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-md-end">
+                    <li>
+                        <a class="dropdown-item {% if filter_option == 'all' %}active{% endif %}" href="{{ url_for('admin_inventory', filter_option='all', search_query=search_query) }}">
+                            All products
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if filter_option == 'low_stock' %}active{% endif %}" href="{{ url_for('admin_inventory', filter_option='low_stock', search_query=search_query) }}">
+                            Low stock
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if filter_option == 'no_stock' %}active{% endif %}" href="{{ url_for('admin_inventory', filter_option='no_stock', search_query=search_query) }}">
+                            Out of stock
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if filter_option == 'inactive' %}active{% endif %}" href="{{ url_for('admin_inventory', filter_option='inactive', search_query=search_query) }}">
+                            Inactive
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if products %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    ID
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    Product
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    Brand
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    Category
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    Subcategory
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ url_for('admin_inventory', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                    Stock
+                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                </a>
+                            </th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>#{{ product.product_id }}</td>
+                            <td>{{ product.name }}, {{ product.pack_size }}</td>
+                            <td>{{ product.brand_name }}</td>
+                            <td>
+                            {% if product.parent_category %}
+                                {{ product.parent_category }}
+                            {% else %}
+                                {{ product.assigned_category }}
+                            {% endif %}
+                            </td>
+                            <td>
+                            {% if product.parent_category %}
+                                {{ product.assigned_category }}
+                            {% else %}
+                                -
+                            {% endif %}
+                            </td>
+                            <td class="text-center fw-semibold">
+                                {{ product.stock }}
+                            </td>
+                            <td class="text-center">
+                            {% if product.is_active == 0 %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                            {% elif product.stock == 0 %}
+                                <span class="badge bg-dark">Out of Stock</span>
+                            {% elif product.stock <= 5 %}
+                                <span class="badge bg-danger">Critical</span>
+                            {% elif product.stock <= 10 %}
+                                <span class="badge bg-warning">Low</span>
+                            {% else %}
+                                <span class="badge bg-success">In stock</span>
+                            {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex">
+
+                                    <!-- Edit product button -->
+                                    <a href="{{ url_for('edit_product', product_id=product.product_id, context='inventory', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, 
+                                    filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    
+                                    <!-- Deactivate product button -->
+                                    {% if product.is_active == 1 %}
+                                        <form method="POST" action="{{ url_for('deactivate_product', product_id=product.product_id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product">
+                                                <i class="fa-regular fa-eye-slash"></i></a>
+                                            </button>
+                                        </form>
+
+                                    <!-- Activate product button -->
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('activate_product', product_id=product.product_id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Activate product">
+                                                <i class="fa-regular fa-eye"></i></a>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-4">
+                
+                {% if filter_option == "low_stock" %}
+                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No low stock products
+                {% elif filter_option == "no_stock" %}
+                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No out of stock products
+                {% elif filter_option == "inactive" %}
+                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No inactive products
+                {% else %}
+                    <i class="fa-solid fa-box-open fa-lg me-2"></i>No products found
+                {% endif %}
+
+            </div>
+        {% endif %} 
+    </div>
+</div>
+
+<!-- Pagination, desktop and tablet layout -->
+{% if total_pages > 1 %}
+    <nav class="d-none d-md-block">
+        <ul class="pagination justify justify-content-center mt-5">
+
+            <!-- Previous -->
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=page-1, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        Previous
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- First page -->
+            {% if page > 3 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=1, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        1
+                    </a>
+                </li>
+
+                {% if page > 4 %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            ...
+                        </span>
+                    </li>
+                {% endif %}
+            {% endif %}
+
+            <!-- Nearby pages -->
+            {% for p in range(page - 2, page + 3) %}
+
+                {% if p >= 1 and p <= total_pages %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin_inventory', page=p, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                            {{ p }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Last page -->
+            {% if page < total_pages - 2 %}
+                {% if page < total_pages - 3 %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            ...
+                        </span>
+                    </li>
+                {% endif %}
+
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=total_pages, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        {{ total_pages }}
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- Next -->
+            {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=page+1, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        Next
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+<!-- Pagination, smartphone only -->
+{% if total_pages > 1 %}
+    <nav class="d-md-none">
+        <ul class="pagination justify justify-content-center mt-5">
+            
+            <!-- Previous -->
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=page-1, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        Previous
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- Current page -->
+            <li class="page-item">
+                <span class="page-link">
+                    {{ page }} of {{ total_pages }}
+                </span>
+            </li>  
+
+            <!-- Next -->
+            {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_inventory', page=page+1, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+                        Next
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    });
+
+</script>
+
 {% endblock %}

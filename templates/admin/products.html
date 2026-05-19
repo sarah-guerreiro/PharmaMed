@@ -3,16 +3,16 @@
 {% block admin_content %}
 
 <div class="page-header pb-1 mb-5">
-    <h4>List of products</h4>
+    <h4>Products catalog</h4>
 </div>
 
 <!-- Products table -->
 <div class="card products-card shadow-sm p-3">
     <div class="card-body">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
             
             <!-- Search form -->
-            <div class="search-form w-100 order-2 order-md-1">
+            <div class="admin-products-search-form flex-grow-1 mb-3 mb-md-0">
                 <form class="d-flex" role="search" method="GET" action="{{ url_for('admin_products') }}">
                     <input class="form-control me-2" type="search" name="search_query" placeholder="Search products, brands, categories or subcategories" aria-label="Search" value="{{ search_query }}" autocomplete="off">
                     <button class="btn search-btn me-md-2" type="submit">
@@ -22,7 +22,7 @@
             </div>
             
             <!-- Add product -->
-            <a href="{{ url_for('add_product') }}" class="btn btn-sm add-product-btn ms-auto ms-md-0 mb-3 mb-md-0 order-1 prder-md-2">
+            <a href="{{ url_for('add_product') }}" class="btn add-product-btn me-auto me-md-0">
                 Add Product
             </a>
 
@@ -122,8 +122,17 @@
                         </td>
                         <td>
                             <div class="d-flex">
-                                <a href="{{ url_for('edit_product', product_id=product.product_id) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product"><i class="fa-solid fa-pen-to-square"></i></a>
-                                <a href="{{ url_for('deactivate_product', product_id=product.product_id) }}" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product"><i class="fa-regular fa-eye-slash"></i></a>
+
+                                <!-- Edit button -->
+                                <a href="{{ url_for('edit_product', product_id=product.product_id, context='catalog', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, 
+                                filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product"><i class="fa-solid fa-pen-to-square"></i></a>
+                                
+                                <!-- Deactivate button -->
+                                <form method="POST" action="{{ url_for('deactivate_product', product_id=product.product_id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product">
+                                        <i class="fa-regular fa-eye-slash"></i></a>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

@@ -12,47 +12,62 @@
     </h4>
 </div>
 
-<form method="post" action="{% if mode == 'edit' %}{{ url_for('edit_product', product_id=product.product_id) }}{% else %}{{ url_for('add_product') }}{% endif %}" enctype="multipart/form-data">
+
+<form method="post" action="{% if mode == 'edit' %}{{ url_for('edit_product', product_id=product.product_id, context=context, page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, 
+direction=base_params.direction, filter_option=base_params.filter_option) }}{% else %}{{ url_for('add_product') }}{% endif %}" enctype="multipart/form-data">
 {% set error = error | default({}) %}
-{% set product_name = product_name | default('') %}
-{% set description = description | default('') %}
+{% set product_name = product_name | default(none) %}
+{% set description = description | default(none) %}
 {% set brand = brand | default('') %}
 {% set category = category | default('') %}
 {% set subcategory = subcategory | default('') %}
-{% set price = price | default('') %}
-{% set stock = stock | default('') %}
-{% set pack_size = pack_size | default('') %}
+{% set price = price | default(none) %}
+{% set stock = stock | default(none) %}
+{% set pack_size = pack_size | default(none) %}
 {% set p = product if product is defined else {} %}
+{% set catalog_mode = context == 'catalog' %}
+{% set inventory_mode = context == 'inventory' %}
 
     <div class="row mb-3">
         <div class="col-12 col-md-6">
             <div class="card border-0">
                 <div class="card-body">
+                    
+                    <!-- Hidden input to preserve pagination, sorting, search query and filter-->
+                    <input type="hidden" name="page" value="{{ base_params.page }}">
+                    <input type="hidden" name="search_query" value="{{ base_params.search_query }}">
+                    <input type="hidden" name="sort" value="{{ base_params.sort }}">
+                    <input type="hidden" name="direction" value="{{ base_params.direction }}">
+
+                    {% if inventory_mode %}
+                        <input type="hidden" name="filter_option" value="{{ base_params.filter_option }}">
+                    {% endif %}
 
                     <!-- Product name -->
                     <div class="mb-3">
                     {% set product_name_error = error.get('product_name') %}
                         <label class="form-label fw-semibold">Product name</label>
-                        <input type="text" name="product_name" class="form-control {% if product_name_error %}is-invalid{% endif %}" placeholder="e.g. Paracetamol 500 mg" value="{{ product_name or p.name }}" autocomplete="off">
+                        <input type="text" name="product_name" class="form-control {% if product_name_error %}is-invalid{% endif %}" placeholder="e.g. Paracetamol 500 mg" value="{{ product_name if product_name is not none else p.name }}" autocomplete="off" {% if inventory_mode %}disabled{% endif %}>
                         {% if product_name_error %}
                             <div class="invalid-feedback">{{ product_name_error }}</div>
                         {% endif %}
                     </div>
 
                     <!-- Description -->
-                    <div class="mb-4">
+                    <div class="mb-3">
                     {% set description_error = error.get('description') %}
                         <label class="form-label fw-semibold">Description</label>
-                        <textarea rows="3" name="description" class="form-control {% if description_error %}is-invalid{% endif %}" aria-label="Select brand">{{ description or p.description }}</textarea>
+                        <textarea rows="3" name="description" class="form-control {% if description_error %}is-invalid{% endif %}" aria-label="Select brand" {% if inventory_mode %}disabled{% endif %}>{{ description if description is not none else p.description }}</textarea>
                         {% if description_error %}
                             <div class="invalid-feedback">{{ description_error }}</div>
                         {% endif %}
                     </div>
 
                     <!-- Brand -->
-                    <div class="mb-4">
+                    <div class="mb-3">
                     {% set brand_error = error.get('brand') %}
-                        <select name="brand" class="form-select {% if brand_error %}is-invalid{% endif %}">
+                        <label class="form-label fw-semibold">Brand</label>
+                        <select name="brand" class="form-select {% if brand_error %}is-invalid{% endif %}" {% if inventory_mode %}disabled{% endif %}>
                             <option value="" disabled {% if not brand %}selected{% endif %}>Select brand</option>
                             {% for brand_item in brands %}
                                 <option value="{{ brand_item.brand_id }}" {% if (brand and brand_item.brand_id|string == brand|string) or (not brand and p.brand_id == brand_item.brand_id) %}selected{% endif %}>
@@ -66,9 +81,10 @@
                     </div>
 
                     <!-- Category -->
-                    <div class="mb-4">
+                    <div class="mb-3">
                     {% set category_error = error.get('category') %}
-                        <select id="category-select" name="category" class="form-select {% if category_error %}is-invalid{% endif %}">
+                        <label class="form-label fw-semibold">Category</label>
+                        <select id="category-select" name="category" class="form-select {% if category_error %}is-invalid{% endif %}" {% if inventory_mode %}disabled{% endif %}>
                             <option value="" disabled {% if not category %}selected{% endif %}>
                                 Select category
                             </option>
@@ -87,7 +103,8 @@
                     <!-- Subcategory -->
                     <div>
                     {% set subcategory_error = error.get('subcategory') %}
-                        <select id="subcategory-select" data-selected="{{ subcategory }}" name="subcategory" class="form-select {% if subcategory_error %}is-invalid{% endif %}" value="{{ subcategory }}" disabled>
+                        <label class="form-label fw-semibold">Subcategory</label>
+                        <select id="subcategory-select" data-selected="{{ subcategory }}" name="subcategory" class="form-select {% if subcategory_error %}is-invalid{% endif %}" value="{{ subcategory }}" data-inventory-mode="{{ 'true' if inventory_mode else 'false'}}" {% if inventory_mode %}disabled{% endif %}>
                             <option value="" {% if not subcategory %}selected{% endif %}>
                                 Select subcategory
                             </option>
@@ -114,7 +131,7 @@
                         <label class="form-label fw-semibold">Price</label>
                         <div class="input-group {% if price_error %}is-invalid{% endif %}">
                             <div class="input-group-text">€</div>
-                            <input type="number" step="0.01" min="0" name="price" class="form-control {% if price_error %}is-invalid{% endif %}" value="{{ price or p.price }}">
+                            <input type="number" step="0.01" min="0" name="price" class="form-control {% if price_error %}is-invalid{% endif %}" value="{{ price if price is not none else p.price }}" {% if inventory_mode %}disabled{% endif %}>
                         </div>
                         {% if price_error %}
                             <div class="invalid-feedback">{{ price_error }}</div>
@@ -125,7 +142,7 @@
                     <div class="mb-3">
                     {% set stock_error = error.get('stock') %}
                         <label class="form-label fw-semibold">Stock</label>
-                        <input type="number" step="1" min="0" name="stock" class="form-control {% if stock_error %}is-invalid{% endif %}" value="{{ stock or p.stock }}">
+                        <input type="number" step="1" min="0" name="stock" class="form-control {% if stock_error %}is-invalid{% endif %}" value="{{ stock if stock is not none else p.stock }}" {% if catalog_mode %}disabled{% endif %}>
                         {% if stock_error %}
                             <div class="invalid-feedback">{{ stock_error }}</div>
                         {% endif %}
@@ -135,7 +152,7 @@
                     <div class="mb-3">
                     {% set pack_size_error = error.get('pack_size') %}
                         <label class="form-label fw-semibold">Pack size</label>
-                        <input type="text" name="pack_size" class="form-control {% if pack_size_error %}is-invalid{% endif %}" placeholder="e.g. 200 mL, 100 g, 20 tablets, 10 sachets, 1 unit" value="{{ pack_size or p.pack_size }}" autocomplete="off">
+                        <input type="text" name="pack_size" class="form-control {% if pack_size_error %}is-invalid{% endif %}" placeholder="e.g. 200 mL, 100 g, 20 tablets, 10 sachets, 1 unit" value="{{ pack_size if pack_size is not none else p.pack_size }}" autocomplete="off" {% if inventory_mode %}disabled{% endif %}>
                         {% if pack_size_error %}
                             <div class="invalid-feedback">{{ pack_size_error }}</div>
                         {% endif %}
@@ -144,17 +161,30 @@
                     <!-- Product image -->
                     <div class="mb-3">
                     {% set image_error = error.get('image') %}
-                        <label class="form-label fw-semibold">Product image</label>
-                        <input type="file" id="image-input" name="image" class="form-control {% if image_error %}is-invalid{% endif %}" accept="image/*">
-                        <div class="image-preview-container d-flex justify-content-center mt-4 d-none">
-                            <img id="image-preview" src="" alt="Image preview" class="img-fluid rounded border">
-                        </div>
+                        <label class="form-label fw-semibold {% if mode == 'edit' %}mb-3{% endif %}">Product image</label>
+
+                        <!-- Current image -->
+                        {% if mode == 'edit' and p.image_url %}
+                            <div class="current-image-container d-flex justify-content-center mb-3">
+                                <img id="current-image" src="{{ url_for('static', filename=p.image_url) }}" alt="{{ p.name }}" class="img-fluid rounded border">
+                            </div>
+                        {% endif %}
+
+                        <!-- File input -->
+                        <input type="file" id="image-input" name="image" class="form-control {% if image_error %}is-invalid{% endif %}" accept="image/*" {% if inventory_mode %}disabled{% endif %}>
+                        
                         {% if image_error %}
                             <div class="invalid-feedback">{{ image_error }}</div>
                         {% endif %}
-                        {% if mode == "edit" %}
-                            <small class="text-muted">Leave empty to keep current image</small>
+                        
+                        {% if mode == "edit" and catalog_mode %}
+                            <small class="text-muted">Select a file to update the image or leave empty to keep the current image</small>
                         {% endif %}
+
+                        <!-- Image preview -->
+                        <div class="image-preview-container d-flex justify-content-center mt-4 d-none">
+                            <img id="image-preview" src="" alt="Image preview" class="img-fluid rounded border">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -163,7 +193,8 @@
     <div class="row">
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-sm btn-outline-success me-2"><i class="fa-solid fa-check me-1"></i>Save Product</button>
-            <a href="{{ url_for('admin_products') }}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-xmark me-1"></i>Cancel</a>
+            <a href="{{ url_for('admin_inventory' if inventory_mode else 'admin_products', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction,
+            filter_option=base_params.filter_option if inventory_mode else None) }}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-xmark me-1"></i>Cancel</a>
         </div>
     </div> 
 </form>
@@ -176,13 +207,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const categorySelect = document.getElementById("category-select");
     const subcategorySelect = document.getElementById("subcategory-select");
     const subcategoryOptions = subcategorySelect.querySelectorAll("option");
+    const inventoryMode = subcategorySelect.dataset.inventoryMode === "true";
 
     function updateSubcategories() {
 
         const selectedCategory = categorySelect.value;
 
-        // Enable subcategory select
-        subcategorySelect.disabled = false;
+        // Enable subcategory select only outside inventory mode
+        if (!inventoryMode) {
+            subcategorySelect.disabled = false;
+        }
 
         subcategoryOptions.forEach(option => {
 

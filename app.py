@@ -1284,7 +1284,7 @@ def place_order():
         db.execute("""INSERT INTO order_items (order_id, product_id, name, pack_size, quantity, price) VALUES (?, ?, ?, ?, ?, ?)""", (order_id, item["product_id"], item["name"], item["pack_size"], item["quantity"], item["price"]))
 
         # Update product stock
-        db.execute("""UPDATE products SET stock = stock - ? WHERE product_id = ?""", (item["quantity"], item["product_id"]))
+        db.execute("""UPDATE products SET stock = stock - ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?""", (item["quantity"], item["product_id"]))
 
     # Clear cart
     db.execute("DELETE FROM cart_items WHERE cart_id = ?", (cart_id,))
@@ -1391,14 +1391,14 @@ def admin_home():
     pending_orders = pending_orders["total"]
 
     # Get total number of low stock products
-    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE stock < 10""").fetchone()
+    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 1 AND stock <= 10""").fetchone()
     low_stock_count = low_stock_count["total"]
 
     # Get recent orders
-    recent_orders = db.execute("""SELECT * FROM orders ORDER BY created_at DESC LIMIT 5""").fetchall()
+    recent_orders = db.execute("""SELECT id, full_name, total, status FROM orders ORDER BY created_at DESC LIMIT 5""").fetchall()
 
     # Get low stock products
-    low_stock_products = db.execute("""SELECT * FROM products WHERE stock < 10 ORDER BY stock ASC LIMIT 10""").fetchall()
+    low_stock_products = db.execute("""SELECT product_id, name, pack_size, stock FROM products WHERE is_active = 1 AND stock <= 10 ORDER BY stock ASC LIMIT 10""").fetchall()
 
     return render_template("admin/dashboard.html", total_orders=total_orders, pending_orders=pending_orders, low_stock_count=low_stock_count, recent_orders=recent_orders,
                            low_stock_products=low_stock_products)
@@ -1588,6 +1588,13 @@ def edit_product(product_id):
     # Set edit mode
     mode = "edit"
 
+    # Get context and active page
+    context = request.args.get("context", "")
+    active_page = "inventory" if context == "inventory" else "products"
+
+    if context not in ["catalog", "inventory"]:
+        abort(400)
+
     # Get product
     product = db.execute("""SELECT p.*, c.parent_id FROM products p JOIN categories c ON p.category_id = c.category_id WHERE p.product_id = ?""", (product_id,)).fetchone()
 
@@ -1603,92 +1610,145 @@ def edit_product(product_id):
     # Get subcategories
     subcategories = db.execute("""SELECT category_id, parent_id, name FROM categories WHERE parent_id != 0""").fetchall()
 
+    # Preserve params in pagination, sorting and filter links
+    source = request.form if request.method == "POST" else request.args
+
+    base_params = {
+        "page": source.get("page", 1),
+        "search_query": source.get("search_query", ""),
+        "sort": source.get("sort", "id"),
+        "direction": source.get("direction", "asc"),
+    }
+
+    if context == "inventory":
+        base_params["filter_option"] = source.get("filter_option", "all")
+
     # Error dictionary
     error = {}
 
     if request.method == "POST":
 
         # Get form data
-        product_name = request.form.get("product_name", product["name"] if mode=="edit" else "").strip().title()
-        description = request.form.get("description", product["description"] if mode=="edit" else "").strip()
+        product_name = request.form.get("product_name", "").strip()
+        description = request.form.get("description", "").strip()
         brand = request.form.get("brand")
         category = request.form.get("category")
         subcategory = request.form.get("subcategory")
-        price = request.form.get("price", product["price"] if mode=="edit" else "").strip()
-        stock = request.form.get("stock", product["stock"] if mode=="edit" else "").strip()
-        pack_size = request.form.get("pack_size", product["pack_size"] if mode=="edit" else "").strip()
+        price = request.form.get("price", "").strip()
+        stock = request.form.get("stock", "").strip()
+        pack_size = request.form.get("pack_size", "").strip()
         image = request.files.get("image")
 
-        # Input validation
-        if not product_name:
-            error["product_name"] = "Product name is required"
-        if not description:
-            error["description"] = "A short product description is required"
-        if not brand:
-            error["brand"] = "Please select a brand"
-        if not category:
-            error["category"] = "Please select a category"
+        # Catalog context
+        if context == "catalog":
 
-        subcat = db.execute("""SELECT category_id FROM categories WHERE parent_id = ?""", (category,)).fetchall()
+            stock = product["stock"]
 
-        if subcat and not subcategory:
-            error["subcategory"] = "Please select a subcategory"
+            # Input validation
+            if not product_name:
+                error["product_name"] = "Product name is required"
+            if not description:
+                error["description"] = "A short product description is required"
+            if not brand:
+                error["brand"] = "Please select a brand"
+            if not category:
+                error["category"] = "Please select a category"
 
-        try:
-            price = float(price)
+            subcat = db.execute("""SELECT category_id FROM categories WHERE parent_id = ?""", (category,)).fetchall()
 
-            if price < 0:
-                error["price"] = "Price cannot be negative"
+            if subcat and not subcategory:
+                error["subcategory"] = "Please select a subcategory"
 
-        except ValueError:
-            error["price"] = "Invalid price"
-        
-        try:
-            stock = int(stock)
+            if not price:
+                error["price"] = "Price is required"
+            
+            else:
+                try:
+                    price = float(price)
 
-            if stock < 0:
-                error["stock"] = "Stock cannot be negative"
+                    if price < 0:
+                        error["price"] = "Price cannot be negative"
 
-        except ValueError:
-            error["stock"] = "Invalid stock value"
-        
-        if not pack_size:
-            error["pack_size"] = "Pack size is required"
+                except ValueError:
+                    error["price"] = "Invalid price"
+            
+            
+            if not pack_size:
+                error["pack_size"] = "Pack size is required"
 
-        if image and image.filename:
+            if image and image.filename:
 
-            if not allowed_file(image.filename):
-                error["image"] = "Invalid image format"
+                if not allowed_file(image.filename):
+                    error["image"] = "Invalid image format"
 
-        if error:
-            return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, mode=mode, error=error,
-                                   product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, pack_size=pack_size)
+            if error:
+                return render_template("admin/product_form.html", active_page=active_page, product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, context=context, 
+                                       base_params=base_params, error=error, product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, 
+                                       pack_size=pack_size)
 
-        if image and image.filename:
-            filename = secure_filename(image.filename)
-            image_path = os.path.join(app.static_folder,"images/products", filename)
-            image.save(image_path)
-            image_url = f"images/products/{filename}"
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.static_folder,"images/products", filename)
+                image.save(image_path)
+                image_url = f"images/products/{filename}"
 
-        else:
+            else:
+                image_url = product["image_url"]
+
+        elif context == "inventory":
+
+            product_name = product["name"]
+            description = product["description"]
+            brand = product["brand_id"]
+
+            if product["parent_id"] == 0:
+                category = product["category_id"]
+                subcategory = None
+            else:
+                category = product["parent_id"]
+                subcategory = product["category_id"]
+
+            price = product["price"]
+            pack_size = product["pack_size"]
             image_url = product["image_url"]
+
+            # Input validation
+            if not stock:
+                error["stock"] = "Stock is required"
+            
+            else:
+                try:
+                    stock = int(stock)
+
+                    if stock < 0:
+                        error["stock"] = "Stock cannot be negative"
+
+                except ValueError:
+                    error["stock"] = "Invalid stock value"
+
+            if error:
+                return render_template("admin/product_form.html", active_page=active_page, product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, context=context, 
+                                       base_params=base_params, error=error, product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, 
+                                       pack_size=pack_size)
 
         # Get product category
         final_category_id = subcategory if subcategory else category
 
         # Update database
         db.execute("""UPDATE products SET name = ?, description = ?, brand_id = ?, category_id = ?, pack_size = ?, price = ?, stock = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?""", 
-                   (product_name, description, brand, final_category_id, pack_size, price, stock, image_url, product_id ))
+                (product_name, description, brand, final_category_id, pack_size, price, stock, image_url, product_id ))
 
         db.commit()
 
         flash("Product updated successfully", "success")
-        return redirect(url_for("admin_products"))
+        print(base_params)
+        return redirect(url_for("admin_inventory" if context == "inventory" else "admin_products", **base_params)
+)
     
     else:
-        return render_template("admin/product_form.html", active_page="products", product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, error=error)
+        return render_template("admin/product_form.html", active_page=active_page, product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, context=context, base_params=base_params, error=error)
 
-@app.route("/admin/products/<int:product_id>/deactivate")
+@app.route("/admin/products/<int:product_id>/deactivate", methods=["POST"])
 @admin_required
 def deactivate_product(product_id):
 
@@ -1696,11 +1756,11 @@ def deactivate_product(product_id):
     db = get_db()
 
     # Update active state
-    db.execute("""UPDATE products SET is_active = 0 WHERE product_id = ?""", (product_id,))
+    db.execute("""UPDATE products SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?""", (product_id,))
     db.commit()
 
     flash("Product deactivated successfully", "success")
-    return redirect(url_for("admin_products"))
+    return redirect(request.referrer)
 
 @app.route("/admin/orders")
 @admin_required
@@ -1710,4 +1770,115 @@ def admin_orders():
 @app.route("/admin/inventory")
 @admin_required
 def admin_inventory():
-    return render_template("admin/inventory.html", active_page="inventory")
+
+    # Connect to database
+    db = get_db()
+
+    # Get total number of low stock products
+    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 1 AND stock <= 10""").fetchone()["total"]
+
+    # Get total number of out of stock products
+    no_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 1 AND stock = 0""").fetchone()["total"]
+
+    # Get total number of incative products
+    inactive_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 0""").fetchone()["total"]
+
+    # Get search query, sorting parameter and direction, and filter option
+    search_query = request.args.get("search_query", "").strip()
+    sort = request.args.get("sort", "id")
+    direction = request.args.get("direction", "asc")
+    filter_option = request.args.get("filter_option", "all")
+
+    # Sorting mapping
+    allowed_sorts = {
+        "id": "p.product_id",
+        "name": "p.name",
+        "brand": "b.name",
+        "category": "COALESCE(parent.name, c.name)",
+        "subcategory": "c.name",
+        "stock": "p.stock"
+    }
+
+    # Get sorting column
+    sort_column = allowed_sorts.get(sort, "p.product_id")
+
+    # Sorting direction validation
+    if direction not in ["asc", "desc"]:
+        direction = "asc"
+
+    # Base query
+    query = """FROM products p JOIN brands b ON p.brand_id = b.brand_id JOIN categories c ON p.category_id = c.category_id LEFT JOIN categories parent ON c.parent_id = parent.category_id"""
+
+    conditions = []
+    query_params = []
+
+    # Filter
+    if filter_option == "low_stock":
+        conditions.append("p.stock BETWEEN 1 AND 10")
+        conditions.append("p.is_active = 1")
+
+    elif filter_option == "no_stock":
+        conditions.append("p.stock = 0")
+        conditions.append("p.is_active = 1")
+
+    elif filter_option == "inactive":
+        conditions.append("p.is_active = 0")
+    
+    else:
+        conditions.append("p.is_active = 1")
+
+    # Search
+    if search_query:
+        conditions.append("""(p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ? OR parent.name LIKE ?)""")
+
+        search_term = f"%{search_query}%"
+        query_params = [search_term] * 4
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    # Count products
+    count_query = """SELECT COUNT(*) AS total """ + query
+
+    total_products = db.execute(count_query, query_params).fetchone()["total"]
+
+    # Calculate the total number of pages
+    products_per_page = 10
+    total_pages = math.ceil(total_products / products_per_page)
+
+    # Main query
+    main_query = """SELECT p.product_id, p.name, p.pack_size, p.stock, p.is_active, b.name AS brand_name, c.name AS assigned_category, parent.name AS parent_category """ + query
+
+    # Add sorting 
+    main_query += f" ORDER BY {sort_column} {direction.upper()}"
+
+    # Add pagination
+    main_query, query_params, page = pagination(request.args, main_query, query_params, products_per_page)
+
+    # Get products
+    products = db.execute(main_query, query_params).fetchall()
+
+    # Preserve params in pagination, sorting and filter links
+    base_params = {
+        "search_query": search_query,
+        "filter_option": filter_option,
+        "sort": sort,
+        "direction": direction
+    }
+
+    return render_template("admin/inventory.html", active_page="inventory", low_stock_count=low_stock_count, no_stock_count=no_stock_count, inactive_count=inactive_count, sort=sort,
+                           direction=direction, search_query=search_query, filter_option=filter_option, products=products, base_params=base_params, total_pages=total_pages, page=page)
+
+@app.route("/admin/products/<int:product_id>/activate", methods=["POST"])
+@admin_required
+def activate_product(product_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Update active state
+    db.execute("""UPDATE products SET is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?""", (product_id,))
+    db.commit()
+
+    flash("Product activated successfully", "success")
+    return redirect(request.referrer)
