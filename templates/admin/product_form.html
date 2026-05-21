@@ -13,8 +13,7 @@
 </div>
 
 
-<form method="post" action="{% if mode == 'edit' %}{{ url_for('edit_product', product_id=product.product_id, context=context, page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, 
-direction=base_params.direction, filter_option=base_params.filter_option) }}{% else %}{{ url_for('add_product') }}{% endif %}" enctype="multipart/form-data">
+<form method="post" action="{% if mode == 'edit' %}{{ url_for('edit_product', product_id=product.product_id, context=context) }}{% else %}{{ url_for('add_product') }}{% endif %}" enctype="multipart/form-data">
 {% set error = error | default({}) %}
 {% set product_name = product_name | default(none) %}
 {% set description = description | default(none) %}
@@ -33,7 +32,7 @@ direction=base_params.direction, filter_option=base_params.filter_option) }}{% e
             <div class="card border-0">
                 <div class="card-body">
                     
-                    <!-- Hidden input to preserve pagination, sorting, search query and filter-->
+                    <!-- Hidden inputs to preserve pagination, sorting, search query and filter -->
                     <input type="hidden" name="page" value="{{ base_params.page }}">
                     <input type="hidden" name="search_query" value="{{ base_params.search_query }}">
                     <input type="hidden" name="sort" value="{{ base_params.sort }}">
@@ -180,6 +179,12 @@ direction=base_params.direction, filter_option=base_params.filter_option) }}{% e
                         {% if mode == "edit" and catalog_mode %}
                             <small class="text-muted">Select a file to update the image or leave empty to keep the current image</small>
                         {% endif %}
+                        
+                        {% if mode == "edit" %}
+                            <div class="my-3">
+                                <small class="text-muted">Last updated: {{ p.updated_at|format_date }}</small>
+                            </div>
+                        {% endif %}
 
                         <!-- Image preview -->
                         <div class="image-preview-container d-flex justify-content-center mt-4 d-none">
@@ -268,6 +273,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
             reader.readAsDataURL(file);
         }
+    });
+
+    // Remove red border and hide error message when users inputs on invalid field
+    document.querySelectorAll("input").forEach(input => {
+
+        input.addEventListener("input", () => {
+
+            input.classList.remove("is-invalid");
+
+            const error = input.parentElement.querySelector(".invalid-feedback");
+
+            if (error) {
+                error.classList.add("d-none");
+            }
+
+        });
+
     });
 });
 

@@ -9,7 +9,7 @@
 <!-- Products table -->
 <div class="card products-card shadow-sm p-3">
     <div class="card-body">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
             
             <!-- Search form -->
             <div class="admin-products-search-form flex-grow-1 mb-3 mb-md-0">
@@ -22,7 +22,7 @@
             </div>
             
             <!-- Add product -->
-            <a href="{{ url_for('add_product') }}" class="btn add-product-btn me-auto me-md-0">
+            <a href="{{ url_for('add_product', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}" class="btn add-product-btn me-auto me-md-0">
                 Add Product
             </a>
 
@@ -30,12 +30,12 @@
 
         <!-- Products table -->
         <div class="table-responsive">
-            <table class="table">
+            <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>
                             <a href="{{ url_for('admin_products', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 ID
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
@@ -49,34 +49,34 @@
                         </th>
                         <th>
                             <a href="{{ url_for('admin_products', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Brand
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin_products', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Category
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
                         </th>
                         <th>
-                            <a href="{{ url_for('admin_products', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            <a href="{{ url_for('admin_products', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Subcategory
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin_products', sort='price', direction='desc' if sort == 'price' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Price
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin_products', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                            class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Stock
                                 <i class="fa-solid fa-sort fa-sm"></i>
                             </a>
@@ -89,7 +89,10 @@
                 {% for product in products %}
                     <tr>
                         <td>#{{ product.product_id }}</td>
-                        <td>{{ product.name }}, {{ product.pack_size }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ product.name }}</div>
+                            <small class="text-muted">{{ product.pack_size }}</small>
+                        </td>
                         <td>{{ product.brand_name }}</td>
                         <td>
                         {% if product.parent_category %}

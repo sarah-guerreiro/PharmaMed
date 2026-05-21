@@ -1383,19 +1383,16 @@ def admin_home():
     db = get_db()
 
     # Get total number of orders
-    total_orders = db.execute("""SELECT COUNT(*) AS total FROM orders""").fetchone()
-    total_orders = total_orders["total"]
+    total_orders = db.execute("""SELECT COUNT(*) AS total FROM orders""").fetchone()["total"]
 
     # Get total number of pending orders
-    pending_orders = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'""").fetchone()
-    pending_orders = pending_orders["total"]
+    pending_orders = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'""").fetchone()["total"]
 
     # Get total number of low stock products
-    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 1 AND stock <= 10""").fetchone()
-    low_stock_count = low_stock_count["total"]
+    low_stock_count = db.execute("""SELECT COUNT(*) AS total FROM products WHERE is_active = 1 AND stock <= 10""").fetchone()["total"]
 
     # Get recent orders
-    recent_orders = db.execute("""SELECT id, full_name, total, status FROM orders ORDER BY created_at DESC LIMIT 5""").fetchall()
+    recent_orders = db.execute("""SELECT id, full_name, total, status, created_at FROM orders ORDER BY created_at DESC LIMIT 5""").fetchall()
 
     # Get low stock products
     low_stock_products = db.execute("""SELECT product_id, name, pack_size, stock FROM products WHERE is_active = 1 AND stock <= 10 ORDER BY stock ASC LIMIT 10""").fetchall()
@@ -1492,6 +1489,16 @@ def add_product():
     # Get subcategoris
     subcategories = db.execute("""SELECT category_id, parent_id, name FROM categories WHERE parent_id != 0 ORDER BY name ASC""").fetchall()
 
+    # Preserve params in pagination, sorting and filter links
+    source = request.form if request.method == "POST" else request.args
+
+    base_params = {
+        "page": source.get("page", 1),
+        "search_query": source.get("search_query", ""),
+        "sort": source.get("sort", "id"),
+        "direction": source.get("direction", "asc"),
+    }
+
     # Error dictionary
     error = {}
     
@@ -1550,7 +1557,7 @@ def add_product():
                 error["image"] = "Invalid image format"
 
         if error:
-            return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, error=error,
+            return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, base_params=base_params, error=error,
                                    product_name=product_name, description=description, brand=brand, category=category, subcategory=subcategory, price=price, stock=stock, pack_size=pack_size)
         
         # Get product category
@@ -1572,11 +1579,11 @@ def add_product():
 
         db.commit()
         flash("Product added successfully", "success")
-        return redirect(url_for("admin_products"))
+        return redirect(url_for("admin_products", **base_params))
 
     else:
 
-        return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, error=error)
+        return render_template("admin/product_form.html", active_page="products", brands=brands, categories=categories, subcategories=subcategories, base_params=base_params, error=error)
 
 @app.route("/admin/products/<int:product_id>/edit", methods=['GET', 'POST'])
 @admin_required
@@ -1741,9 +1748,7 @@ def edit_product(product_id):
         db.commit()
 
         flash("Product updated successfully", "success")
-        print(base_params)
-        return redirect(url_for("admin_inventory" if context == "inventory" else "admin_products", **base_params)
-)
+        return redirect(url_for("admin_inventory" if context == "inventory" else "admin_products", **base_params))
     
     else:
         return render_template("admin/product_form.html", active_page=active_page, product=product, brands=brands, categories=categories, subcategories=subcategories, mode=mode, context=context, base_params=base_params, error=error)
@@ -1765,7 +1770,155 @@ def deactivate_product(product_id):
 @app.route("/admin/orders")
 @admin_required
 def admin_orders():
-    return render_template("admin/orders.html", active_page="orders")
+
+    # Connect to database
+    db = get_db()
+
+    # Get total number of pending orders
+    pending_orders_count = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'""").fetchone()["total"]
+
+    # Get total number of processing orders
+    processing_orders_count = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'processing'""").fetchone()["total"]
+
+    # Get total number of shipped orders
+    shipped_orders_count = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'shipped'""").fetchone()["total"]
+
+    # Get total number of delivered orders
+    delivered_orders_count = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'delivered'""").fetchone()["total"]
+
+    # Get total number of cancelled orders
+    cancelled_orders_count = db.execute("""SELECT COUNT(*) AS total FROM orders WHERE status = 'cancelled'""").fetchone()["total"]
+
+    # Get sorting parameter and direction, and filter option
+    sort = request.args.get("sort", "id")
+    direction = request.args.get("direction", "asc")
+    filter_option = request.args.get("filter_option", "all")
+
+    # Sorting mapping
+    allowed_sorts = {
+        "id": "id",
+        "full_name": "full_name",
+        "date": "created_at",
+        "total": "total",
+    }
+
+    # Get sorting column
+    sort_column = allowed_sorts.get(sort, "id")
+
+    # Sorting direction validation
+    if direction not in ["asc", "desc"]:
+        direction = "asc"
+
+    # FROM clause
+    from_query = "FROM orders"
+
+    # Main query
+    query = """SELECT id, full_name, total, status, created_at """ + from_query
+
+    conditions = []
+    query_params = []
+
+    # Filter
+    if filter_option == "pending":
+        conditions.append("status = 'pending'")
+
+    elif filter_option == "processing":
+        conditions.append("status = 'processing'")
+
+    elif filter_option == "shipped":
+        conditions.append("status = 'shipped'")
+
+    elif filter_option == "delivered":
+        conditions.append("status = 'delivered'")
+    
+    elif filter_option == "cancelled":
+        conditions.append("status = 'cancelled'")
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    # Count products
+    count_query = """SELECT COUNT(*) AS total """ + from_query
+
+    if conditions:
+        count_query += " WHERE " + " AND ".join(conditions)
+
+    total_orders = db.execute(count_query, query_params).fetchone()["total"]
+
+    # Calculate the total number of pages
+    orders_per_page = 10
+    total_pages = math.ceil(total_orders / orders_per_page)
+
+    # Add sorting 
+    query += f" ORDER BY {sort_column} {direction.upper()}"
+
+    # Add pagination
+    query, query_params, page = pagination(request.args, query, query_params, orders_per_page)
+
+    # Get products
+    orders = db.execute(query, query_params).fetchall()
+
+    # Preserve params in pagination, sorting and filter links
+    base_params = {
+        "filter_option": filter_option,
+        "sort": sort,
+        "direction": direction
+    }
+    
+    return render_template("admin/orders.html", active_page="orders", pending_orders_count=pending_orders_count, processing_orders_count=processing_orders_count, shipped_orders_count=shipped_orders_count,
+                           delivered_orders_count=delivered_orders_count, cancelled_orders_count=cancelled_orders_count, orders=orders, total_pages=total_pages, page=page, base_params=base_params,
+                           sort=sort, direction=direction, filter_option=filter_option)
+
+@app.route("/admin/orders/<int:order_id>", methods=["GET", "POST"])
+@admin_required
+def admin_order_details(order_id):
+
+    # Connect to database
+    db = get_db()
+
+    # Get order
+    order = db.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+
+    if not order:
+        abort(404)
+
+    # Get order items
+    order_items = db.execute("SELECT * FROM order_items WHERE order_id = ?", (order_id,)).fetchall()
+
+    # Preserve params in pagination, sorting and filter links
+    source = request.form if request.method == "POST" else request.args
+
+    base_params = {
+        "page": source.get("page", 1),
+        "sort": source.get("sort", "id"),
+        "direction": source.get("direction", "asc"),
+        "filter_option": source.get("filter_option", "all"),
+    }
+
+    if request.method == "POST":
+
+        # Get form data
+        status = request.form.get("status")
+
+        # Allowed statuses
+        allowed_statuses = ["pending", "processing", "shipped", "delivered", "cancelled"]
+
+        # Validation
+        if status not in allowed_statuses:
+            flash("Invalid order status", "danger")
+            return redirect(url_for("admin_order_details", order_id=order_id, **base_params)
+            )
+
+        # Update database
+        db.execute("""UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?""", (status, order_id))
+
+        db.commit()
+
+        flash("Order status updated successfully", "success")
+        return redirect(url_for("admin_orders", **base_params))
+
+    else:
+        return render_template("admin/order_details.html", order=order, order_items=order_items, base_params=base_params)
 
 @app.route("/admin/inventory")
 @admin_required

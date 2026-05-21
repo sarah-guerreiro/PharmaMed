@@ -26,8 +26,7 @@
                         <p>Total: <strong>€{{ "%.2f"|format(order.total)  }}</strong></p>
                     </div>
                     <div class="col-12 col-md-6 col-lg-7 mt-md-3">
-                        <p>Status: <span class="badge {% if order.status == 'pending' %}bg-warning {% elif order.status == 'confirmed' %}bg-warning {% elif order.status == 'shipped' %}bg-warning 
-                        {% elif order.status == 'completed' %}bg-success {% elif order.status == 'cancelled' %}bg-danger {% endif %}">{{ order.status }}</span></p>
+                        <p>Status: <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% endif %}">{{ order.status|title }}</span></p>
                     </div>
                 </div>
             </li>

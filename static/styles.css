@@ -313,14 +313,14 @@
 
 .add-to-cart-btn, .login-btn, .register-btn, .forgot-password-btn, .reset-password-btn, .decrease-btn, .increase-btn, .checkout-btn, 
 #saveChangesBtn, #addAddressBtn, #saveAddressBtn, .change-password-btn, .continue-btn, .place-order-btn, .view-orders-btn, .order-details-btn, 
-.manage-stock-btn, .add-product-btn {
+.manage-stock-btn, .add-product-btn, .back-to-orders-btn {
   background-color: #4B0082;
   color: white;
 }
 
 .add-to-cart-btn:hover, .login-btn:hover, .register-btn:hover, .forgot-password-btn:hover, .reset-password-btn:hover, .decrease-btn:hover, .increase-btn:hover, 
 .checkout-btn:hover, #saveChangesBtn:hover, #addAddressBtn:hover, #saveAddressBtn:hover, .change-password-btn:hover, .continue-btn:hover, .place-order-btn:hover, 
-.view-orders-btn:hover, .order-details-btn:hover, .manage-stock-btn:hover, .add-product-btn:hover {
+.view-orders-btn:hover, .order-details-btn:hover, .manage-stock-btn:hover, .add-product-btn:hover, .back-to-orders-btn:hover {
   background-color: #6f42c1;
   color: white;
 }
@@ -728,7 +728,7 @@ h6 {
 }
 
 .dark-item {
-  background-color: #F8F8FF;
+  background-color: #E6E6FA;
 }
 
 .admin-login-form .username, .admin-login-form .password {
@@ -776,4 +776,8 @@ h6 {
 
 .input-group.is-invalid .input-group-text {
     border-color: #dc3545;
+}
+
+.update-status {
+  max-width: 400px;
 }

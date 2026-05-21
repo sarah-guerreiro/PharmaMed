@@ -24,8 +24,11 @@
                     <p>Shipping method: <strong>{{ order.shipping_method|capitalize }}</strong></p>
                 </div>
                 <div class="col-12 col-md-4 col-lg-7 text-lg-end pe-lg-3">
-                    <p>Status: <span class="badge {% if order.status == 'pending' %}bg-warning {% elif order.status == 'confirmed' %}bg-warning {% elif order.status == 'shipped' %}bg-warning 
-                    {% elif order.status == 'completed' %}bg-success {% elif order.status == 'cancelled' %}bg-danger {% endif %}">{{ order.status }}</span></p>
+                    <p>Status: 
+                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% endif %}">
+                        {{ order.status|title }}
+                        </span>
+                    </p>
                 </div>
             </div>
         </li>

@@ -18,7 +18,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number">
+                        <h5 class="number fw-bold">
                             {{ low_stock_count }}
                         </h5>
                     </div>
@@ -36,7 +36,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number">
+                        <h5 class="number fw-bold">
                             {{ no_stock_count }}
                         </h5>
                     </div>
@@ -54,7 +54,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number">
+                        <h5 class="number fw-bold">
                             {{ inactive_count }}
                         </h5>
                     </div>
@@ -116,47 +116,47 @@
 
         {% if products %}
             <div class="table-responsive">
-                <table class="table">
+                <table class="table align-middle">
                     <thead>
                         <tr>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     ID
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-3">
                                     Product
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Brand
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Category
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Subcategory
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin_inventory', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
-                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
+                                class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Stock
                                     <i class="fa-solid fa-sort fa-sm"></i>
                                 </a>
@@ -169,7 +169,10 @@
                     {% for product in products %}
                         <tr>
                             <td>#{{ product.product_id }}</td>
-                            <td>{{ product.name }}, {{ product.pack_size }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ product.name }}</div>
+                                <small class="text-muted">{{ product.pack_size }}</small>
+                            </td>
                             <td>{{ product.brand_name }}</td>
                             <td>
                             {% if product.parent_category %}
@@ -185,7 +188,7 @@
                                 -
                             {% endif %}
                             </td>
-                            <td class="text-center fw-semibold">
+                            <td class="ps-4 fw-semibold">
                                 {{ product.stock }}
                             </td>
                             <td class="text-center">
