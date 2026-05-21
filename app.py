@@ -298,9 +298,9 @@ def search():
         return redirect(url_for("index"))
 
     # Base query (search in product name, category name or brand name)
-    query = """FROM products p JOIN categories C ON p.category_id = c.category_id JOIN brands b ON p.brand_id = b.brand_id 
-    WHERE p.is_active = 1 AND (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ?)"""
-    query_params = [f"%{search_query}%"] * 3
+    query = """FROM products p JOIN categories C ON p.category_id = c.category_id LEFT JOIN categories parent ON c.parent_id = parent.category_id JOIN brands b ON p.brand_id = b.brand_id 
+    WHERE p.is_active = 1 AND (p.name LIKE ? OR b.name LIKE ? OR c.name LIKE ? OR parent.name LIKE ?)"""
+    query_params = [f"%{search_query}%"] * 4
 
     # Get selected filters from the URL query parameters
     selected_subcategories = request.args.getlist('subcategory')
