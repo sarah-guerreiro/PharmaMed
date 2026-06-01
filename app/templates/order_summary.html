@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Order Summary
+{% endblock %}
+
+{% block main %}
+
+<div class="container my-5 px-4">
+    <div class="section-header pb-1">
+        <h4>Order summary</h4>  
+    </div>
+
+    <!-- Shipping address -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Shipping Address</h6>
+        <p class="mb-1"><strong>{{ address.full_name }}</strong></p>
+        <p>{{ address.address_line }}, {{ address.postal_code }} {{ address.city }}, {{ address.country }}</p>
+    </div>
+
+    <!-- Shipping method -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Shipping Method</h6>
+        <p>{{ shipping_method|capitalize }} (€{{ "%.2f"|format(shipping_cost) }})</p>
+    </div>
+
+    <!-- Order items -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Order Items</h6>
+
+        <div class="card order-card p-4">
+        {% for item in cart_items %}
+
+            <!-- Desktop and tablet layout-->
+            <div class="d-none d-md-block">
+                <div class="row align-items-center py-3">
+                    
+                    <!-- Item image -->
+                    <div class="order-item-image d-flex justify-content-center align-items-center col-2">
+                        <img src="{{ url_for('static', filename=item.image_url) }}" class="product-image" alt="{{ item.name }}">
+                    </div>
+                    <div class="col-6">
+                        {{ item.name }}, {{ item.pack_size }} 
+                    </div>
+                    <div class="col-2 text-end">
+                        x {{ item.quantity }}
+                    </div>
+                    <div class="col-2 text-center">
+                        €{{ "%.2f"|format(item.total) }}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Smartphone layout -->
+            <div class="d-md-none">
+                <div class="row align-items-center pt-3">
+                    
+                    <!-- Item image -->
+                    <div class="order-item-image d-flex justify-content-center align-items-center col-5">
+                        <img src="{{ url_for('static', filename=item.image_url) }}" class="product-image" alt="{{ item.name }}">
+                    </div>
+                    <div class="col-7">
+                        {{ item.name }}, {{ item.pack_size }}
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-7 text-end">
+                        x {{ item.quantity }}
+                    </div>
+                    <div class="col-5">
+                        €{{ "%.2f"|format(item.total) }}
+                    </div>
+
+                </div>
+            </div>
+
+        {% endfor %}
+        </div>
+    </div>
+
+    <!-- Totals -->
+    <div class="row pt-4">
+        <div class="col-8 col-md-10 text-end">
+            <div class="mb-3">Subtotal:</div>
+            <div class="mb-3">Shipping:</div>
+            <h6>Total:</h6>
+        </div>
+        <div class="col-4 col-md-2 text-center pe-md-5">
+            <div class="mb-3"> €{{ "%.2f"|format(subtotal) }}</div>
+            <div class="mb-3"> €{{ "%.2f"|format(shipping_cost) }}</div>
+            <h6> €{{ "%.2f"|format(total) }}</h6>
+        </div>
+    </div>
+
+    <!-- Place order button-->
+    <div class="mt-4 text-center">
+        <form method="POST" action="{{ url_for('orders.place_order') }}">
+            <button class="btn place-order-btn">Place Order</button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

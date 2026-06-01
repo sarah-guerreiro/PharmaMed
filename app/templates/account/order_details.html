@@ -1,0 +1,96 @@
+{% extends "account/account.html" %}
+
+{% block account_content %}
+
+<div class="page-header pb-1">
+    <h4>Order Details</h4>
+</div>
+<div class="card order-card my-5">
+    <ul class="list-group list-group-flush">
+
+        <!-- Order summary -->
+        <li class="list-group-item dark-item p-3 p-md-4">
+            <div class="row">
+                <div class="col-12 col-md-4 col-lg-5 mb-3 mb-md-0 ">
+                    <strong>Order #{{ order.id }} </strong> 
+                </div>
+                <div class="col-12 col-md-8 col-lg-4 text-md-end text-lg-start">
+                    <p>Date: <strong>{{ order.created_at | format_date }}</strong></p>   
+                </div>
+                <div class="col-12 col-md-4 col-lg-3 text-lg-end mt-lg-0">
+                    <p>Total: <strong>€{{ "%.2f"|format(order.total)  }}</strong></p>
+                </div>
+                <div class="col-12 col-md-8 col-lg-5 text-md-end text-lg-start">
+                    <p>Shipping method: <strong>{{ order.shipping_method|capitalize }}</strong></p>
+                </div>
+                <div class="col-12 col-md-4 col-lg-7 text-lg-end pe-lg-3">
+                    <p>Status: 
+                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% endif %}">
+                        {{ order.status|title }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </li>
+
+        <!-- Shipping address -->
+        <li class="list-group-item p-3 p-md-4">
+            <h6>Shipping Address</h6>
+            <p class="mb-1">{{ order.full_name }}</p>
+            <p class="mb-1">{{ order.address_line }}</p>
+            <p class="mb-1">{{ order.postal_code }} {{ order.city }}</p>
+            <p class="mb-0">{{ order.country }}</p>
+        </li>
+
+        <!-- Order items -->
+         <li class="list-group-item dark-item p-3 p-md-4">
+            <div class="row">
+                <div class="col-5 col-md-6 col-lg-8">
+                    <h6>Items</h6>
+                </div>
+                <div class="col-3 col-md-3 col-lg-2 text-end">
+                    <h6>Quant.</h6>
+                </div>  
+                <div class="col-4 col-md-3 col-lg-2 text-end">
+                    <h6>Unit Price</h6>
+                </div>  
+            </div>
+            {% for item in items %}
+                <div class="row pb-2">
+                    <div class="col-5 col-md-6 col-lg-8">
+                        {{ item.name }}, {{ item.pack_size }}
+                    </div>
+                    <div class="col-3 col-md-3 col-lg-2 text-end">
+                        x {{ item.quantity }}
+                    </div>
+                    <div class="col-4 col-md-3 col-lg-2 text-end">
+                        €{{ "%.2f"|format(item.price) }}
+                    </div>
+                </div>
+            {% endfor %}
+        </li>
+
+        <!-- Totals -->
+        <li class="list-group-item p-3 p-md-4">
+            <div class="row">
+                <div class="col-8 col-md-9 col-lg-10 text-end">
+                    <p class="mb-2">Subtotal:</p>
+                    <p class="mb-2">Shipping:</p>
+                    <p>Total:</p>
+                </div>
+                <div class="col-4 col-md-3 col-lg-2 text-end">
+                    <p class="mb-2"><strong> €{{ "%.2f"|format(order.subtotal) }}</strong></p>
+                    <p class="mb-2"><strong> €{{ "%.2f"|format(order.shipping_cost) }}</strong></p>
+                    <p><strong> €{{ "%.2f"|format(order.total) }}</strong></p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+<div class="text-center">
+    <a href="{{ url_for('account.orders') }}" class="btn view-orders-btn">
+        View Orders
+    </a>
+</div>
+
+{% endblock %}

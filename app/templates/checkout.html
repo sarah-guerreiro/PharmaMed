@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Checkout
+{% endblock %}
+
+{% block main %}
+
+<div class="container my-5 px-4">
+    <div class="section-header pb-1">
+        <h4 >Shipping details</h4>  
+    </div>
+    <form method="POST" action="{{ url_for('orders.checkout') }}">
+
+        <!-- Shipping address -->
+        <h6 class="pt-4 pb-2">Select shipping address:</h6>
+
+        {% set address_error = address_error | default({}) %}
+        {% if address_error %}
+            <div class="text-danger small mb-3">
+                {{ address_error.address }}
+            </div>
+        {% endif %}
+
+        {% if addresses %}
+            <div class="row">
+                {% for address in addresses %}
+                    <div class="col-12 col-md-4 col-xl-3 mb-3">
+                        <div class="card address-card p-3">
+                            <div class="form-check">
+                                <input type="radio" name="address_id" value="{{ address.id }}" class="form-check-input me-2" id="address-{{ address.id }}" {% if request.form.get('address_id') == address.id|string or address.is_default %}checked{% endif %}>
+                                <label class="form-check-label ps-2" for="address-{{ address.id }}">
+                                    <div class="mb-1">
+                                        <strong>{{ address.full_name }}</strong>
+                                    </div>    
+                                    <p class="mb-1">{{ address.address_line }}</p>
+                                    <p class="mb-1">{{ address.postal_code }} {{ address.city }}</p>
+                                    <p>{{ address.country }}</p>
+                                </label>  
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <button type="button" id="addAddressBtn" class="btn mt-2 mb-3">
+            Add New Address
+        </button>
+
+        <!-- Add address -->
+        {% set form_error = form_error | default({}) %}
+        <div id="addressForm" class="card p-4 mt-2 {% if form_error %}d-block{% else %}d-none{% endif %}">
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                {% set full_name_error = form_error.get('full_name') %}
+                    <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ request.form.get('full_name', '') }}">
+                    {% if full_name_error %}
+                        <div class="invalid-feedback">
+                            {{ full_name_error }}
+                        </div>
+                    {% endif %}
+                </div> 
+                <div class="col-12 col-md-8 mb-3"> 
+                {% set address_line_error = form_error.get('address_line') %}
+                    <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ request.form.get('address_line', '') }}">
+                    {% if address_line_error %}
+                        <div class="invalid-feedback">
+                            {{ address_line_error }}
+                        </div>
+                    {% endif %}
+                </div>   
+                <div class="col-12 col-md-4 mb-3">
+                {% set postal_code_error = form_error.get('postal_code') %}
+                    <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ request.form.get('postal_code', '') }}">
+                    {% if postal_code_error %}
+                        <div class="invalid-feedback">
+                            {{ postal_code_error }}
+                        </div>
+                    {% endif %}
+                </div> 
+                <div class="col-12 col-md-4 mb-3">
+                {% set city_error = form_error.get('city') %}
+                    <input name="city" class="form-control {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ request.form.get('city', '') }}">
+                    {% if city_error %}
+                        <div class="invalid-feedback">
+                            {{ city_error }}
+                        </div>
+                    {% endif %}
+                </div>  
+                <div class="col-12 col-md-4 mb-3">
+                {% set country_error = form_error.get('country') %}
+                    <input name="country" class="form-control {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ request.form.get('country', '') }}">
+                    {% if country_error %}
+                        <div class="invalid-feedback">
+                            {{ country_error }}
+                        </div>
+                    {% endif %}
+                </div> 
+                <div class="form-check ms-3 mb-4 mb-md-2">
+                    <input type="checkbox" name="is_default" class="form-check-input" id="defaultCheck" {% if request.form.get('is_default') %}checked{% endif %}>
+                    <label class="form-check-label" for="defaultCheck">
+                        Set as default address
+                    </label>
+                </div>
+                <div class="col-12 text-center">    
+                    <button id="saveAddressBtn" class="btn">Save Address</button>
+                </div>    
+            </div>    
+        </div>
+
+        <!-- Shipping method -->
+        <h6 class="pt-4 pb-2">Select shipping method:</h6>
+
+        {% set shipping_error = shipping_error | default({}) %}
+        {% if shipping_error %}
+            <div class="text-danger small mb-3">
+                {{ shipping_error.shipping }}
+            </div>
+        {% endif %}
+
+        <div class="form-check ms-2 mb-2">
+            <input class="form-check-input" type="radio" name="shipping_method" value="standard" id="standardShipping" {% if request.form.get('shipping_method') == 'standard' %}checked{% endif %}>
+            <label class="form-check-label" for="standardShipping">
+                Standard (€1.99), 3-5 days
+            </label>
+        </div>
+        <div class="form-check ms-2">
+            <input class="form-check-input" type="radio" name="shipping_method" value="express" id="expressShipping" {% if request.form.get('shipping_method') == 'express' %}checked{% endif %}>
+            <label class="form-check-label" for="expressShipping">
+                Express (€5.99), 1-2 days
+            </label>
+        </div>
+
+        <!-- Confirm button -->
+        <div class="mt-4 text-center">
+            <button class="btn continue-btn">Continue</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        
+        // Display address form when "add address" button is clicked
+        document.getElementById("addAddressBtn").addEventListener("click", function() {
+            document.getElementById("addressForm").classList.toggle("d-none");
+        });
+    });
+
+</script>
+
+{% endblock %}

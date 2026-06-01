@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Order Success
+{% endblock %}
+
+{% block main %}
+
+<div class="container my-5 px-4">
+    <div class="section-header pb-1">
+        <h4>Order placed succesfully. Thank you for your purchase!</h4>  
+    </div>
+
+    <!-- Order info -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Order #{{order.id }}</h6>
+        <p class="mb-1">Date: {{ order.created_at | format_date }}</p>
+        <p>Shipping method: {{ order.shipping_method|capitalize }}</p>
+    </div>
+
+    <!-- Shipping address -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Shipping Address</h6>
+        <p class="mb-1">{{ order.full_name }}</p>
+        <p>{{ order.address_line }}, {{ order.postal_code }} {{ order.city }}, {{ order.country }}</p>
+    </div>
+
+    <!-- Order items -->
+    <div class="pt-4">
+        <h6 class="subsection-header">Order Items</h6>
+
+        {% for item in items %}
+            <p class="mb-1">{{ item.quantity }}x {{ item.name }}, {{ item.pack_size }} - €{{ "%.2f"|format(item.price) }}</p>
+        {% endfor %}
+
+    </div>
+
+    <!-- Totals -->
+    <div class="pt-4">
+        <p class="mb-1">Subtotal: €{{ "%.2f"|format(order.subtotal) }}</p>
+        <p class="mb-1">Shipping: €{{ "%.2f"|format(order.shipping_cost) }}</p>
+        <p>Total: €{{ "%.2f"|format(order.total) }}</p>
+
+    <!-- Buttons-->
+    <div class="mt-5 text-center">
+        <a href="/" class="btn continue-btn">Continue Shopping</a>
+        <a href="{{ url_for('account.orders') }}" class="btn view-orders-btn">View Orders</a>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "admin/admin.html" %}
+
+{% block admin_content %}
+
+<div class="page-header pb-1 mb-4">
+    <h4>Order details</h4>
+</div>
+
+<div class="card border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5">
+
+            <div class="order-2 order-md-1">
+                <h5 class="mb-1">
+                    Order #{{ order.id }}
+                </h5>
+                <small class="text-muted">
+                    Placed on {{ order.created_at | format_date }}
+                </small>
+            </div>
+
+            <a href="{{ url_for('admin.admin_orders', page=base_params.page, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}" 
+            class="btn btn-sm back-to-orders-btn order-1 order-md-2">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to orders
+            </a>
+        </div>
+
+        <!-- Shipping address -->
+        <div class="mb-5">
+            <h5 class="mb-3">Shipping address</h5>
+            <div class="fw-semibold">{{ order.full_name }}</div>
+            <div>{{ order.address_line }}</div>
+            <div>{{ order.postal_code }} {{ order.city }}</div>
+            <div>{{ order.country }}</div>
+        </div>
+
+        <!-- Order items -->
+        <div class="mb-5">
+            <h5 class="mb-3">Order items</h5>
+
+            {% if order_items %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Unit price</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for item in order_items %}
+                            <tr>
+
+                                <!-- Product -->
+                                <td>
+                                    <div class="fw-semibold">{{ item.name }}</div>
+                                    <small class="text-muted">{{ item.pack_size }}</small>
+                                </td>
+
+                                <!-- Quantity -->
+                                <td class="text-center">{{ item.quantity }}</td>
+
+                                <!-- Unit price -->
+                                <td class="text-end">€{{ "%.2f"|format(item.price) }}</td>
+
+                                <!-- Total -->
+                                <td class="text-end fw-semibold">€{{ "%.2f"|format(item.quantity * item.price) }}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fa-solid fa-box-open fa-lg me-2"></i>No items found
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Order summary -->
+        <div class="mb-5">
+            <h5 class="mb-3">Order summary</h5>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal</span>
+                <span>€{{ "%.2f"|format(order.subtotal) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Shipping</span>
+                <span>€{{ "%.2f"|format(order.shipping_cost) }}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-semibold">
+                <span>Total</span>
+                <span>€{{ "%.2f"|format(order.total) }}</span>
+            </div>
+        </div>
+
+        <!-- Order status -->
+        <div>
+            <h5 class="mb-3">Order status</h5>
+            <div class="mb-3">
+                <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% endif %}">
+                    {{ order.status|title }}
+                </span>
+            </div>
+            <div class="mb-4">
+                <small class="text-muted">Last updated: {{ order.updated_at | format_date }}</small>
+            </div>
+            
+
+            <form method="POST" action="{{ url_for('admin.admin_order_details', order_id=order.id, page=base_params.page, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
+
+                <!-- Hidden inputs to preserve pagination, sorting, search query and filter -->
+                <input type="hidden" name="page" value="{{ base_params.page }}">
+                <input type="hidden" name="sort" value="{{ base_params.sort }}">
+                <input type="hidden" name="direction" value="{{ base_params.direction }}">
+                <input type="hidden" name="filter_option" value="{{ base_params.filter_option }}">
+
+                <!-- Update status -->
+                <div class="d-flex flex-column flex-md-row align-items-md-end gap-3">
+                    <div class="update-status mb-3 mb-md-0 flex-grow-1">
+                        <label class="form-label fw-semibold">
+                            Update status
+                        </label>
+                        <select name="status" class="form-select">
+                            <option value="pending" {% if order.status == "pending" %}selected{% endif %}>
+                                Pending
+                            </option>
+                            <option value="processing" {% if order.status == "processing" %}selected{% endif %}>
+                                Processing
+                            </option>
+                            <option value="shipped" {% if order.status == "shipped" %}selected{% endif %}>
+                                Shipped
+                            </option>
+                            <option value="delivered" {% if order.status == "delivered" %}selected{% endif %}>
+                                Delivered
+                            </option>
+                            <option value="cancelled" {% if order.status == "cancelled" %}selected{% endif %}>
+                                Cancelled
+                            </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-success ms-md-auto"><i class="fa-solid fa-check me-1"></i>Update status</button>
+                </div>  
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

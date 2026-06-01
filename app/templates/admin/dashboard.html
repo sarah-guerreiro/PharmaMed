@@ -1,0 +1,153 @@
+{% extends "admin/admin.html" %}
+
+{% block admin_content %}
+
+<div class="page-header pb-1 mb-5">
+    <h4>Welcome back!</h4>
+</div>
+
+<!-- Statistics cards -->
+<div class="row row-cols-1 row-cols-md-3 mb-5">
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Total Orders</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number fw-bold">
+                            {{ total_orders }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Pending Orders</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number fw-bold">
+                            {{ pending_orders }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col mb-3">
+        <div class="card admin-card shadow-sm">
+            <ul class="list-group list-group-flush text-center">
+                <li class="list-group-item dark-item">
+                    <div class="text my-2">
+                        <strong>Low Stock</strong>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="my-2">
+                        <h5 class="number fw-bold">
+                            {{ low_stock_count }}
+                        </h5>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Recent orders -->
+<div class="card recent-orders-card shadow-sm p-3 mb-5">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h5 class="card-title">
+                <i class="fa-solid fa-box-open me-3"></i>Recent orders
+            </h5>
+            <a href="{{ url_for('admin.admin_orders') }}" class="btn btn-sm view-orders-btn">
+                View Orders
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th class="ps-md-5">Customer</th>
+                        <th class="ps-4">Date</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td class="ps-md-5">{{ order.full_name }}</td>
+                        <td>{{ order.created_at | format_date }}</td>
+                        <td class="text-center">
+                            <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'processing' %}bg-info{% elif order.status == 'shipped' %}bg-primary{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </td>
+                        <td class="text-end">€{{ "%.2f"|format(order.total) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Low stock alerts -->
+<div class="card low-stock-card shadow-sm p-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h5 class="card-title">
+                <i class="fa-solid fa-triangle-exclamation me-3"></i>Low stock alerts
+            </h5>
+            <a href="{{ url_for('admin.admin_inventory') }}" class="btn btn-sm manage-stock-btn">
+                Manage stock
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th class="text-end">Stock</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                {% for product in low_stock_products %}
+                    <tr>
+                        <td>#{{ product.product_id }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ product.name }}</div>
+                            <small class="text-muted">{{ product.pack_size }}</small>
+                        </td>
+                        <td class="text-end pe-3">
+                            <span class="badge {% if product.stock <= 5 %}bg-danger {% elif product.stock > 5 and product.stock <= 10 %}bg-warning {% endif %}">
+                                {{ product.stock }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

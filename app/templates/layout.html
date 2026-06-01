@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        
+        <!-- Bootstrap CDN link -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        
+        <!-- https://favicon.io/emoji-favicons/pill -->
+         <link href="/static/favicon.ico" rel="icon">
+
+         <!-- Font Awesome CDN link -->
+         <script src="https://kit.fontawesome.com/9574363136.js" crossorigin="anonymous"></script>
+         
+        <link href="/static/styles.css" rel="stylesheet">
+
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+
+    <body class="d-flex flex-column min-vh-100">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-md sticky-top" data-bs-theme="dark">
+            <div class="container-fluid flex-wrap flex-md-nowrap align-items-center">
+                <div class="d-flex align-items-center">
+
+                    <!-- Products toggle, tablet and desktop -->
+                    <button class="nav-link text-light products-toggle me-3 d-none d-md-inline-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#productsMenu" aria-expanded="false" aria-controls="productsMenu" aria-label="Products menu toggle">
+                        <i class="fa-solid fa-bars fa-lg me-1"></i>Products
+                    </button>
+
+                    <!-- Navbar toggler, smartphone only -->
+                    <button class="navbar-toggler me-3 d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#productsMenu" aria-expanded="false" aria-controls="productsMenu" aria-label="Products menu toggle">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Brand -->
+                    <a class="navbar-brand" href="/">
+                        <i class="fa-solid fa-pills fa-lg"></i>PharmaMed
+                    </a>
+                </div>
+            
+                <!-- Icons (Admin, Login, Cart, Account, Logout) -->
+                <ul class="navbar-nav flex-row align-items-center gap-2 order-1 order-md-2">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link" href="{{ url_for('account.account_home') }}" aria-label="Account">
+                            <i class="fa-solid fa-user fa-lg"></i>
+                            <span class="d-none d-md-block small">Account</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
+                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                            <span class="d-none d-md-block small">Cart</span>
+                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                {{ cart_count }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <form action="{{ url_for('auth.logout') }}" method="post" class="d-inline">
+                            <button class="nav-link btn btn-link" type="submit">
+                                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+                                <span class="d-none d-md-block small">Logout</span>
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link" href="{{ url_for('admin.admin_login') }}" aria-label="Admin">
+                            <i class="fa-solid fa-gear fa-lg"></i>
+                            <span class="d-none d-md-block small">Admin</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}" aria-label="Login">
+                            <i class="fa-solid fa-user fa-lg"></i>
+                            <span class="d-none d-md-block small">Login</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex flex-column text-center">
+                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
+                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                            <span class="d-none d-md-block small">Cart</span>
+                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                {{ cart_count }}
+                            </span>
+                        </a>
+                    </li>
+                {% endif %}
+                </ul>
+
+                <!-- Search form -->
+                <div class="search-form w-100 order-2 order-md-1 mt-2 mt-md-0 mx-md-3">
+                    <form class="d-flex" role="search" method="GET" action="/search" data-bs-theme="light">
+                        <input class="form-control me-2" type="search" name="search_query" placeholder="Search products, categories or brands" aria-label="Search" autocomplete="off">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- Flash messages -->
+        <div class="flash-messages w-100">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else ('info' if category == 'persistent' else category) }} alert-dismissible fade 
+                    d-flex align-items-center justify-content-center" role="alert" data-persistent="{{ 'true' if category == 'persistent' else 'false' }}">
+                        {{ message | safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        </div>
+
+        <!-- Products Menu -->
+        <div class="collapse" id="productsMenu">
+            <div class="products-menu shadow">
+                <div class="list-group list-group-flush">
+                    <div class="accordion accordion-flush" id="productsAccordion">
+                        
+                        <!-- Product Categories -->
+                        {% for parent_id, item in categories_menu.items() %}
+
+                            {% if item.subcategories %}
+
+                                <!-- Accordion button for categories with subcategories -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#category{{ parent_id }}" aria-expanded="false" aria-controls="categoryItems">
+                                            <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                            {{ item.category_data.name }}
+                                        </button>
+                                    </h2>
+
+                                    <!-- Product Subcategories -->
+                                    <div id="category{{ parent_id }}" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group list-group-flush">
+                                                {% for subcategory in item.subcategories %}
+                                                <a href="{{ url_for('products.display_category', category_id=subcategory.category_id) }}" class="list-group-item list-group-item-action ps-5">
+                                                    {{ subcategory.name }}
+                                                </a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% else %}
+
+                                <!-- Simple link for categories without subcategories -->
+                                <a href="{{ url_for('products.display_category', category_id=item.category_data.category_id) }}" class="list-group-item list-group-item-action">
+                                    <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                    {{ item.category_data.name }}
+                                </a>
+                                
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="flex-grow-1">
+            {% block main %}{% endblock %}
+        </main>
+
+        <footer>
+            <div class="container footer-top d-flex flex-row justify-content-evenly flex-wrap">
+                
+                <div class="footer-top-left">
+                    <h6>CUSTOMER SUPPORT</h6>
+                    <p>
+                        <i class="fa-solid fa-envelope me-2"></i>
+                        <a href="mailto:email@pharmamed.com">email@pharmamed.com</a>
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-phone me-2"></i>
+                        <a href="tel:+351999999999">+351 999 999 999</a>
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-clock me-2"></i>Mon-Fri 9:00-18:00
+                    </p>
+                </div>
+                
+                <div class="footer-top-right">
+                    <h6>FOLLOW US</h6>
+                    <div class="d-flex gap-2">
+                        <a href="https://facebook.com" target="_blank" aria-label="Follow us on Facebook">
+                            <i class="fa-brands fa-facebook me-2"></i>
+                        </a>
+
+                        <a href="https://instagram.com" target="_blank" aria-label="Follow us on Instagram">
+                            <i class="fa-brands fa-instagram fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>  
+            
+            <hr>
+            
+            <div class="footer-bottom">
+                <p id="copyright"></p> 
+            </div>
+        </footer>
+
+        <script>
+
+            document.addEventListener("DOMContentLoaded", function() {
+
+                const toggle = document.querySelector(".products-toggle");
+                const productsMenu = document.querySelector(".products-menu");
+                const menu = new bootstrap.Collapse(document.getElementById("productsMenu"), { toggle: false });
+
+                // Check if the user is using a desktop
+                const isDesktop = () => window.matchMedia("(min-width: 992px)").matches;
+
+                // Open products menu on hover (desktop only)
+                toggle.addEventListener("mouseenter", () => {
+                    if (isDesktop()) {
+                        menu.show();
+                    }
+                });
+
+                productsMenu.addEventListener("mouseenter", () => {
+                    if (isDesktop()) {
+                        menu.show();
+                    }
+                });
+
+                // Close when mouse leaves the menu or button (desktop only)
+                const closeMenu = () => {
+                    if (isDesktop()) {
+                        setTimeout(() => {
+                            if (!toggle.matches(":hover") && !productsMenu.matches(":hover")) {
+                            menu.hide();
+                            }
+                        }, 200);
+                    }
+                };
+
+                toggle.addEventListener("mouseleave", closeMenu);
+                productsMenu.addEventListener("mouseleave", closeMenu);
+
+                // Close menu if click outside toggle and menu
+                document.addEventListener("click", function (event) {
+
+                    const productsMenuEl = document.getElementById("productsMenu");
+
+                    if (!isDesktop()) {
+                        if (
+                            !productsMenuEl.contains(event.target) &&
+                            !toggle.contains(event.target)
+                        ) {
+                            menu.hide();
+                        }
+                    }
+                });
+
+                // Trigger smooth fade in effect for flash messages
+                document.querySelectorAll('.alert').forEach(alert => {
+                    setTimeout(() => {
+                        alert.classList.add('show');
+                    }, 100);
+                });
+                
+                // Auto-dismiss flash messages after 6 seconds
+                setTimeout(() => {
+                    document.querySelectorAll('.alert').forEach(alert => {
+
+                        // Skip for persistent alerts
+                        if (alert.dataset.persistent === 'true') return;
+
+                        alert.classList.remove('show');
+
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 500);
+                        
+                    });
+                }, 6000);
+
+                // Set current year on copyright
+                document.getElementById("copyright").innerHTML = new Date().getFullYear() + " | PharmaMed. All rights reserved.";
+            });
+
+            function addToCart(productId) {
+                fetch('/add_to_cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `product_id=${productId}&quantity=1`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    updateCartBadge(data.cart_count);
+                    addFlashMessage(data.message, data.category);
+                });
+            }
+
+            function updateCartBadge (count) {
+                const cartIcons = document.querySelectorAll('.cart-icon');
+
+                cartIcons.forEach(icon => {
+                    let badge = icon.querySelector('.cart-badge');
+
+                    badge.innerText = count;
+
+                    if (count > 0) {
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                });
+            }
+
+            function addFlashMessage(message, category) {
+
+                const container = document.querySelector('.flash-messages');
+
+                const alertDiv = document.createElement('div');
+
+                let alertClass = category === 'error' ? 'danger' : (category === 'persistent' ? 'info' : category);
+
+                alertDiv.className = `alert alert-${alertClass} alert-dismissible fade d-flex align-items-center justify-content-center`;
+
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.dataset.persistent = (category === 'persistent') ? 'true' : 'false';
+
+                alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+
+                container.appendChild(alertDiv);
+
+                // Trigger smooth fade in effect
+                setTimeout(() => {
+                    alertDiv.classList.add('show');
+                }, 100);
+
+                // Auto-dismiss flash messages after 6 seconds
+                if (alertDiv.dataset.persistent !== 'true') {
+                    setTimeout(() => {
+                        alertDiv.classList.remove('show');
+                        setTimeout(() => alertDiv.remove(), 500);
+                    }, 6000);
+                }
+            }
+        
+        </script>
+
+    </body>
+    
+</html>

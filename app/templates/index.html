@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    PharmaMed
+{% endblock %}
+
+{% block main %}
+
+<!-- Autoplaying carousel -->
+<section class="carousel">
+    <div class="container carousel mb-4">
+        <div id="autoplayingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-pause="hover">
+
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                {% for category in carousel_categories %}
+                    <button type="button" data-bs-target="#autoplayingCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-label="{{ loop.index }}"></button>
+                {% endfor %}
+            </div>
+
+            <!-- Slides -->
+            <div class="carousel-inner">
+                {% for category in carousel_categories %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <a href="{{ url_for('products.display_category', category_id=category.id) }}">
+                            <img src="{{ url_for('static', filename='images/' + category.image) }}" class="d-block w-100" alt="{{ category.name }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category shortcuts -->
+<div class="container my-5">
+    <h4 class="category-shortcuts text-center">Shop by Category</h4>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+        {% for category in main_categories %}
+        <div class="col">
+            <a href="{{ url_for('products.display_category', category_id=category.category_id) }}" class="text-decoration-none">
+                <div class="card category-card h-100 text-center">
+
+                    <!-- Category image -->
+                    <div class="card-img-top d-flex justify-content-center align-items-center mt-4">
+                        <img src="{{ url_for('static', filename=category.image_url) }}" class="category-image" alt="{{ category.name }}">
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Category name -->
+                        <h5 class="card-title">{{ category.name }}</h5>
+                    </div>                
+                </div>
+            </a>    
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Trust badges -->
+<div class="container trust-badges py-2 py-md-3">
+    <div class="row text-center px-md-5">
+        <div class="col-6 col-md-3 mb-3">
+            <i class="fa-solid fa-truck-fast mb-4"></i>
+            <p>Fast Delivery</p>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <i class="fa-solid fa-phone mb-4"></i>
+            <p>Customer Support</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-file-circle-check mb-4"></i>
+            <p>Licensed Pharmacy</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <i class="fa-solid fa-lock mb-4"></i>
+            <p>Secure Payments</p>
+        </div>
+    </div>
+</div>
+
+<!-- Brands logo slider -->
+<h4 class="brands-section text-center">Our Brands</h4>
+<div class="brands-slider my-5">
+    <div class="brands-track">
+        {% for brand in brands %}
+        <img src="{{ url_for('static', filename='images/brands/' + brand.file) }}" class="brand-logo" alt="{{ brand.name }}">
+        {% endfor %}
+
+        <!-- Repeat logo for seamless loop -->
+        {% for brand in brands %}
+        <img src="{{ url_for('static', filename='images/brands/' + brand.file) }}" class="brand-logo" alt="{{ brand.name }}">
+        {% endfor %}
+    </div>
+</div>
+ 
+{% endblock %}
