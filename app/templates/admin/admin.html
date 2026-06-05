@@ -10,47 +10,53 @@
     <div class="row">
 
         <!-- Sidebar, desktop and tablets -->
-        <div id="accountSidebar" class="col-3 d-none d-md-block">
+        <div id="accountSidebar" class="col-3 d-none d-md-block" role="navigation" aria-label="Admin navigation">
             <div class="list-group shadow-sm">
-                <a href="{{ url_for('admin.admin_products') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'products' %}active{% endif %}">
-                    <i class="fa-solid fa-pills me-2"></i>Products
+                <a href="{{ url_for('admin.admin_products') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'products' %}active{% endif %}" 
+                {% if active_page == 'products' %}aria-current="page"{% endif %}>
+                    <i class="fa-solid fa-pills me-2" aria-hidden="true"></i>Products
                 </a>
-                <a href="{{ url_for('admin.admin_orders') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'orders' %}active{% endif %}">
-                    <i class="fa-solid fa-box-open me-2"></i>Orders
+                <a href="{{ url_for('admin.admin_orders') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'orders' %}active{% endif %}" 
+                {% if active_page == 'orders' %}aria-current="page"{% endif %}>
+                    <i class="fa-solid fa-box-open me-2" aria-hidden="true"></i>Orders
                 </a>
-                <a href="{{ url_for('admin.admin_inventory') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'inventory' %}active{% endif %}">
-                    <i class="fa-solid fa-chart-column me-2"></i>Inventory
+                <a href="{{ url_for('admin.admin_inventory') }}" class="list-group-item list-group-item-action d-flex align-items-center {% if active_page == 'inventory' %}active{% endif %}" 
+                {% if active_page == 'inventory' %}aria-current="page"{% endif %}>
+                    <i class="fa-solid fa-chart-column me-2" aria-hidden="true"></i>Inventory
                 </a>
             </div>
         </div>
 
         <!-- Tabs, smartphone only -->
-        <div class="mb-3 d-md-none">
+        <nav class="mb-3 d-md-none" aria-label="Admin sections">
             <ul class="nav nav-tabs d-flex w-100 text-center mb-4">
 
                 <!-- Products tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin.admin_products') }}" class="nav-link w-100 {% if active_page == 'products' %}active{% endif %}" >
+                    <a href="{{ url_for('admin.admin_products') }}" class="nav-link w-100 {% if active_page == 'products' %}active{% endif %}" 
+                    {% if active_page == 'products' %}aria-current="page"{% endif %}>
                         Products
                     </a>
                 </li>
 
                 <!-- Orders tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin.admin_orders') }}" class="nav-link w-100 {% if active_page == 'orders' %}active{% endif %}">
+                    <a href="{{ url_for('admin.admin_orders') }}" class="nav-link w-100 {% if active_page == 'orders' %}active{% endif %}" 
+                    {% if active_page == 'orders' %}aria-current="page"{% endif %}>
                         Orders
                     </a>
                 </li>
 
                 <!-- Inventory tab -->
                 <li class="nav-item flex-fill">
-                    <a href="{{ url_for('admin.admin_inventory') }}" class="nav-link w-100 {% if active_page == 'inventory' %}active{% endif %}">
+                    <a href="{{ url_for('admin.admin_inventory') }}" class="nav-link w-100 {% if active_page == 'inventory' %}active{% endif %}" 
+                    {% if active_page == 'inventory' %}aria-current="page"{% endif %}>
                         Inventory
                     </a>
                 </li>
 
             </ul>
-        </div>
+        </nav>
 
         <!-- Main content -->
         <div class="col-12 col-md-9">

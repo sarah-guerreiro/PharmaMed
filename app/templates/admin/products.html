@@ -3,7 +3,7 @@
 {% block admin_content %}
 
 <div class="page-header pb-1 mb-5">
-    <h4>Products catalog</h4>
+    <h1 class="fs-4">Products catalog</h1>
 </div>
 
 <!-- Products table -->
@@ -12,20 +12,19 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
             
             <!-- Search form -->
-            <div class="admin-products-search-form flex-grow-1 mb-3 mb-md-0">
+            <div class="admin-products-search-form flex-grow-1 mb-3 mb-md-0 pe-0 pe-md-3">
                 <form class="d-flex" role="search" method="GET" action="{{ url_for('admin.admin_products') }}">
                     <input class="form-control me-2" type="search" name="search_query" placeholder="Search products, brands, categories or subcategories" aria-label="Search" value="{{ search_query }}" autocomplete="off">
                     <button class="btn search-btn me-md-2" type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
             
-            <!-- Add product -->
+            <!-- Add product button -->
             <a href="{{ url_for('admin.add_product', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}" class="btn add-product-btn me-auto me-md-0">
                 Add Product
             </a>
-
         </div>
 
         <!-- Products table -->
@@ -37,48 +36,48 @@
                             <a href="{{ url_for('admin.admin_products', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 ID
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-2">
                                 Product
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Brand
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Category
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Subcategory
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='price', direction='desc' if sort == 'price' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Price
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th>
                             <a href="{{ url_for('admin.admin_products', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                             class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                 Stock
-                                <i class="fa-solid fa-sort fa-sm"></i>
+                                <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                             </a>
                         </th>
                         <th class="text-center">Status</th>
@@ -128,12 +127,14 @@
 
                                 <!-- Edit button -->
                                 <a href="{{ url_for('admin.edit_product', product_id=product.product_id, context='catalog', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, 
-                                filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product"><i class="fa-solid fa-pen-to-square"></i></a>
+                                filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product" aria-label="Edit {{ product.name }}">
+                                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                                </a>
                                 
                                 <!-- Deactivate button -->
                                 <form method="POST" action="{{ url_for('admin.deactivate_product', product_id=product.product_id) }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product">
-                                        <i class="fa-regular fa-eye-slash"></i></a>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product" aria-label="Deactivate {{ product.name }}">
+                                        <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>
@@ -148,7 +149,7 @@
 
 <!-- Pagination, desktop and tablet layout -->
 {% if total_pages > 1 %}
-    <nav class="d-none d-md-block">
+    <nav class="d-none d-md-block" aria-label="Product catalog pagination">
         <ul class="pagination justify justify-content-center mt-5">
 
             <!-- Previous -->
@@ -167,7 +168,6 @@
                         1
                     </a>
                 </li>
-
                 {% if page > 4 %}
                     <li class="page-item disabled">
                         <span class="page-link">
@@ -179,7 +179,6 @@
 
             <!-- Nearby pages -->
             {% for p in range(page - 2, page + 3) %}
-
                 {% if p >= 1 and p <= total_pages %}
                     <li class="page-item {% if p == page %}active{% endif %}">
                         <a class="page-link" href="{{ url_for('admin.admin_products', page=p, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}">
@@ -198,7 +197,6 @@
                         </span>
                     </li>
                 {% endif %}
-
                 <li class="page-item">
                     <a class="page-link" href="{{ url_for('admin.admin_products', page=total_pages, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}">
                         {{ total_pages }}
@@ -220,7 +218,7 @@
 
 <!-- Pagination, smartphone only -->
 {% if total_pages > 1 %}
-    <nav class="d-md-none">
+    <nav class="d-md-none" aria-label="Product catalog pagination">
         <ul class="pagination justify justify-content-center mt-5">
             
             <!-- Previous -->
@@ -258,7 +256,6 @@
         // Initialize Bootstrap tooltips
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
     });
 
 </script>

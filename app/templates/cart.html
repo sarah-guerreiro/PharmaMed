@@ -8,12 +8,12 @@
 
 <div class="container my-5 px-4">
     <div class="cart-top pb-1">
-        <h4 >Cart</h4>  
+        <h1 class="fs-4">Cart</h1>  
     </div>
 
     {% if cart_items %}
         <!-- Total number of items -->
-        <div class="total-items py-3 ps-3">
+        <div class="total-items fw-semibold py-3 ps-3">
             Items: {{ total_items }}
         </div>      
     {% endif %}
@@ -29,18 +29,18 @@
             <div class="col-6 col-md-4">
 
                 <!-- Item name -->
-                <h6 class="item-name mb-3">{{ item.name }}</h6>
+                <h2 class="item-name fw-semibold mb-2 mb-md-3">{{ item.name }}</h2>
 
                 <!-- Item brand -->
-                <div class="mb-3">{{ item.brand }}</div>
+                <div class="text-muted mb-2 mb-md-3">{{ item.brand }}</div>
 
                 <!-- Item pack size -->
-                <div>{{ item.pack_size }}</div>
+                <small class="text-muted">{{ item.pack_size }}</small>
             </div>
 
             <!-- Item total price -->
             <div class="item-total col-6 col-md-2 my-4 my-md-0 text-center fs-5 fw-bold" data-product-id="{{ item.product_id }}">
-                € {{ "%.2f"|format(item_total) }}
+                € {{ "%.2f"|format(item.item_total) }}
             </div>
 
             <!-- Item quantity -->
@@ -48,8 +48,8 @@
                 <div class="d-flex justify-content-start justify-content-md-center align-items-center">
 
                     <!-- Decrease -->
-                    <button class="btn btn-sm decrease-btn" data-product-id="{{ item.product_id }}" data-action="decrease">
-                        <i class="fa-solid fa-minus fa-sm"></i>
+                    <button class="btn btn-sm decrease-btn" data-product-id="{{ item.product_id }}" data-action="decrease" aria-label="Decrease quantity of {{ item.name }}">
+                        <i class="fa-solid fa-minus fa-sm" aria-hidden="true"></i>
                     </button>
 
                     <!-- Quantity -->
@@ -58,13 +58,14 @@
                     </div>
 
                     <!-- Increase -->
-                    <button class="btn btn-sm increase-btn" data-product-id="{{ item.product_id }}" data-action="increase" {% if item.quantity >= item.stock %}disabled{% endif %}>
-                        <i class="fa-solid fa-plus fa-sm"></i>
+                    <button class="btn btn-sm increase-btn" data-product-id="{{ item.product_id }}" data-action="increase" aria-label="Increase quantity of {{ item.name }}" 
+                    {% if item.quantity >= item.stock %}disabled{% endif %}>
+                        <i class="fa-solid fa-plus fa-sm" aria-hidden="true"></i>
                     </button>
 
                     <!-- Remove -->
-                    <button class="btn btn-sm remove-btn ms-3 ms-md-4" data-product-id="{{ item.product_id }}" data-action="remove">
-                        <i class="fa-solid fa-trash fa-lg"></i>
+                    <button class="btn btn-sm remove-btn ms-2 ms-md-4" data-product-id="{{ item.product_id }}" data-action="remove" aria-label="Remove {{ item.name }} from cart">
+                        <i class="fa-solid fa-trash fa-lg" aria-hidden="true"></i>
                     </button>
 
                 </div>
@@ -82,7 +83,7 @@
     {% if cart_items %}
         <!-- Cart total -->
         <div class="cart-bottom text-end pt-3 pb-1 pe-3">
-            <h6 class="cart-total">Total: €{{ "%.2f"|format(cart_total) }}</h6>
+            <p class="cart-total fw-semibold">Total: €{{ "%.2f"|format(cart_total) }}</p>
         </div>
 
         <!-- Checkout button -->

@@ -10,14 +10,18 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         
         <!-- https://favicon.io/emoji-favicons/pill -->
-         <link href="/static/favicon.ico" rel="icon">
+        <link href="/static/favicon.ico" rel="icon">
 
-         <!-- Font Awesome CDN link -->
-         <script src="https://kit.fontawesome.com/9574363136.js" crossorigin="anonymous"></script>
+        <!-- Font Awesome CDN link -->
+        <script src="https://kit.fontawesome.com/9574363136.js" crossorigin="anonymous"></script>
          
         <link href="/static/styles.css" rel="stylesheet">
 
-        <title>{% block title %}{% endblock %}</title>
+        <title>
+            {% block title %}
+                PharmaMed
+            {% endblock %}
+        </title>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -45,53 +49,53 @@
             
                 <!-- Icons (Admin, Login, Cart, Account, Logout) -->
                 <ul class="navbar-nav flex-row align-items-center gap-2 order-1 order-md-2">
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="{{ url_for('account.account_home') }}" aria-label="Account">
-                            <i class="fa-solid fa-user fa-lg"></i>
-                            <span class="d-none d-md-block small">Account</span>
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
-                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
-                            <span class="d-none d-md-block small">Cart</span>
-                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
-                                {{ cart_count }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex flex-column text-center">
-                        <form action="{{ url_for('auth.logout') }}" method="post" class="d-inline">
-                            <button class="nav-link btn btn-link" type="submit">
-                                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
-                                <span class="d-none d-md-block small">Logout</span>
-                            </button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="{{ url_for('admin.admin_login') }}" aria-label="Admin">
-                            <i class="fa-solid fa-gear fa-lg"></i>
-                            <span class="d-none d-md-block small">Admin</span>
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}" aria-label="Login">
-                            <i class="fa-solid fa-user fa-lg"></i>
-                            <span class="d-none d-md-block small">Login</span>
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex flex-column text-center">
-                        <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
-                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
-                            <span class="d-none d-md-block small">Cart</span>
-                            <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
-                                {{ cart_count }}
-                            </span>
-                        </a>
-                    </li>
-                {% endif %}
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item d-flex flex-column text-center">
+                            <a class="nav-link" href="{{ url_for('account.account_home') }}" aria-label="Account">
+                                <i class="fa-solid fa-user fa-lg"></i>
+                                <span class="d-none d-md-block small">Account</span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex flex-column text-center">
+                            <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
+                                <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                                <span class="d-none d-md-block small">Cart</span>
+                                <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                    {{ cart_count }}
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex flex-column text-center">
+                            <form action="{{ url_for('auth.logout') }}" method="post" class="d-inline">
+                                <button class="nav-link btn btn-link" type="submit" aria-label="Log out">
+                                    <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+                                    <span class="d-none d-md-block small">Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item d-flex flex-column text-center">
+                            <a class="nav-link" href="{{ url_for('admin.admin_login') }}" aria-label="Admin">
+                                <i class="fa-solid fa-gear fa-lg"></i>
+                                <span class="d-none d-md-block small">Admin</span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex flex-column text-center">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}" aria-label="Login">
+                                <i class="fa-solid fa-user fa-lg"></i>
+                                <span class="d-none d-md-block small">Login</span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex flex-column text-center">
+                            <a class="nav-link cart-icon position-relative" href="{{ url_for('cart.cart') }}" aria-label="Cart">
+                                <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                                <span class="d-none d-md-block small">Cart</span>
+                                <span class="cart-badge position-absolute top-0 badge rounded-pill {% if cart_count == 0 %}d-none{% endif %}">
+                                    {{ cart_count }}
+                                </span>
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
 
                 <!-- Search form -->
@@ -103,23 +107,22 @@
                         </button>
                     </form>
                 </div>
-
             </div>
         </nav>
 
         <!-- Flash messages -->
         <div class="flash-messages w-100">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else ('info' if category == 'persistent' else category) }} alert-dismissible fade 
-                    d-flex align-items-center justify-content-center" role="alert" data-persistent="{{ 'true' if category == 'persistent' else 'false' }}">
-                        {{ message | safe }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else ('info' if category == 'persistent' else category) }} alert-dismissible fade 
+                        d-flex align-items-center justify-content-center" role="alert" data-persistent="{{ 'true' if category == 'persistent' else 'false' }}">
+                            {{ message | safe }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         </div>
 
         <!-- Products Menu -->
@@ -130,26 +133,25 @@
                         
                         <!-- Product Categories -->
                         {% for parent_id, item in categories_menu.items() %}
-
                             {% if item.subcategories %}
 
                                 <!-- Accordion button for categories with subcategories -->
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#category{{ parent_id }}" aria-expanded="false" aria-controls="categoryItems">
-                                            <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                    <div class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#category{{ parent_id }}" aria-expanded="false" aria-controls="category{{ parent_id }}">
+                                            <i class="{{ item.category_data.icon}} fa-lg me-2" aria-hidden="true"></i>
                                             {{ item.category_data.name }}
                                         </button>
-                                    </h2>
+                                    </div>
 
                                     <!-- Product Subcategories -->
                                     <div id="category{{ parent_id }}" class="accordion-collapse collapse" data-bs-parent="#productsAccordion">
                                         <div class="accordion-body p-0">
                                             <div class="list-group list-group-flush">
                                                 {% for subcategory in item.subcategories %}
-                                                <a href="{{ url_for('products.display_category', category_id=subcategory.category_id) }}" class="list-group-item list-group-item-action ps-5">
-                                                    {{ subcategory.name }}
-                                                </a>
+                                                    <a href="{{ url_for('products.display_category', category_id=subcategory.category_id) }}" class="list-group-item list-group-item-action ps-5">
+                                                        {{ subcategory.name }}
+                                                    </a>
                                                 {% endfor %}
                                             </div>
                                         </div>
@@ -160,7 +162,7 @@
 
                                 <!-- Simple link for categories without subcategories -->
                                 <a href="{{ url_for('products.display_category', category_id=item.category_data.category_id) }}" class="list-group-item list-group-item-action">
-                                    <i class="{{ item.category_data.icon}} fa-lg me-2"></i>
+                                    <i class="{{ item.category_data.icon}} fa-lg me-1" aria-hidden="true"></i>
                                     {{ item.category_data.name }}
                                 </a>
                                 
@@ -170,6 +172,7 @@
                 </div>
             </div>
         </div>
+        <h1 class="visually-hidden">PharmaMed Online Pharmacy</h1>
 
         <main class="flex-grow-1">
             {% block main %}{% endblock %}
@@ -177,9 +180,8 @@
 
         <footer>
             <div class="container footer-top d-flex flex-row justify-content-evenly flex-wrap">
-                
                 <div class="footer-top-left">
-                    <h6>CUSTOMER SUPPORT</h6>
+                    <div class="fw-semibold pb-3">CUSTOMER SUPPORT</div>
                     <p>
                         <i class="fa-solid fa-envelope me-2"></i>
                         <a href="mailto:email@pharmamed.com">email@pharmamed.com</a>
@@ -192,9 +194,8 @@
                         <i class="fa-solid fa-clock me-2"></i>Mon-Fri 9:00-18:00
                     </p>
                 </div>
-                
                 <div class="footer-top-right">
-                    <h6>FOLLOW US</h6>
+                    <div class="fw-semibold pb-3">FOLLOW US</div>
                     <div class="d-flex gap-2">
                         <a href="https://facebook.com" target="_blank" aria-label="Follow us on Facebook">
                             <i class="fa-brands fa-facebook me-2"></i>
@@ -206,11 +207,9 @@
                     </div>
                 </div>
             </div>  
-            
             <hr>
-            
             <div class="footer-bottom">
-                <p id="copyright"></p> 
+                <p id="copyright" aria-label="Copyright information"></p> 
             </div>
         </footer>
 
@@ -355,7 +354,5 @@
             }
         
         </script>
-
     </body>
-    
 </html>

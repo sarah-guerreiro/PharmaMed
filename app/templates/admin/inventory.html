@@ -3,7 +3,7 @@
 {% block admin_content %}
 
 <div class="page-header pb-1 mb-5">
-    <h4>Inventory</h4>
+    <h1 class="fs-4">Inventory</h1>
 </div>
 
 <!-- Statistics cards -->
@@ -12,15 +12,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Low Stock</strong>
-                    </div>
+                    <h2 class="fs-6 fw-bold text my-2">
+                        Low Stock
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ low_stock_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -30,15 +30,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Out of Stock</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Out of Stock
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ no_stock_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -48,15 +48,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Inactive</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Inactive
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ inactive_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -78,35 +78,38 @@
 
                     <input class="form-control me-2" type="search" name="search_query" placeholder="Search products, brands, categories or subcategories" aria-label="Search" value="{{ search_query }}" autocomplete="off">
                     <button class="btn search-btn me-md-2" type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
 
             <!-- Filter dropdown -->
             <div class="dropdown filter-dropdown me-auto me-md-0">
-                <button class="btn filter-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-filter me-2"></i>Filter
+                <button class="btn filter-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-label="Filter products by status">
+                    <i class="fa-solid fa-filter me-2" aria-hidden="true"></i>Filter
                 </button>
-
                 <ul class="dropdown-menu dropdown-menu-md-end">
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'all' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='all', search_query=search_query) }}">
+                        <a class="dropdown-item {% if filter_option == 'all' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='all', search_query=search_query) }}" 
+                        {% if filter_option == 'all' %}aria-current="true"{% endif %}>
                             All products
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'low_stock' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='low_stock', search_query=search_query) }}">
+                        <a class="dropdown-item {% if filter_option == 'low_stock' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='low_stock', search_query=search_query) }}" 
+                        {% if filter_option == 'low_stock' %}aria-current="true"{% endif %}>
                             Low stock
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'no_stock' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='no_stock', search_query=search_query) }}">
+                        <a class="dropdown-item {% if filter_option == 'no_stock' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='no_stock', search_query=search_query) }}" 
+                        {% if filter_option == 'no_stock' %}aria-current="true"{% endif %}>
                             Out of stock
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'inactive' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='inactive', search_query=search_query) }}">
+                        <a class="dropdown-item {% if filter_option == 'inactive' %}active{% endif %}" href="{{ url_for('admin.admin_inventory', filter_option='inactive', search_query=search_query) }}" 
+                        {% if filter_option == 'inactive' %}aria-current="true"{% endif %}>
                             Inactive
                         </a>
                     </li>
@@ -123,42 +126,42 @@
                                 <a href="{{ url_for('admin.admin_inventory', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     ID
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_inventory', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-3">
                                     Product
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_inventory', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Brand
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_inventory', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Category
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_inventory', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Subcategory
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_inventory', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Stock
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th class="text-center">Status</th>
@@ -197,7 +200,7 @@
                             {% elif product.stock == 0 %}
                                 <span class="badge bg-dark">Out of Stock</span>
                             {% elif product.stock <= 5 %}
-                                <span class="badge bg-danger">Critical</span>
+                                <span class="badge bg-danger">Critical Stock Level</span>
                             {% elif product.stock <= 10 %}
                                 <span class="badge bg-warning">Low</span>
                             {% else %}
@@ -209,21 +212,23 @@
 
                                     <!-- Edit product button -->
                                     <a href="{{ url_for('admin.edit_product', product_id=product.product_id, context='inventory', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, 
-                                    filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit product" aria-label="Edit {{ product.name }}">
+                                        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                                    </a>
                                     
                                     <!-- Deactivate product button -->
                                     {% if product.is_active == 1 %}
                                         <form method="POST" action="{{ url_for('admin.deactivate_product', product_id=product.product_id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product">
-                                                <i class="fa-regular fa-eye-slash"></i></a>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivate product"  aria-label="Deactivate {{ product.name }}">
+                                                <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
                                             </button>
                                         </form>
 
                                     <!-- Activate product button -->
                                     {% else %}
                                         <form method="POST" action="{{ url_for('admin.activate_product', product_id=product.product_id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Activate product">
-                                                <i class="fa-regular fa-eye"></i></a>
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Activate product" aria-label="Activate {{ product.name }}">
+                                                <i class="fa-regular fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     {% endif %}
@@ -238,13 +243,13 @@
             <div class="text-center text-muted py-4">
                 
                 {% if filter_option == "low_stock" %}
-                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No low stock products
+                    <i class="fa-solid fa-circle-check fa-lg me-2" aria-hidden="true"></i>No low stock products
                 {% elif filter_option == "no_stock" %}
-                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No out of stock products
+                    <i class="fa-solid fa-circle-check fa-lg me-2" aria-hidden="true"></i>No out of stock products
                 {% elif filter_option == "inactive" %}
-                    <i class="fa-solid fa-circle-check fa-lg me-2"></i>No inactive products
+                    <i class="fa-solid fa-circle-check fa-lg me-2" aria-hidden="true"></i>No inactive products
                 {% else %}
-                    <i class="fa-solid fa-box-open fa-lg me-2"></i>No products found
+                    <i class="fa-solid fa-box-open fa-lg me-2" aria-hidden="true"></i>No products found
                 {% endif %}
 
             </div>
@@ -254,7 +259,7 @@
 
 <!-- Pagination, desktop and tablet layout -->
 {% if total_pages > 1 %}
-    <nav class="d-none d-md-block">
+    <nav class="d-none d-md-block" aria-label="Inventory pagination">
         <ul class="pagination justify justify-content-center mt-5">
 
             <!-- Previous -->
@@ -273,7 +278,6 @@
                         1
                     </a>
                 </li>
-
                 {% if page > 4 %}
                     <li class="page-item disabled">
                         <span class="page-link">
@@ -285,7 +289,6 @@
 
             <!-- Nearby pages -->
             {% for p in range(page - 2, page + 3) %}
-
                 {% if p >= 1 and p <= total_pages %}
                     <li class="page-item {% if p == page %}active{% endif %}">
                         <a class="page-link" href="{{ url_for('admin.admin_inventory', page=p, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
@@ -304,7 +307,6 @@
                         </span>
                     </li>
                 {% endif %}
-
                 <li class="page-item">
                     <a class="page-link" href="{{ url_for('admin.admin_inventory', page=total_pages, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}">
                         {{ total_pages }}
@@ -326,7 +328,7 @@
 
 <!-- Pagination, smartphone only -->
 {% if total_pages > 1 %}
-    <nav class="d-md-none">
+    <nav class="d-md-none" aria-label="Inventory pagination">
         <ul class="pagination justify justify-content-center mt-5">
             
             <!-- Previous -->
@@ -364,7 +366,6 @@
         // Initialize Bootstrap tooltips
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
     });
 
 </script>

@@ -1,21 +1,22 @@
-<button class="btn filters-btn" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas" aria-controls="filtersOffcanvas">
-    <span>
-        <i class="fa-solid fa-sliders"></i>
-        Filters{% if active_filters_count %} ({{ active_filters_count }}){% endif %}     
-    </span>    
+<div class="offcanvas-button-wrapper">
+    <button type="button" class="btn filters-btn" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas" aria-controls="filtersOffcanvas" aria-label="Open filters panel">
+        <span>
+            <i class="fa-solid fa-sliders me-2" aria-hidden="true"></i>Filters{% if active_filters_count %} ({{ active_filters_count }}){% endif %}     
+        </span> 
+    </button>   
     {% if active_filters_count %}
-        {% if route_name == 'display_category' %}
-            <a href="{{ url_for(route_name, category_id=base_params.category_id) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
-                <i class="fa-solid fa-x"></i>
+        {% if route_name == 'products.display_category' %}
+            <a href="{{ url_for(route_name, category_id=base_params.category_id) }}" class="clear-filters-btn" aria-label="Clear filters" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-x" aria-hidden="true"></i>
             </a>
-        {% elif route_name == 'display_brand' %}
-            <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
-                <i class="fa-solid fa-x"></i>
+        {% elif route_name == 'products.display_brand' %}
+            <a href="{{ url_for(route_name, brand_id=base_params.brand_id) }}" class="clear-filters-btn" aria-label="Clear filters" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-x" aria-hidden="true"></i>
             </a>
-        {% elif route_name == 'search' %}
-            <a href="{{ url_for(route_name, search_query=base_params.search_query) }}" class="clear-filters-btn" onclick="event.stopPropagation();">
-                <i class="fa-solid fa-x"></i>
+        {% elif route_name == 'products.search' %}
+            <a href="{{ url_for(route_name, search_query=base_params.search_query) }}" class="clear-filters-btn" aria-label="Clear filters" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-x" aria-hidden="true"></i>
             </a>
         {% endif %}
     {% endif %}
-</button>
+</div>

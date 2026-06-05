@@ -19,56 +19,50 @@
         <!-- Register link -->
         <div class="col-12 col-md-6 mt-5 mt-md-0 ps-md-5">
             <div class="register-link pb-1 mb-4">
-                <h4>Don't have an account?</h4>
+                <h2 class="fs-4">Don't have an account?</h2>
             </div>
             <div class="pt-2">
                 <a href="{{ url_for('auth.register') }}" class="btn register-btn ms-3">Register here</a>
             </div>
         </div>
-        
     </div>
-
 </div>
 
 <!-- Smartphone layout -->
 <div class="container mt-3 mb-5 d-md-none">
-
     <ul class="nav nav-tabs mb-4">
 
         <!-- Login tab -->
         <li class="nav-item w-50">
-            <button class="nav-link active w-100" data-bs-toggle="tab" data-bs-target="#login">
+            <button class="nav-link active w-100" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">
                 Login
             </button>
         </li>
 
         <!-- Register tab -->
         <li class="nav-item w-50">
-            <button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#register">
+            <button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">
                 Register
             </button>
         </li>
-
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content mx-2">
 
         <!-- Login form -->
-        <div class="tab-pane fade show active" id="login">
+        <div class="tab-pane fade show active" id="login" role="tabpanel">
         
             {% include "components/login_form.html" %}
         
         </div>
 
         <!-- Register form -->
-        <div class="tab-pane fade" id="register">
+        <div class="tab-pane fade" id="register" role="tabpanel">
         
             {% include "components/register_form.html" %}
 
         </div>
-
     </div>
-
 </div>
 
 <script>
@@ -77,19 +71,24 @@
         
         // Select all toggle button
         document.querySelectorAll('.toggle-password').forEach(button => {
+            
             button.addEventListener('click', () => {
 
                 // Get the target input
-                const inputId = button.getAttribute('data-target');
-                const input = document.getElementById(inputId);
+                const input = button.parentElement.querySelector('input');
+
+                if (!input) return;
 
                 // Check current input type
                 const isPassword = input.type === 'password';
 
-                //Toggle type
+                // Toggle type
                 input.type = isPassword ? 'text' : 'password';
 
-                // Get button ico
+                // Update label
+                button.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+
+                // Get button icon
                 const icon = button.querySelector('i');
 
                 // Toggle icons
@@ -100,7 +99,36 @@
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
                 }
+            });
+        });
 
+        // Check password strength
+        document.querySelectorAll("form").forEach(form => {
+
+            const passwordInput = form.querySelector(".password-input");
+            const passwordHelp = form.querySelector(".password-help");
+
+            if (!passwordInput || !passwordHelp) return;
+
+            passwordInput.addEventListener("focus", () => {
+                passwordHelp.classList.remove("d-none");
+            });
+
+            passwordInput.addEventListener("input", () => {
+
+                const value = passwordInput.value;
+
+                form.querySelector(".length").style.color =
+                    value.length >= 8 ? "green" : "red";
+
+                form.querySelector(".letter").style.color =
+                    /[A-Za-z]/.test(value) ? "green" : "red";
+
+                form.querySelector(".number").style.color =
+                    /\d/.test(value) ? "green" : "red";
+
+                form.querySelector(".special").style.color =
+                    /[@$!%*?&]/.test(value) ? "green" : "red";
             });
         });
 
@@ -116,9 +144,7 @@
                 if (error) {
                     error.classList.add("d-none");
                 }
-
             });
-
         });
     });
 

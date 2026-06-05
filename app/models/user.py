@@ -25,12 +25,12 @@ def load_user(user_id):
         """
         SELECT id, email, first_name, last_name 
         FROM users 
-        WHERE id = ?""", 
-        (int(user_id,))
+        WHERE id = ?
+        """, 
+        (int(user_id),)
     ).fetchone()
 
     if user is None:
-
         return None
 
     return User(

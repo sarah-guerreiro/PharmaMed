@@ -3,7 +3,7 @@
 {% block admin_content %}
 
 <div class="page-header pb-1 mb-5">
-    <h4>Manage orders</h4>
+    <h1 class="fs-4">Manage orders</h1>
 </div>
 
 <!-- Statistics cards -->
@@ -12,15 +12,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Pending</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Pending
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ pending_orders_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -30,15 +30,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Processing</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Processing
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ processing_orders_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -48,15 +48,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Shipped</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Shipped
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ shipped_orders_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -66,15 +66,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Delivered</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Delivered
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ delivered_orders_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -84,15 +84,15 @@
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Cancelled</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Cancelled
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fs-5 fw-bold">
                             {{ cancelled_orders_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -104,45 +104,43 @@
 <div class="card low-stock-card shadow-sm p-3 mb-5">
     <div class="card-body">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center flex-wrap gap-3 mb-4">
-
-            <h5 class="card-title">
-                <i class="fa-solid fa-magnifying-glass-chart me-3"></i>Orders
-            </h5>
+            <h2 class="card-title fs-5 fw-bold">
+                <i class="fa-solid fa-magnifying-glass-chart me-3" aria-hidden="true"></i>Orders
+            </h2>
 
             <!-- Filter dropdown -->
             <div class="dropdown filter-dropdown me-auto me-md-0">
-                <button class="btn filter-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-filter me-2"></i>Filter
+                <button class="btn filter-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-label="Filter orders by status">
+                    <i class="fa-solid fa-filter me-2" aria-hidden="true"></i>Filter
                 </button>
-
                 <ul class="dropdown-menu dropdown-menu-md-end">
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'all' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='all') }}">
+                        <a class="dropdown-item {% if filter_option == 'all' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='all') }}" {% if filter_option == 'all' %}aria-current="true"{% endif %}>
                             All orders
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'pending' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='pending') }}">
+                        <a class="dropdown-item {% if filter_option == 'pending' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='pending') }}" {% if filter_option == 'pending' %}aria-current="true"{% endif %}>
                             Pending
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'processing' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='processing') }}">
+                        <a class="dropdown-item {% if filter_option == 'processing' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='processing') }}" {% if filter_option == 'processing' %}aria-current="true"{% endif %}>
                             Processing
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'shipped' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='shipped') }}">
+                        <a class="dropdown-item {% if filter_option == 'shipped' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='shipped') }}"  {% if filter_option == 'shipped' %}aria-current="true"{% endif %}>
                             Shipped
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'delivered' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='delivered') }}">
+                        <a class="dropdown-item {% if filter_option == 'delivered' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='delivered') }}" {% if filter_option == 'delivered' %}aria-current="true"{% endif %}>
                             Delivered
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item {% if filter_option == 'cancelled' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='cancelled') }}">
+                        <a class="dropdown-item {% if filter_option == 'cancelled' %}active{% endif %}" href="{{ url_for('admin.admin_orders', filter_option='cancelled') }}" {% if filter_option == 'cancelled' %}aria-current="true"{% endif %}>
                             Cancelled
                         </a>
                     </li>
@@ -159,21 +157,21 @@
                                 <a href="{{ url_for('admin.admin_orders', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc') }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     ID
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_orders', sort='full_name', direction='desc' if sort == 'full_name' and direction == 'asc' else 'asc') }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1 gap-md-3">
                                     Customer
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
                                 <a href="{{ url_for('admin.admin_orders', sort='date', direction='desc' if sort == 'date' and direction == 'asc' else 'asc') }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1 gap-md-3">
                                     Date
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th class="ps-3">Status</th>
@@ -181,7 +179,7 @@
                                 <a href="{{ url_for('admin.admin_orders', sort='total', direction='desc' if sort == 'total' and direction == 'asc' else 'asc') }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Total
-                                    <i class="fa-solid fa-sort fa-sm"></i>
+                                    <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>Action</th>
@@ -203,7 +201,9 @@
                                 <div class="d-flex">
 
                                     <!-- View details button -->
-                                    <a href="{{ url_for('admin.admin_order_details', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View order"><i class="fa-solid fa-magnifying-glass"></i></a>
+                                    <a href="{{ url_for('admin.admin_order_details', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View order" aria-label="View details for order {{ order.id }}">
+                                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                    </a>
 
                                 </div>
                             </td>
@@ -216,17 +216,17 @@
             <div class="text-center text-muted py-4">
                 
                 {% if filter_option == "pending" %}
-                    <i class="fa-solid fa-circle-xmark fa-lg me-2"></i>No pending orders
+                    <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No pending orders
                 {% elif filter_option == "processing" %}
-                    <i class="fa-solid fa-circle-xmark fa-lg me-2"></i>No processing orders
+                    <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No processing orders
                 {% elif filter_option == "shipped" %}
-                    <i class="fa-solid fa-circle-xmark fa-lg me-2"></i>No shipped orders
+                    <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No shipped orders
                 {% elif filter_option == "delivered" %}
-                    <i class="fa-solid fa-circle-xmark fa-lg me-2"></i>No delivered orders
+                    <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No delivered orders
                 {% elif filter_option == "cancelled" %}
-                    <i class="fa-solid fa-circle-xmark fa-lg me-2"></i>No cancelled orders
+                    <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No cancelled orders
                 {% else %}
-                    <i class="fa-solid fa-box-open fa-lg me-2"></i>No orders found
+                    <i class="fa-solid fa-box-open fa-lg me-2" aria-hidden="true"></i>No orders found
                 {% endif %}
 
             </div>
@@ -241,7 +241,6 @@
         // Initialize Bootstrap tooltips
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
     });
 
 </script>

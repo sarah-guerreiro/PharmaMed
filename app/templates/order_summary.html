@@ -6,100 +6,111 @@
 
 {% block main %}
 
-<div class="container my-5 px-4">
-    <div class="section-header pb-1">
-        <h4>Order summary</h4>  
+<div class="container my-5">
+    <div class="section-header pb-1 mx-3">
+        <h1 class="fs-4">Order summary</h1>  
     </div>
 
-    <!-- Shipping address -->
-    <div class="pt-4">
-        <h6 class="subsection-header">Shipping Address</h6>
-        <p class="mb-1"><strong>{{ address.full_name }}</strong></p>
-        <p>{{ address.address_line }}, {{ address.postal_code }} {{ address.city }}, {{ address.country }}</p>
-    </div>
+    <div class="card border-0">
+        <div class="card-body">
 
-    <!-- Shipping method -->
-    <div class="pt-4">
-        <h6 class="subsection-header">Shipping Method</h6>
-        <p>{{ shipping_method|capitalize }} (€{{ "%.2f"|format(shipping_cost) }})</p>
-    </div>
-
-    <!-- Order items -->
-    <div class="pt-4">
-        <h6 class="subsection-header">Order Items</h6>
-
-        <div class="card order-card p-4">
-        {% for item in cart_items %}
-
-            <!-- Desktop and tablet layout-->
-            <div class="d-none d-md-block">
-                <div class="row align-items-center py-3">
-                    
-                    <!-- Item image -->
-                    <div class="order-item-image d-flex justify-content-center align-items-center col-2">
-                        <img src="{{ url_for('static', filename=item.image_url) }}" class="product-image" alt="{{ item.name }}">
-                    </div>
-                    <div class="col-6">
-                        {{ item.name }}, {{ item.pack_size }} 
-                    </div>
-                    <div class="col-2 text-end">
-                        x {{ item.quantity }}
-                    </div>
-                    <div class="col-2 text-center">
-                        €{{ "%.2f"|format(item.total) }}
-                    </div>
-
-                </div>
+            <!-- Shipping address -->
+            <div class="mt-3 mb-5">
+                <h2 class="subsection-header fs-6 fw-semibold mb-3">Shipping address</h2>
+                <div class="fw-semibold">{{ address.full_name }}</div>
+                <div>{{ address.address_line }}</div>
+                <div>{{ address.postal_code }} {{ address.city }}</div>
+                <div>{{ address.country }}</div>
             </div>
 
-            <!-- Smartphone layout -->
-            <div class="d-md-none">
-                <div class="row align-items-center pt-3">
-                    
-                    <!-- Item image -->
-                    <div class="order-item-image d-flex justify-content-center align-items-center col-5">
-                        <img src="{{ url_for('static', filename=item.image_url) }}" class="product-image" alt="{{ item.name }}">
-                    </div>
-                    <div class="col-7">
-                        {{ item.name }}, {{ item.pack_size }}
-                    </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-7 text-end">
-                        x {{ item.quantity }}
-                    </div>
-                    <div class="col-5">
-                        €{{ "%.2f"|format(item.total) }}
-                    </div>
-
-                </div>
+            <!-- Shipping method -->
+            <div class="mb-5">
+                <h2 class="subsection-header fs-6 fw-semibold mb-3">Shipping Method</h2>
+                <div>{{ shipping_method|capitalize }}</div>
             </div>
 
-        {% endfor %}
-        </div>
-    </div>
+            <!-- Order items -->
+            <div class="mb-5">
+                <h2 class="subsection-header fs-6 fw-semibold mb-3">Order items</h2>
+                {% if cart_items %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
 
-    <!-- Totals -->
-    <div class="row pt-4">
-        <div class="col-8 col-md-10 text-end">
-            <div class="mb-3">Subtotal:</div>
-            <div class="mb-3">Shipping:</div>
-            <h6>Total:</h6>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="ps-4">Image</th>
+                                    <th>Qty</th>
+                                    <th class="text-center">Unit price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                            {% for item in cart_items %}
+                                <tr>
+
+                                    <!-- Product -->
+                                    <td>
+                                        <div class="fw-semibold">{{ item.name }}</div>
+                                        <small class="text-muted">{{ item.pack_size }}</small>
+                                    </td>
+
+                                    <!-- Image -->
+                                     <td>
+                                        <div class="order-item-image d-flex justify-content-center align-items-center ms-0">
+                                            <img src="{{ url_for('static', filename=item.image_url) }}" class="product-image" alt="{{ item.name }}">
+                                        </div>
+                                    </td>
+
+                                    <!-- Quantity -->
+                                    <td class="ps-3">{{ item.quantity }}</td>
+
+                                    <!-- Unit price -->
+                                    <td class="text-center">€{{ "%.2f"|format(item.price) }}</td>
+
+                                    <!-- Total -->
+                                    <td class=" text-end fw-semibold">€{{ "%.2f"|format(item.quantity * item.price) }}</td>
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fa-solid fa-box-open fa-lg me-2" aria-hidden="true"></i>No items found
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Totals -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between ms-2 mb-2">
+                    <span>Subtotal</span>
+                    <span>€{{ "%.2f"|format(subtotal) }}</span>
+                </div>
+                <div class="d-flex justify-content-between ms-2 mb-2">
+                    <span>Shipping</span>
+                    <span>€{{ "%.2f"|format(shipping_cost) }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fw-semibold ms-2">
+                    <span>Total</span>
+                    <span>€{{ "%.2f"|format(total) }}</span>
+                </div>
+            </div>
         </div>
-        <div class="col-4 col-md-2 text-center pe-md-5">
-            <div class="mb-3"> €{{ "%.2f"|format(subtotal) }}</div>
-            <div class="mb-3"> €{{ "%.2f"|format(shipping_cost) }}</div>
-            <h6> €{{ "%.2f"|format(total) }}</h6>
-        </div>
-    </div>
+    </div>    
 
     <!-- Place order button-->
     <div class="mt-4 text-center">
         <form method="POST" action="{{ url_for('orders.place_order') }}">
-            <button class="btn place-order-btn">Place Order</button>
+            <button type="submit" class="btn place-order-btn">Place Order</button>
         </form>
     </div>
-
 </div>
 
 {% endblock %}

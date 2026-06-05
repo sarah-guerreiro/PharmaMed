@@ -3,60 +3,66 @@
 {% block admin_content %}
 
 <div class="page-header pb-1 mb-5">
-    <h4>Welcome back!</h4>
+    <h1 class="fs-4">Welcome back!</h1>
 </div>
 
 <!-- Statistics cards -->
 <div class="row row-cols-1 row-cols-md-3 mb-5">
+
+    <!-- Total orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Total Orders</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Total Orders
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fw-bold fs-5">
                             {{ total_orders }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
         </div>
     </div>
+
+    <!-- Pending orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Pending Orders</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Pending Orders
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fw-bold fs-5">
                             {{ pending_orders }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
         </div>
     </div>
+
+    <!-- Low stock count -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
                 <li class="list-group-item dark-item">
-                    <div class="text my-2">
-                        <strong>Low Stock</strong>
-                    </div>
+                    <h2 class="text fs-6 fw-bold my-2">
+                        Low Stock
+                    </h2>
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <h5 class="number fw-bold">
+                        <div class="number fw-bold fs-5">
                             {{ low_stock_count }}
-                        </h5>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -68,14 +74,15 @@
 <div class="card recent-orders-card shadow-sm p-3 mb-5">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-            <h5 class="card-title">
-                <i class="fa-solid fa-box-open me-3"></i>Recent orders
-            </h5>
+            <h2 class="card-title fs-5 fw-semibold">
+                <i class="fa-solid fa-box-open me-3" aria-hidden="true"></i>Recent orders
+            </h2>
+
+            <!-- View orders button -->
             <a href="{{ url_for('admin.admin_orders') }}" class="btn btn-sm view-orders-btn">
                 View Orders
             </a>
         </div>
-
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -111,14 +118,15 @@
 <div class="card low-stock-card shadow-sm p-3">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-            <h5 class="card-title">
-                <i class="fa-solid fa-triangle-exclamation me-3"></i>Low stock alerts
-            </h5>
+            <h2 class="card-title fs-5 fw-semibold">
+                <i class="fa-solid fa-triangle-exclamation me-3" aria-hidden="true"></i>Low stock alerts
+            </h2>
+
+            <!-- Manage stock button -->
             <a href="{{ url_for('admin.admin_inventory') }}" class="btn btn-sm manage-stock-btn">
                 Manage stock
             </a>
         </div>
-
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>

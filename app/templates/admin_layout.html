@@ -17,7 +17,11 @@
          
         <link href="/static/styles.css" rel="stylesheet">
 
-        <title>{% block title %}{% endblock %}</title>
+        <title>
+            {% block title %}
+                PharmaMed
+            {% endblock %}
+        </title>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -29,7 +33,7 @@
                 <!-- Brand -->
                 <div class="d-flex align-items-center">
                     <a class="navbar-brand" href="{{ url_for('admin.admin_home') }}">
-                        <i class="fa-solid fa-pills fa-lg me-2"></i>PharmaMed | Admin
+                        <i class="fa-solid fa-pills fa-lg me-2" aria-hidden="true"></i>PharmaMed | Admin
                     </a>
                 </div>
 
@@ -37,14 +41,13 @@
                 <ul class="navbar-nav flex-row align-items-center">
                     <li class="nav-item d-flex flex-column text-center">
                         <form action="{{ url_for('admin.admin_logout') }}" method="post" class="d-inline">
-                            <button class="nav-link btn btn-link" type="submit">
-                                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+                            <button class="nav-link btn btn-link" type="submit" aria-label="Log out">
+                                <i class="fa-solid fa-right-from-bracket fa-lg" aria-hidden="true"></i>
                                 <span class="d-none d-md-block small">Logout</span>
                             </button>
                         </form>
                     </li>
                 </ul>
-
             </div>
         </nav>
 
@@ -62,17 +65,16 @@
             {% endif %}
         {% endwith %}
         </div>
+        <h1 class="visually-hidden">PharmaMed Online Pharmacy</h1>
 
         <main class="flex-grow-1">
             {% block main %}{% endblock %}
         </main>
 
         <footer>
-
             <div class="footer-bottom mt-3">
-                <p id="copyright"></p> 
+                <p id="copyright" aria-label="Copyright information"></p> 
             </div>
-
         </footer>
 
         <script>
@@ -138,7 +140,5 @@
             }
         
         </script>
-
     </body>
-    
 </html>

@@ -18,7 +18,7 @@
         <!-- Login link -->
         <div class="col-12 col-md-6 mt-5 mt-md-0 ps-md-5">
             <div class="login-link pb-1 mb-4">
-                <h4>Already have an account?</h4>
+                <h2 class="fs-4">Already have an account?</h2>
             </div>
             <div class="pt-2">
                 <a href="{{ url_for('auth.login') }}" class="btn register-btn ms-3">Login</a>
@@ -34,19 +34,24 @@
 
         // Select all toggle button
         document.querySelectorAll('.toggle-password').forEach(button => {
+            
             button.addEventListener('click', () => {
 
                 // Get the target input
-                const inputId = button.getAttribute('data-target');
-                const input = document.getElementById(inputId);
+                const input = button.parentElement.querySelector('input');
+
+                if (!input) return;
 
                 // Check current input type
                 const isPassword = input.type === 'password';
 
-                //Toggle type
+                // Toggle type
                 input.type = isPassword ? 'text' : 'password';
 
-                // Get button ico
+                // Update label
+                button.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+
+                // Get button icon
                 const icon = button.querySelector('i');
 
                 // Toggle icons
@@ -57,33 +62,38 @@
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
                 }
-
             });
         });
 
         // Check password strength
-        const passwordInput = document.getElementById("password");
-        const passwordHelp = document.getElementById("passwordHelp")
+        document.querySelectorAll("form").forEach(form => {
 
-        // Show password criteria when user clicks on password input
-        passwordInput.addEventListener("focus", () => {
-            passwordHelp.classList.remove("d-none");
-        });
+            const passwordInput = form.querySelector(".password-input");
+            const passwordHelp = form.querySelector(".password-help");
 
-        passwordInput.addEventListener("input", () => {
-            const value = passwordInput.value;
+            if (!passwordInput || !passwordHelp) return;
 
-            document.getElementById("length").style.color =
-                value.length >= 8 ? "green" : "red";
+            passwordInput.addEventListener("focus", () => {
+                passwordHelp.classList.remove("d-none");
+            });
 
-            document.getElementById("letter").style.color =
-                /[A-Za-z]/.test(value) ? "green" : "red";
+            passwordInput.addEventListener("input", () => {
 
-            document.getElementById("number").style.color =
-                /\d/.test(value) ? "green" : "red";
+                const value = passwordInput.value;
 
-            document.getElementById("special").style.color =
-                /[@$!%*?&]/.test(value) ? "green" : "red";
+                form.querySelector(".length").style.color =
+                    value.length >= 8 ? "green" : "red";
+
+                form.querySelector(".letter").style.color =
+                    /[A-Za-z]/.test(value) ? "green" : "red";
+
+                form.querySelector(".number").style.color =
+                    /\d/.test(value) ? "green" : "red";
+
+                form.querySelector(".special").style.color =
+                    /[@$!%*?&]/.test(value) ? "green" : "red";
+            });
+
         });
 
         // Remove red border and hide error message when users inputs on invalid field
@@ -100,7 +110,6 @@
                 }
 
             });
-
         });
     });
 

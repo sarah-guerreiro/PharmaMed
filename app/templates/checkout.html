@@ -8,12 +8,12 @@
 
 <div class="container my-5 px-4">
     <div class="section-header pb-1">
-        <h4 >Shipping details</h4>  
+        <h1 class="fs-4">Shipping details</h1>  
     </div>
     <form method="POST" action="{{ url_for('orders.checkout') }}">
 
         <!-- Shipping address -->
-        <h6 class="pt-4 pb-2">Select shipping address:</h6>
+        <div class="fw-semibold pt-4 pb-3">Select shipping address:</div>
 
         {% set address_error = address_error | default({}) %}
         {% if address_error %}
@@ -28,15 +28,12 @@
                     <div class="col-12 col-md-4 col-xl-3 mb-3">
                         <div class="card address-card p-3">
                             <div class="form-check">
-                                <input type="radio" name="address_id" value="{{ address.id }}" class="form-check-input me-2" id="address-{{ address.id }}" {% if request.form.get('address_id') == address.id|string or address.is_default %}checked{% endif %}>
-                                <label class="form-check-label ps-2" for="address-{{ address.id }}">
-                                    <div class="mb-1">
-                                        <strong>{{ address.full_name }}</strong>
-                                    </div>    
-                                    <p class="mb-1">{{ address.address_line }}</p>
-                                    <p class="mb-1">{{ address.postal_code }} {{ address.city }}</p>
-                                    <p>{{ address.country }}</p>
-                                </label>  
+                                <input type="radio" name="address_id" value="{{ address.id }}" class="form-check-input me-2" id="address-{{ address.id }}" 
+                                {% if request.form.get('address_id') == address.id|string or address.is_default %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold mb-1 ps-2" for="address-{{ address.id }}">{{ address.full_name }}</label>     
+                                <p class="mb-1 ps-2">{{ address.address_line }}</p>
+                                <p class="mb-1 ps-2">{{ address.postal_code }} {{ address.city }}</p>
+                                <p class="ps-2">{{ address.country }}</p>
                             </div>
                         </div>
                     </div>
@@ -52,6 +49,8 @@
         {% set form_error = form_error | default({}) %}
         <div id="addressForm" class="card p-4 mt-2 {% if form_error %}d-block{% else %}d-none{% endif %}">
             <div class="row">
+
+                <!-- Full name -->
                 <div class="col-12 col-md-4 mb-3">
                 {% set full_name_error = form_error.get('full_name') %}
                     <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ request.form.get('full_name', '') }}">
@@ -61,6 +60,8 @@
                         </div>
                     {% endif %}
                 </div> 
+
+                <!-- Address line -->
                 <div class="col-12 col-md-8 mb-3"> 
                 {% set address_line_error = form_error.get('address_line') %}
                     <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ request.form.get('address_line', '') }}">
@@ -69,7 +70,9 @@
                             {{ address_line_error }}
                         </div>
                     {% endif %}
-                </div>   
+                </div>  
+                
+                <!-- Postal code -->
                 <div class="col-12 col-md-4 mb-3">
                 {% set postal_code_error = form_error.get('postal_code') %}
                     <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ request.form.get('postal_code', '') }}">
@@ -79,6 +82,8 @@
                         </div>
                     {% endif %}
                 </div> 
+
+                <!-- City -->
                 <div class="col-12 col-md-4 mb-3">
                 {% set city_error = form_error.get('city') %}
                     <input name="city" class="form-control {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ request.form.get('city', '') }}">
@@ -88,6 +93,8 @@
                         </div>
                     {% endif %}
                 </div>  
+
+                <!-- Country -->
                 <div class="col-12 col-md-4 mb-3">
                 {% set country_error = form_error.get('country') %}
                     <input name="country" class="form-control {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ request.form.get('country', '') }}">
@@ -97,20 +104,24 @@
                         </div>
                     {% endif %}
                 </div> 
+
+                <!-- Default checkbox -->
                 <div class="form-check ms-3 mb-4 mb-md-2">
                     <input type="checkbox" name="is_default" class="form-check-input" id="defaultCheck" {% if request.form.get('is_default') %}checked{% endif %}>
                     <label class="form-check-label" for="defaultCheck">
                         Set as default address
                     </label>
                 </div>
+
+                <!-- Save address button -->
                 <div class="col-12 text-center">    
-                    <button id="saveAddressBtn" class="btn">Save Address</button>
+                    <button type="button" id="saveAddressBtn" class="btn">Save Address</button>
                 </div>    
             </div>    
         </div>
 
         <!-- Shipping method -->
-        <h6 class="pt-4 pb-2">Select shipping method:</h6>
+        <div class="fw-semibold pt-4 pb-3">Select shipping method:</div>
 
         {% set shipping_error = shipping_error | default({}) %}
         {% if shipping_error %}
@@ -146,6 +157,22 @@
         // Display address form when "add address" button is clicked
         document.getElementById("addAddressBtn").addEventListener("click", function() {
             document.getElementById("addressForm").classList.toggle("d-none");
+        });
+
+        // Remove red border and hide error message when users inputs on invalid field
+        document.querySelectorAll("input").forEach(input => {
+
+            input.addEventListener("input", () => {
+
+                input.classList.remove("is-invalid");
+
+                const error = input.parentElement.querySelector(".invalid-feedback");
+
+                if (error) {
+                    error.classList.add("d-none");
+                }
+
+            });
         });
     });
 

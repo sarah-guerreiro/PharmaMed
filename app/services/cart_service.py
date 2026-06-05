@@ -145,7 +145,7 @@ def get_session_cart_items(db, session_cart):
 
         cart_items.append({
             "product_id": row["product_id"],
-            "image": row["image_url"],
+            "image_url": row["image_url"],
             "name": row["name"],
             "brand": row["brand"],
             "pack_size": row["pack_size"],

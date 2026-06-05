@@ -79,12 +79,12 @@ def cart():
     total_items = get_cart_count()
 
     # Get item total price
-    item_total = calculate_item_total(cart_items)
+    calculate_item_total(cart_items)
 
     # Get cart total price
     cart_total = get_cart_total(db, user_id)
 
-    return render_template("cart.html", cart_items=cart_items, total_items=total_items, item_total=item_total, cart_total=cart_total)
+    return render_template("cart.html", cart_items=cart_items, total_items=total_items, cart_total=cart_total)
 
 @cart_bp.route("/update_cart", methods=["POST"])
 def update_cart():

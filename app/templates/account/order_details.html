@@ -3,7 +3,7 @@
 {% block account_content %}
 
 <div class="page-header pb-1">
-    <h4>Order Details</h4>
+    <h1 class="fs-4">Order Details</h1>
 </div>
 <div class="card order-card my-5">
     <ul class="list-group list-group-flush">
@@ -12,7 +12,7 @@
         <li class="list-group-item dark-item p-3 p-md-4">
             <div class="row">
                 <div class="col-12 col-md-4 col-lg-5 mb-3 mb-md-0 ">
-                    <strong>Order #{{ order.id }} </strong> 
+                    <h2 class="fs-6 fw-bold">Order #{{ order.id }} </h2> 
                 </div>
                 <div class="col-12 col-md-8 col-lg-4 text-md-end text-lg-start">
                     <p>Date: <strong>{{ order.created_at | format_date }}</strong></p>   
@@ -35,7 +35,7 @@
 
         <!-- Shipping address -->
         <li class="list-group-item p-3 p-md-4">
-            <h6>Shipping Address</h6>
+            <h2 class="fw-bold fs-6 mb-3">Shipping Address</h2>
             <p class="mb-1">{{ order.full_name }}</p>
             <p class="mb-1">{{ order.address_line }}</p>
             <p class="mb-1">{{ order.postal_code }} {{ order.city }}</p>
@@ -44,15 +44,15 @@
 
         <!-- Order items -->
          <li class="list-group-item dark-item p-3 p-md-4">
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-5 col-md-6 col-lg-8">
-                    <h6>Items</h6>
+                    <h2 class="fw-bold fs-6">Items</h2>
                 </div>
                 <div class="col-3 col-md-3 col-lg-2 text-end">
-                    <h6>Quant.</h6>
+                    <div class="fw-bold">Qty</div>
                 </div>  
                 <div class="col-4 col-md-3 col-lg-2 text-end">
-                    <h6>Unit Price</h6>
+                    <div class="fw-bold">Unit Price</div>
                 </div>  
             </div>
             {% for item in items %}
@@ -89,7 +89,7 @@
 </div>
 <div class="text-center">
     <a href="{{ url_for('account.orders') }}" class="btn view-orders-btn">
-        View Orders
+        <i class="fa-solid fa-arrow-left me-2" aria-hidden="true"></i>Back to orders
     </a>
 </div>
 

@@ -2,40 +2,42 @@
 
     <!-- Display current sorting -->
     {% set current_sort = request.args.get('sort', 'name_asc') %}
-    <button class="btn dropdown-toggle sort-btn" data-bs-toggle="dropdown">
-        <i class="fa-solid fa-up-down"></i>
-        {% if current_sort == 'name_desc' %}Name (Z → A)
-        {% elif current_sort == 'price_asc' %}Price (Low → High)
-        {% elif current_sort == 'price_desc' %}Price (High → Low)
-        {% else %}Name (A → Z)
-        {% endif %}
-    </button>
+        <button type="button" class="btn dropdown-toggle sort-btn" data-bs-toggle="dropdown" aria-label="Sort products">
+            <i class="fa-solid fa-up-down" aria-hidden="true"></i>
+            {% if current_sort == 'name_desc' %}Name (Z → A)
+            {% elif current_sort == 'price_asc' %}Price (Low → High)
+            {% elif current_sort == 'price_desc' %}Price (High → Low)
+            {% else %}Name (A → Z)
+            {% endif %}
+        </button>
 
     <!-- Preserve existing filters -->
     {% set args = request.args.to_dict(flat=False) %}
 
     {% set sort_options = [('name_asc', 'Name (A → Z)'), ('name_desc', 'Name (Z → A)'), ('price_asc', 'Price (Low → High)'), ('price_desc', 'Price (High → Low)')] %}
-    <ul class="dropdown-menu">
-        {% for value, label in sort_options %}
-        <li>
-            {% if route_name == 'display_category' %}
-                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, category_id=base_params.category_id, 
-                    sort=value, subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
-                    {{ label }}
-                </a>
-            {% elif route_name == 'display_brand' %}    
-                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, brand_id=base_params.brand_id, 
-                    sort=value, subcategory=base_params.subcategory, min_price=base_params.min_price, max_price=base_params.max_price) }}">
-                    {{ label }}
-                </a>
-            {% elif route_name == 'search' %}
-                <a class="dropdown-item {% if current_sort == value %}active{% endif %}" href="{{ url_for(route_name, search_query=base_params.search_query, 
-                    sort=value, subcategory=base_params.subcategory, brand=base_params.brand, min_price=base_params.min_price, max_price=base_params.max_price) }}">
-                    {{ label }}
-                </a>
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-
+        <ul class="dropdown-menu">
+            {% for value, label in sort_options %}
+                <li>
+                    {% if route_name == 'products.display_category' %}
+                        <a class="dropdown-item {% if current_sort == value %}active{% endif %}" {% if current_sort == value %}aria-current="page"{% endif %} 
+                        href="{{ url_for(route_name, category_id=base_params.category_id, sort=value, subcategory=base_params.subcategory, brand=base_params.brand, 
+                            min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                            {{ label }}
+                        </a>
+                    {% elif route_name == 'products.display_brand' %}    
+                        <a class="dropdown-item {% if current_sort == value %}active{% endif %}" {% if current_sort == value %}aria-current="page"{% endif %} 
+                        href="{{ url_for(route_name, brand_id=base_params.brand_id, sort=value, subcategory=base_params.subcategory, min_price=base_params.min_price, 
+                            max_price=base_params.max_price) }}">
+                            {{ label }}
+                        </a>
+                    {% elif route_name == 'products.search' %}
+                        <a class="dropdown-item {% if current_sort == value %}active{% endif %}" {% if current_sort == value %}aria-current="page"{% endif %} 
+                        href="{{ url_for(route_name, search_query=base_params.search_query, sort=value, subcategory=base_params.subcategory, brand=base_params.brand, 
+                            min_price=base_params.min_price, max_price=base_params.max_price) }}">
+                            {{ label }}
+                        </a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
 </div>

@@ -94,7 +94,7 @@
 }
 
 #autoplayingCarousel {
-  max-width: 1000px;
+  max-width: 850px;
   margin: auto;
 }
 
@@ -337,7 +337,7 @@
   }
 }
 
-.product-brand {
+.product-brand a {
   color: black;
 }
 
@@ -461,6 +461,11 @@
   background-color: #F8F8FF;
 }
 
+.offcanvas-button-wrapper .filters-btn[aria-expanded="true"] {
+  background-color: #E6E6FA;
+  border: solid 1px #4B0082;
+}
+
 .sort-btn:hover, .filter-btn:hover {
   border: 1px solid #4B0082;
   background-color: #F8F8FF;
@@ -476,7 +481,7 @@
   }
 
   .filters-btn {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -492,13 +497,21 @@
   background-color: #6f42c1;
 }
 
+.offcanvas-button-wrapper {
+  position: relative;
+}
+
 .clear-filters-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   text-decoration: none;
   font-size: 0.8rem;
   color: black;
   background-color: #E6E6FA;
   border-radius: 50%;
-  padding: 4px 6px 4px 4px;
+  padding: 2px 4px 2px 4px;
   margin-left: 0.3rem;
 }
 

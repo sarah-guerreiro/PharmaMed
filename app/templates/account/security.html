@@ -3,33 +3,39 @@
 {% block account_content %}
 
 <div class="page-header pb-1">
-    <h4>Change Password</h4>
+    <h1 class="fs-4">Change Password</h1>
 </div>
 <div class="change-password-form row mt-3">
-    <form method="post" action="{{ url_for('change_password') }}">
+    <form method="post" action="{{ url_for('account.change_password') }}">
     {% set error = error | default({}) %}
         <div class="card border-0">
             <div class="card-body">
+
+                <!-- Current password -->
                 <div class="password col-12 col-md-6 mb-3">
                 {% set current_password_error = error.get('current_password') %}
                     <input type="password" id="current_password" name="current_password" class="form-control {% if current_password_error %}is-invalid{% endif %}" placeholder="Current password">
-                    <button type="button" class="btn toggle-password" data-target="current_password">
-                        <i class="fa-solid fa-eye"></i>
+                    <button type="button" class="btn toggle-password" data-target="current_password" aria-label="Show password">
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
                     </button>
                     {% if current_password_error %}
                         <div class="invalid-feedback">{{ current_password_error }}</div>
                     {% endif %}
                 </div>
+
+                <!-- New password -->
                 <div class="password col-12 col-md-6 mb-3">
                 {% set password_error = error.get('password') %}
-                    <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-                    <button type="button" class="btn toggle-password" data-target="password">
-                        <i class="fa-solid fa-eye"></i>
+                    <input type="password" id="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="New password" aria-describedby="passwordHelp">
+                    <button type="button" class="btn toggle-password" data-target="password" aria-label="Show password">
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
                     </button>
                     {% if password_error %}
                         <div class="invalid-feedback">{{ password_error }}</div>
                     {% endif %}
                 </div>
+
+                <!-- Password criteria -->
                 <div id="passwordHelp" class="form-text d-none">
                     Password must contain:
                     <ul>
@@ -39,16 +45,20 @@
                         <li id="special">A special character (@, $, !, %, *, ? or &)</li>
                     </ul>
                 </div>  
+
+                <!-- Password confirmation -->
                 <div class="password col-12 col-md-6 mb-4"> 
                 {% set confirm_password_error = error.get('confirm_password') %}
                     <input type="password" id="confirm_password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
-                    <button type="button" class="btn toggle-password" data-target="confirm_password">
-                        <i class="fa-solid fa-eye"></i>
+                    <button type="button" class="btn toggle-password" data-target="confirm_password" aria-label="Show password">
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
                     </button>
                     {% if confirm_password_error %}
                         <div class="invalid-feedback">{{ confirm_password_error }}</div>
                     {% endif %}
                 </div>
+
+                <!-- Change password button -->
                 <div class="col-12 col-md-6 mb-2 text-center">
                     <button class="btn change-password-btn" type="submit">Change password</button>
                 </div> 
@@ -75,6 +85,9 @@
                 //Toggle type
                 input.type = isPassword ? 'text' : 'password';
 
+                // Update label
+                button.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+
                 // Get button ico
                 const icon = button.querySelector('i');
 
@@ -86,7 +99,6 @@
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
                 }
-
             });
         });
 
@@ -127,9 +139,7 @@
                 if (error) {
                     error.classList.add("d-none");
                 }
-
             });
-
         });
     });
 
