@@ -33,7 +33,7 @@
             <p>{{ product.description }}</p>
 
             <!-- Porduct pack size -->
-            <p class="my-4">{{ product.pack_size }}</p>
+            <p class="text-muted my-4">{{ product.pack_size }}</p>
 
             <!-- Product price -->
             <p class="product-price fs-4 fw-bold">€{{ "%.2f"|format(product.price) }}</p>
@@ -51,7 +51,7 @@
 
             <!-- Add to cart button -->
             <div class="product-detail-btn">
-                <button type="button" class="btn add-to-cart-btn mt-4 mb-2 {% if product.stock == 0 %}disabled{% endif %}" data-product-id="{{ product.product_id }}">Add To Cart</button>
+                <button type="button" class="btn action-btn add-to-cart-btn mt-4 mb-2 {% if product.stock == 0 %}disabled{% endif %}" data-product-id="{{ product.product_id }}">Add To Cart</button>
             </div>
         </div>
     </div>

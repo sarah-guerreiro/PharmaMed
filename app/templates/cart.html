@@ -7,13 +7,13 @@
 {% block main %}
 
 <div class="container my-5 px-4">
-    <div class="cart-top pb-1">
+    <div class="section-heading pb-1">
         <h1 class="fs-4">Cart</h1>  
     </div>
 
     {% if cart_items %}
         <!-- Total number of items -->
-        <div class="total-items fw-semibold py-3 ps-3">
+        <div class="cart-top total-items fw-semibold py-3 ps-3">
             Items: {{ total_items }}
         </div>      
     {% endif %}
@@ -48,7 +48,7 @@
                 <div class="d-flex justify-content-start justify-content-md-center align-items-center">
 
                     <!-- Decrease -->
-                    <button class="btn btn-sm decrease-btn" data-product-id="{{ item.product_id }}" data-action="decrease" aria-label="Decrease quantity of {{ item.name }}">
+                    <button class="btn btn-sm action-btn decrease-btn" data-product-id="{{ item.product_id }}" data-action="decrease" aria-label="Decrease quantity of {{ item.name }}">
                         <i class="fa-solid fa-minus fa-sm" aria-hidden="true"></i>
                     </button>
 
@@ -58,7 +58,7 @@
                     </div>
 
                     <!-- Increase -->
-                    <button class="btn btn-sm increase-btn" data-product-id="{{ item.product_id }}" data-action="increase" aria-label="Increase quantity of {{ item.name }}" 
+                    <button class="btn btn-sm action-btn increase-btn" data-product-id="{{ item.product_id }}" data-action="increase" aria-label="Increase quantity of {{ item.name }}" 
                     {% if item.quantity >= item.stock %}disabled{% endif %}>
                         <i class="fa-solid fa-plus fa-sm" aria-hidden="true"></i>
                     </button>
@@ -89,9 +89,9 @@
         <!-- Checkout button -->
         <div class="checkout-button mt-4 text-center">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('orders.checkout') }}" class="btn checkout-btn">Checkout</a>
+                <a href="{{ url_for('orders.checkout') }}" class="btn action-btn">Checkout</a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn checkout-btn">Checkout</a>
+                <a href="{{ url_for('auth.login') }}" class="btn action-btn">Checkout</a>
             {% endif %}
         </div>
     {% endif %}

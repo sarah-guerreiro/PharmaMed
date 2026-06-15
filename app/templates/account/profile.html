@@ -2,7 +2,7 @@
 
 {% block account_content %}
 
-<div class="section-header pb-1">
+<div class="section-heading pb-1">
     <h1 class="fs-4">Personal Information</h1>
 </div>
 <div id="personalInfo" class="mt-4">
@@ -46,12 +46,12 @@
 
             <!-- Save changes button -->
             <div class="col-12 col-md-6 mb-3 d-flex justify-content-center align-items-end">
-                <button id="saveChangesBtn" class="btn" disabled>Save Changes</button>
+                <button id="saveChangesBtn" class="btn action-btn" disabled>Save Changes</button>
             </div>
         </div> 
     </form>
 </div>
-<div class="section-header mt-4 pb-1">
+<div class="section-heading mt-4 pb-1">
     <h2 class="fs-5">Addresses</h2>
 </div>
 <div id="userAddresses" class="mt-4">
@@ -155,7 +155,7 @@
 </div>
 
 <!-- Add new address button -->
-<button type="button" id="addAddressBtn" class="btn {% if addresses %}mt-2{% endif %} mb-3">
+<button type="button" id="addAddressBtn" class="btn action-btn {% if addresses %}mt-2{% endif %} mb-3">
     Add New Address
 </button>
 
@@ -232,7 +232,7 @@
 
                 <!-- Save address button -->
                 <div class="col-12 text-center">    
-                    <button id="saveAddressBtn" class="btn">Save Address</button>
+                    <button class="btn action-btn">Save Address</button>
                 </div>    
             </div>    
         </form>

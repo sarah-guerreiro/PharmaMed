@@ -2,7 +2,7 @@
 
 {% block admin_content %}
 
-<div class="page-header pb-1 mb-5">
+<div class="section-heading pb-1 mb-5">
     <h1 class="fs-4">Welcome back!</h1>
 </div>
 
@@ -79,7 +79,7 @@
             </h2>
 
             <!-- View orders button -->
-            <a href="{{ url_for('admin.admin_orders') }}" class="btn btn-sm view-orders-btn">
+            <a href="{{ url_for('admin.admin_orders') }}" class="btn btn-sm action-btn">
                 View Orders
             </a>
         </div>
@@ -123,7 +123,7 @@
             </h2>
 
             <!-- Manage stock button -->
-            <a href="{{ url_for('admin.admin_inventory') }}" class="btn btn-sm manage-stock-btn">
+            <a href="{{ url_for('admin.admin_inventory') }}" class="btn btn-sm action-btn">
                 Manage stock
             </a>
         </div>

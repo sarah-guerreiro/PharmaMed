@@ -2,7 +2,7 @@
 
 {% block admin_content %}
 
-<div class="page-header pb-1 mb-5">
+<div class="section-heading pb-1 mb-5">
     <h1 class="fs-4">Products catalog</h1>
 </div>
 
@@ -22,7 +22,7 @@
             </div>
             
             <!-- Add product button -->
-            <a href="{{ url_for('admin.add_product', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}" class="btn add-product-btn me-auto me-md-0">
+            <a href="{{ url_for('admin.add_product', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction) }}" class="btn action-btn me-auto me-md-0">
                 Add Product
             </a>
         </div>
@@ -100,7 +100,7 @@
                             {{ product.assigned_category }}
                         {% endif %}
                         </td>
-                        <td>
+                        <td class="text-center">
                         {% if product.parent_category %}
                             {{ product.assigned_category }}
                         {% else %}

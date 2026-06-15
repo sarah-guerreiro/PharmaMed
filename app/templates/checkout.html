@@ -7,7 +7,7 @@
 {% block main %}
 
 <div class="container my-5 px-4">
-    <div class="section-header pb-1">
+    <div class="section-heading pb-1">
         <h1 class="fs-4">Shipping details</h1>  
     </div>
     <form method="POST" action="{{ url_for('orders.checkout') }}">
@@ -41,7 +41,7 @@
             </div>
         {% endif %}
 
-        <button type="button" id="addAddressBtn" class="btn mt-2 mb-3">
+        <button type="button" id="addAddressBtn" class="btn action-btn mt-2 mb-3">
             Add New Address
         </button>
 
@@ -115,7 +115,7 @@
 
                 <!-- Save address button -->
                 <div class="col-12 text-center">    
-                    <button type="button" id="saveAddressBtn" class="btn">Save Address</button>
+                    <button type="submit" class="btn action-btn">Save Address</button>
                 </div>    
             </div>    
         </div>
@@ -143,9 +143,9 @@
             </label>
         </div>
 
-        <!-- Confirm button -->
+        <!-- Continue button -->
         <div class="mt-4 text-center">
-            <button class="btn continue-btn">Continue</button>
+            <button class="btn action-btn">Continue</button>
         </div>
     </form>
 </div>

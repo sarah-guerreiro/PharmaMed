@@ -2,7 +2,7 @@
 
 {% block admin_content %}
 
-<div class="page-header pb-1 mb-4">
+<div class="section-heading pb-1 mb-4">
     <h1 class="fs-4">Order details</h1>
 </div>
 
@@ -20,7 +20,7 @@
 
             <!-- Back to orders button -->
             <a href="{{ url_for('admin.admin_orders', page=base_params.page, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}" 
-            class="btn btn-sm back-to-orders-btn order-1 order-md-2">
+            class="btn btn-sm action-btn order-1 order-md-2">
                 <i class="fa-solid fa-arrow-left me-2" aria-hidden="true"></i>Back to orders
             </a>
         </div>

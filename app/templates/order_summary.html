@@ -7,7 +7,7 @@
 {% block main %}
 
 <div class="container my-5">
-    <div class="section-header pb-1 mx-3">
+    <div class="section-heading pb-1 mx-3">
         <h1 class="fs-4">Order summary</h1>  
     </div>
 
@@ -108,7 +108,7 @@
     <!-- Place order button-->
     <div class="mt-4 text-center">
         <form method="POST" action="{{ url_for('orders.place_order') }}">
-            <button type="submit" class="btn place-order-btn">Place Order</button>
+            <button type="submit" class="btn action-btn">Place Order</button>
         </form>
     </div>
 </div>

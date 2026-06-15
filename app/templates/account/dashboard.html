@@ -2,7 +2,7 @@
 
 {% block account_content %}
 
-<div class="page-header pb-1">
+<div class="section-heading pb-1">
     <h1 class="fs-4">Welcome, {{ current_user.first_name }}!</h1>
 </div>
 {% for order in orders %}
@@ -30,7 +30,7 @@
             </li>
             <li class="list-group-item dark-item p-4">
                 <div class="text-center">
-                    <a href="{{ url_for('account.order_details', order_id=order.id) }}" class="btn btn-sm order-details-btn" aria-label="View details for order {{ order.id }}">
+                    <a href="{{ url_for('account.order_details', order_id=order.id) }}" class="btn btn-sm action-btn" aria-label="View details for order {{ order.id }}">
                         View Details
                     </a>
                 </div>

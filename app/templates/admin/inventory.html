@@ -2,7 +2,7 @@
 
 {% block admin_content %}
 
-<div class="page-header pb-1 mb-5">
+<div class="section-heading pb-1 mb-5">
     <h1 class="fs-4">Inventory</h1>
 </div>
 
@@ -184,7 +184,7 @@
                                 {{ product.assigned_category }}
                             {% endif %}
                             </td>
-                            <td>
+                            <td class="text-center">
                             {% if product.parent_category %}
                                 {{ product.assigned_category }}
                             {% else %}
@@ -200,9 +200,9 @@
                             {% elif product.stock == 0 %}
                                 <span class="badge bg-dark">Out of Stock</span>
                             {% elif product.stock <= 5 %}
-                                <span class="badge bg-danger">Critical Stock Level</span>
+                                <span class="badge bg-danger">Critical stock level</span>
                             {% elif product.stock <= 10 %}
-                                <span class="badge bg-warning">Low</span>
+                                <span class="badge bg-warning">Low stock</span>
                             {% else %}
                                 <span class="badge bg-success">In stock</span>
                             {% endif %}

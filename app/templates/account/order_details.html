@@ -2,10 +2,17 @@
 
 {% block account_content %}
 
-<div class="page-header pb-1">
+<div class="section-heading pb-1 mb-4">
     <h1 class="fs-4">Order Details</h1>
 </div>
-<div class="card order-card my-5">
+
+<!-- Back to orders button -->
+<div class="text-end">
+    <a href="{{ url_for('account.orders') }}" class="btn action-btn">
+        <i class="fa-solid fa-arrow-left me-2" aria-hidden="true"></i>Back to orders
+    </a>
+</div>
+<div class="card order-card my-4">
     <ul class="list-group list-group-flush">
 
         <!-- Order summary -->
@@ -86,11 +93,6 @@
             </div>
         </li>
     </ul>
-</div>
-<div class="text-center">
-    <a href="{{ url_for('account.orders') }}" class="btn view-orders-btn">
-        <i class="fa-solid fa-arrow-left me-2" aria-hidden="true"></i>Back to orders
-    </a>
 </div>
 
 {% endblock %}
