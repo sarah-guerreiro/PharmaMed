@@ -62,7 +62,7 @@
             <div id="address-{{ address.id }}" class="card p-3">
 
                 <!-- Display address -->
-                <div class="address-view {% if edit_address_id == address.id %}d-none{% endif %}">
+                <div class="address-view {% if edit_address_id|string == address.id|string %}d-none{% endif %}">
                     <div class="mb-1">
                         <strong>{{ address.full_name }}</strong>
                     </div>    
@@ -79,16 +79,16 @@
                 </div>
 
                 <!-- Edit address -->
-                <div class="address-edit d-none {% if edit_address_id == address.id %}d-block{% endif %}">
+                <div class="address-edit {% if edit_address_id|string == address.id|string %}d-block{% else %}d-none{% endif %}">
                     <form method="POST" action="{{ url_for('account.edit_address') }}">
                     {% set edit_error = edit_error | default({}) %}
-                    {% set edit_form = edit_form | default({}) %}
+                    {% set current_edit_form = edit_form if edit_address_id|string == address.id|string else {} %}
                         <input type="hidden" name="address_id" class="form-control mb-2" value="{{ address.id }}">
 
                         <!-- Full name -->
                         <div class="mb-3">
                         {% set full_name_error = edit_error.get('full_name') if edit_address_id|string == address.id|string else None %}
-                            <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ edit_form.get('full_name', address.full_name) }}">
+                            <input name="full_name" class="form-control {% if full_name_error %}is-invalid{% endif %}" placeholder="Full name" value="{{ current_edit_form.get('full_name', address.full_name) }}">
                             {% if full_name_error %}
                                 <div class="invalid-feedback">
                                     {{ full_name_error }}
@@ -99,7 +99,7 @@
                         <!-- Address line -->
                         <div class="mb-3">
                         {% set address_line_error = edit_error.get('address_line') if edit_address_id|string == address.id|string else None %}
-                            <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ edit_form.get('address_line', address.address_line) }}">
+                            <input name="address_line" class="form-control {% if address_line_error %}is-invalid{% endif %}" placeholder="Address" value="{{ current_edit_form.get('address_line', address.address_line) }}">
                             {% if address_line_error %}
                                 <div class="invalid-feedback">
                                     {{ address_line_error }}
@@ -110,7 +110,7 @@
                         <!-- Postal code -->
                         <div class="mb-3">
                         {% set postal_code_error = edit_error.get('postal_code') if edit_address_id|string == address.id|string else None %}
-                            <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ edit_form.get('postal_code', address.postal_code) }}">
+                            <input name="postal_code" class="form-control {% if postal_code_error %}is-invalid{% endif %}" placeholder="Postal Code" value="{{ current_edit_form.get('postal_code', address.postal_code) }}">
                             {% if postal_code_error %}
                                 <div class="invalid-feedback">
                                     {{ postal_code_error }}
@@ -121,7 +121,7 @@
                         <!-- City -->
                         <div class="mb-3">
                         {% set city_error = edit_error.get('city') if edit_address_id|string == address.id|string else None %}
-                            <input name="city" class="form-control mb-3 {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ edit_form.get('city', address.city) }}">
+                            <input name="city" class="form-control mb-3 {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ current_edit_form.get('city', address.city) }}">
                             {% if city_error %}
                                 <div class="invalid-feedback">
                                     {{ city_error }}
@@ -132,7 +132,7 @@
                         <!-- Country -->
                         <div class="mb-3">
                         {% set country_error = edit_error.get('country') if edit_address_id|string == address.id|string else None %}
-                            <input name="country" class="form-control mb-3 {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ edit_form.get('country', address.country) }}">
+                            <input name="country" class="form-control mb-3 {% if country_error %}is-invalid{% endif %}" placeholder="Country" value="{{ current_edit_form.get('country', address.country) }}">
                             {% if country_error %}
                                 <div class="invalid-feedback">
                                     {{ country_error }}
@@ -239,88 +239,7 @@
     </div>
 </div>
 
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const firstName = document.querySelector('input[name="first_name"]');
-        const lastName = document.querySelector('input[name="last_name"]');
-        const saveChangesBtn = document.getElementById('saveChangesBtn');
-
-        // Store original values
-        const originalFirst = firstName.value;
-        const originalLast = lastName.value;
-
-        // Enable "save changes" button if first or last name change
-        function checkChanges() {
-            if (
-                firstName.value !== originalFirst ||
-                lastName.value !== originalLast
-            ) {
-                saveChangesBtn.disabled = false;
-            } else {
-                saveChangesBtn.disabled = true;
-            }
-        }
-
-        // Listen to input changes
-        firstName.addEventListener("input", checkChanges);
-        lastName.addEventListener("input", checkChanges);
-
-        // Display address form when "add address" button is clicked
-        document.getElementById("addAddressBtn").addEventListener("click", function() {
-            document.getElementById("addressForm").classList.toggle("d-none");
-        });
-
-        // Display edit address form
-        document.querySelectorAll(".edit-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const id = this.dataset.id;
-
-                const card = document.getElementById(`address-${id}`);
-                card.querySelector(".address-view").classList.add("d-none");
-                card.querySelector(".address-edit").classList.remove("d-none");
-            });
-        });
-        
-        // Display edit address form when a validation error occurs
-        const activeId = "{{ edit_address_id | default('') }}";
-
-        if (activeId) {
-            const card = document.getElementById(`address-${activeId}`);
-            if (card) {
-                card.querySelector(".address-view").classList.add("d-none");
-                card.querySelector(".address-edit").classList.remove("d-none");
-            }
-        }
-
-        // Hide edit address form
-        document.querySelectorAll(".cancel-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const id = this.dataset.id;
-
-                const card = document.getElementById(`address-${id}`);
-                card.querySelector(".address-view").classList.remove("d-none");
-                card.querySelector(".address-edit").classList.add("d-none");
-            });
-        });
-
-        // Remove red border and hide error message when users inputs on invalid field
-        document.querySelectorAll("input").forEach(input => {
-
-            input.addEventListener("input", () => {
-
-                input.classList.remove("is-invalid");
-
-                const error = input.parentElement.querySelector(".invalid-feedback");
-
-                if (error) {
-                    error.classList.add("d-none");
-                }
-            });
-        });
-    });
-
-</script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
 
 {% endblock %}

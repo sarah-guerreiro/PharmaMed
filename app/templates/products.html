@@ -213,7 +213,9 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>No products found</p>
+                    <div class="text-muted">
+                        <i class="fa-solid fa-circle-xmark fa-lg me-2" aria-hidden="true"></i>No products found
+                    </div>
                 {% endfor %}
             </div>
         </div>
@@ -290,50 +292,6 @@
     </nav>
 {% endif %}
 
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // Check if min price > max price in price filter
-        const forms = document.querySelectorAll('.filters-form');
-
-        forms.forEach(form => {
-
-            const minInput = form.querySelector('input[name="min_price"]');
-            const maxInput = form.querySelector('input[name="max_price"]');
-            const errorDiv = form.querySelector('.priceError');
-            const applyButton = form.querySelector('button[type="submit"]')
-
-            function validatePrice() {
-                const min = parseFloat(minInput.value);
-                const max = parseFloat(maxInput.value);
-
-                if (min && max && min > max) {
-                    errorDiv.textContent = "Invalid interval";
-                    applyButton.disabled = true; // Disable submit
-                } else {
-                    errorDiv.textContent = "";
-                    applyButton.disabled = false; // Enable submit
-                }
-            }
-
-            // Listen to input changes
-            if (minInput && maxInput && errorDiv && applyButton) {
-                minInput.addEventListener('input', validatePrice);
-                maxInput.addEventListener('input', validatePrice);
-                validatePrice();
-            }
-        });
-
-        // Connect addToCart to "add to cart" button
-        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.dataset.productId;
-                addToCart(productId);
-            });
-        });
-    });
-    
-</script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
 
 {% endblock %}

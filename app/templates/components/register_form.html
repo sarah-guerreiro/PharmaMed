@@ -41,8 +41,8 @@
             <!-- Password -->
             <div class="password mb-3">
             {% set password_error = error.get('password') %}
-                <input type="password" name="password" class="password-input form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-                <button type="button" class="btn toggle-password" aria-label="Show password">
+                <input id="registerPassword" type="password" name="password" class="password-input form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+                <button type="button" class="btn toggle-password" data-target="registerPassword" aria-label="Show password">
                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 </button>
                 {% if password_error %}
@@ -64,8 +64,8 @@
             <!-- Password confirmation -->
             <div class="password mb-4"> 
             {% set confirm_password_error = error.get('confirm_password') %}
-                <input type="password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
-                <button type="button" class="btn toggle-password" aria-label="Show password">
+                <input id="registerConfirmPassword" type="password" name="confirm_password" class="form-control {% if confirm_password_error %}is-invalid{% endif %}" placeholder="Confirm password">
+                <button type="button" class="btn toggle-password" data-target="registerConfirmPassword" aria-label="Show password">
                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 </button>
                 {% if confirm_password_error %}

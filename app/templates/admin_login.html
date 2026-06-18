@@ -52,56 +52,7 @@
     </div>
 </div>
 
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-        
-        // Select all toggle button
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            button.addEventListener('click', () => {
-
-                // Get the target input
-                const inputId = button.getAttribute('data-target');
-                const input = document.getElementById(inputId);
-
-                // Check current input type
-                const isPassword = input.type === 'password';
-
-                //Toggle type
-                input.type = isPassword ? 'text' : 'password';
-
-                // Update label
-                button.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
-
-                // Get button ico
-                const icon = button.querySelector('i');
-
-                // Toggle icons
-                if (isPassword) {
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            });
-        });
-
-        // Remove red border and hide error message when users inputs on invalid field
-        document.querySelectorAll("input").forEach(input => {
-            input.addEventListener("input", () => {
-
-                input.classList.remove("is-invalid");
-                const error = input.parentElement.querySelector(".invalid-feedback");
-
-                if (error) {
-                    error.classList.add("d-none");
-                }
-
-            });
-        });
-    });
-
-</script>
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
 
 {% endblock %}

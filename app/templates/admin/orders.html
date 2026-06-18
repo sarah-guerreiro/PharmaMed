@@ -18,7 +18,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ pending_orders_count }}
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ processing_orders_count }}
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ shipped_orders_count }}
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ delivered_orders_count }}
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ cancelled_orders_count }}
                         </div>
                     </div>
@@ -233,16 +233,5 @@
         {% endif %} 
     </div>
 </div>
-
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // Initialize Bootstrap tooltips
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    });
-
-</script>
 
 {% endblock %}

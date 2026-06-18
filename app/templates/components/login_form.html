@@ -20,8 +20,8 @@
             <!-- Password -->
             <div class="password mb-5">   
             {% set password_error = error.get('password') %}
-                <input type="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
-                <button type="button" class="btn toggle-password" aria-label="Show password">
+                <input id="loginPassword" type="password" name="password" class="form-control {% if password_error %}is-invalid{% endif %}" placeholder="Password">
+                <button type="button" class="btn toggle-password" data-target="loginPassword" aria-label="Show password">
                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 </button>
                 {% if password_error %}

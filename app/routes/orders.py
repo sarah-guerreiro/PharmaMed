@@ -47,6 +47,9 @@ def checkout():
     # Get user addresses
     addresses = get_user_addresses(db, current_user.id)
 
+    # Get action button
+    action = request.form.get("action")
+
     # Error dictionaries
     address_error = {}
     form_error = {}
@@ -55,15 +58,7 @@ def checkout():
     if request.method == "POST":
 
         # Check if user wants to add a new address
-        adding_address = any([
-            request.form.get("full_name"),
-            request.form.get("address_line"),
-            request.form.get("postal_code"),
-            request.form.get("city"),
-            request.form.get("country")
-        ])
-
-        if adding_address:
+        if action == "save_address":
             
             # Get address form data
             full_name = request.form.get("full_name", "").strip().title()
@@ -123,7 +118,7 @@ def checkout():
             flash("Address added successfully", "success")
             return redirect(url_for("orders.checkout"))
         
-        else:
+        elif action == "continue":
 
             # Get address ID and shipping method
             address_id = request.form.get("address_id", "")

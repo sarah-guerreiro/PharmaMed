@@ -18,7 +18,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ low_stock_count }}
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ no_stock_count }}
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                 </li>
                 <li class="list-group-item">
                     <div class="my-2">
-                        <div class="number fs-5 fw-bold">
+                        <div class="total-number fs-5 fw-bold">
                             {{ inactive_count }}
                         </div>
                     </div>
@@ -358,16 +358,5 @@
         </ul>
     </nav>
 {% endif %}
-
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // Initialize Bootstrap tooltips
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    });
-
-</script>
 
 {% endblock %}

@@ -115,7 +115,7 @@
 
                 <!-- Save address button -->
                 <div class="col-12 text-center">    
-                    <button type="submit" class="btn action-btn">Save Address</button>
+                    <button type="submit" class="btn action-btn" name="action" value="save_address">Save Address</button>
                 </div>    
             </div>    
         </div>
@@ -145,37 +145,12 @@
 
         <!-- Continue button -->
         <div class="mt-4 text-center">
-            <button class="btn action-btn">Continue</button>
+            <button type="submit" class="btn action-btn" name="action" value="continue">Continue</button>
         </div>
     </form>
 </div>
 
-<script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-        
-        // Display address form when "add address" button is clicked
-        document.getElementById("addAddressBtn").addEventListener("click", function() {
-            document.getElementById("addressForm").classList.toggle("d-none");
-        });
-
-        // Remove red border and hide error message when users inputs on invalid field
-        document.querySelectorAll("input").forEach(input => {
-
-            input.addEventListener("input", () => {
-
-                input.classList.remove("is-invalid");
-
-                const error = input.parentElement.querySelector(".invalid-feedback");
-
-                if (error) {
-                    error.classList.add("d-none");
-                }
-
-            });
-        });
-    });
-
-</script>
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
 
 {% endblock %}

@@ -7,15 +7,15 @@
         
         <!-- Bootstrap CDN link -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         
         <!-- https://favicon.io/emoji-favicons/pill -->
-        <link href="/static/favicon.ico" rel="icon">
+        <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 
         <!-- Font Awesome CDN link -->
         <script src="https://kit.fontawesome.com/9574363136.js" crossorigin="anonymous"></script>
-         
-        <link href="/static/styles.css" rel="stylesheet">
+        
+        <!-- CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
         <title>
             {% block title %}
@@ -213,146 +213,12 @@
             </div>
         </footer>
 
-        <script>
-
-            document.addEventListener("DOMContentLoaded", function() {
-
-                const toggle = document.querySelector(".products-toggle");
-                const productsMenu = document.querySelector(".products-menu");
-                const menu = new bootstrap.Collapse(document.getElementById("productsMenu"), { toggle: false });
-
-                // Check if the user is using a desktop
-                const isDesktop = () => window.matchMedia("(min-width: 992px)").matches;
-
-                // Open products menu on hover (desktop only)
-                toggle.addEventListener("mouseenter", () => {
-                    if (isDesktop()) {
-                        menu.show();
-                    }
-                });
-
-                productsMenu.addEventListener("mouseenter", () => {
-                    if (isDesktop()) {
-                        menu.show();
-                    }
-                });
-
-                // Close when mouse leaves the menu or button (desktop only)
-                const closeMenu = () => {
-                    if (isDesktop()) {
-                        setTimeout(() => {
-                            if (!toggle.matches(":hover") && !productsMenu.matches(":hover")) {
-                            menu.hide();
-                            }
-                        }, 200);
-                    }
-                };
-
-                toggle.addEventListener("mouseleave", closeMenu);
-                productsMenu.addEventListener("mouseleave", closeMenu);
-
-                // Close menu if click outside toggle and menu
-                document.addEventListener("click", function (event) {
-
-                    const productsMenuEl = document.getElementById("productsMenu");
-
-                    if (!isDesktop()) {
-                        if (
-                            !productsMenuEl.contains(event.target) &&
-                            !toggle.contains(event.target)
-                        ) {
-                            menu.hide();
-                        }
-                    }
-                });
-
-                // Trigger smooth fade in effect for flash messages
-                document.querySelectorAll('.alert').forEach(alert => {
-                    setTimeout(() => {
-                        alert.classList.add('show');
-                    }, 100);
-                });
-                
-                // Auto-dismiss flash messages after 6 seconds
-                setTimeout(() => {
-                    document.querySelectorAll('.alert').forEach(alert => {
-
-                        // Skip for persistent alerts
-                        if (alert.dataset.persistent === 'true') return;
-
-                        alert.classList.remove('show');
-
-                        setTimeout(() => {
-                            alert.remove();
-                        }, 500);
-                        
-                    });
-                }, 6000);
-
-                // Set current year on copyright
-                document.getElementById("copyright").innerHTML = new Date().getFullYear() + " | PharmaMed. All rights reserved.";
-            });
-
-            function addToCart(productId) {
-                fetch('/add_to_cart', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `product_id=${productId}&quantity=1`
-                })
-                .then(res => res.json())
-                .then(data => {
-                    updateCartBadge(data.cart_count);
-                    addFlashMessage(data.message, data.category);
-                });
-            }
-
-            function updateCartBadge (count) {
-                const cartIcons = document.querySelectorAll('.cart-icon');
-
-                cartIcons.forEach(icon => {
-                    let badge = icon.querySelector('.cart-badge');
-
-                    badge.innerText = count;
-
-                    if (count > 0) {
-                        badge.classList.remove('d-none');
-                    } else {
-                        badge.classList.add('d-none');
-                    }
-                });
-            }
-
-            function addFlashMessage(message, category) {
-
-                const container = document.querySelector('.flash-messages');
-
-                const alertDiv = document.createElement('div');
-
-                let alertClass = category === 'error' ? 'danger' : (category === 'persistent' ? 'info' : category);
-
-                alertDiv.className = `alert alert-${alertClass} alert-dismissible fade d-flex align-items-center justify-content-center`;
-
-                alertDiv.setAttribute('role', 'alert');
-                alertDiv.dataset.persistent = (category === 'persistent') ? 'true' : 'false';
-
-                alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-
-                container.appendChild(alertDiv);
-
-                // Trigger smooth fade in effect
-                setTimeout(() => {
-                    alertDiv.classList.add('show');
-                }, 100);
-
-                // Auto-dismiss flash messages after 6 seconds
-                if (alertDiv.dataset.persistent !== 'true') {
-                    setTimeout(() => {
-                        alertDiv.classList.remove('show');
-                        setTimeout(() => alertDiv.remove(), 500);
-                    }, 6000);
-                }
-            }
+        <!-- Bootstrap JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         
-        </script>
+        <!-- JS -->
+        <script src="{{ url_for('static', filename='js/layout.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+
     </body>
 </html>
