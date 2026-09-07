@@ -2,12 +2,17 @@
 
 {% block admin_content %}
 
+<!-- AI assistance: ChatGPT assisted with implementing column sorting and filter dropdown, ensuring responsiveness 
+ across different screen sizes. -->
+
 <div class="section-heading pb-1 mb-5">
     <h1 class="fs-4">Manage orders</h1>
 </div>
 
 <!-- Statistics cards -->
 <div class="row row-cols-1 row-cols-md-3 mb-5">
+    
+    <!-- Pending orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -26,6 +31,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Processing orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -44,6 +51,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Shipped orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -62,6 +71,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Delivered orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -80,6 +91,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Cancelled orders -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -149,26 +162,27 @@
         </div>
 
         {% if orders %}
+            <!-- Orders info -->
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
                             <th>
-                                <a href="{{ url_for('admin.admin_orders', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc') }}" 
+                                <a href="{{ url_for('admin.admin_orders', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     ID
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_orders', sort='full_name', direction='desc' if sort == 'full_name' and direction == 'asc' else 'asc') }}" 
+                                <a href="{{ url_for('admin.admin_orders', sort='full_name', direction='desc' if sort == 'full_name' and direction == 'asc' else 'asc', filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1 gap-md-3">
                                     Customer
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_orders', sort='date', direction='desc' if sort == 'date' and direction == 'asc' else 'asc') }}" 
+                                <a href="{{ url_for('admin.admin_orders', sort='date', direction='desc' if sort == 'date' and direction == 'asc' else 'asc', filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1 gap-md-3">
                                     Date
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
@@ -176,7 +190,7 @@
                             </th>
                             <th class="ps-3">Status</th>
                             <th>
-                                <a href="{{ url_for('admin.admin_orders', sort='total', direction='desc' if sort == 'total' and direction == 'asc' else 'asc') }}" 
+                                <a href="{{ url_for('admin.admin_orders', sort='total', direction='desc' if sort == 'total' and direction == 'asc' else 'asc', filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Total
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
@@ -201,7 +215,7 @@
                                 <div class="d-flex">
 
                                     <!-- View details button -->
-                                    <a href="{{ url_for('admin.admin_order_details', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View order" aria-label="View details for order {{ order.id }}">
+                                    <a href="{{ url_for('admin.admin_order_details', order_id=order.id, page=base_params.page, sort=base_params.sort, direction=base_params.direction, filter_option=base_params.filter_option) }}" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View order" aria-label="View details for order {{ order.id }}">
                                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                     </a>
 

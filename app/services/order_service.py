@@ -66,6 +66,10 @@ def calculate_order_totals(cart_items, shipping_cost):
         "total": total
     }
 
+# AI assistance: ChatGPT was consulted for guidance on implementing the stock reservation logic 
+# used when placing orders, including checking available stock and preventing an order from reserving 
+# more stock than is available.
+
 def reserve_stock(db, cart_items):
 
     for item in cart_items:
@@ -102,7 +106,8 @@ def create_order(
         INSERT INTO orders (user_id, address_id, full_name, address_line, postal_code, city, country, shipping_method, subtotal, shipping_cost, total, status) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
-        (user_id, address_id, address["full_name"], address["address_line"], address["postal_code"], address["city"], address["country"], shipping_method, subtotal, shipping_cost, total, "pending")
+        (user_id, address_id, address["full_name"], address["address_line"], address["postal_code"], 
+         address["city"], address["country"], shipping_method, subtotal, shipping_cost, total, "pending")
     )
 
     order_id = cursor.lastrowid

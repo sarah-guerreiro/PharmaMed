@@ -35,6 +35,9 @@ def load_categories_menu():
 
     return categories_menu
 
+# AI assistance: ChatGPT was consulted on implementing breadcrumb navigation
+# based on the hierarchical category structure.
+
 def get_breadcrumb(category_id):
 
     db = get_db()

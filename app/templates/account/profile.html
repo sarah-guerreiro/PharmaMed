@@ -51,6 +51,8 @@
         </div> 
     </form>
 </div>
+
+<!-- Addresses section -->
 <div class="section-heading mt-4 pb-1">
     <h2 class="fs-5">Addresses</h2>
 </div>
@@ -59,9 +61,9 @@
     <div class="row">
     {% for address in addresses %}
         <div class="col-12 col-md-6 col-xl-4 mb-3">
+            
+            <!-- Address card -->
             <div id="address-{{ address.id }}" class="card p-3">
-
-                <!-- Display address -->
                 <div class="address-view {% if edit_address_id|string == address.id|string %}d-none{% endif %}">
                     <div class="mb-1">
                         <strong>{{ address.full_name }}</strong>
@@ -78,7 +80,7 @@
                     </div>
                 </div>
 
-                <!-- Edit address -->
+                <!-- Edit address form -->
                 <div class="address-edit {% if edit_address_id|string == address.id|string %}d-block{% else %}d-none{% endif %}">
                     <form method="POST" action="{{ url_for('account.edit_address') }}">
                     {% set edit_error = edit_error | default({}) %}
@@ -159,7 +161,7 @@
     Add New Address
 </button>
 
-<!-- Add address -->
+<!-- Add address form -->
 {% set add_error = add_error | default({}) %}
 <div id="addressForm" class="card p-4 mt-2 {% if add_error %}d-block{% else %}d-none{% endif %}">
     <div class="card-body">
@@ -200,7 +202,7 @@
                     {% endif %}
                 </div> 
 
-                <!-- city -->
+                <!-- City -->
                 <div class="col-12 col-md-4 mb-3">
                 {% set city_error = add_error.get('city') %}
                     <input name="city" class="form-control {% if city_error %}is-invalid{% endif %}" placeholder="City" value="{{ add_form.get('city', '') }}">

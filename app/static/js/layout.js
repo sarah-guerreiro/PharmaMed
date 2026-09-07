@@ -1,3 +1,7 @@
+// AI assisted me in implementing the dynamic behaviour of the products menu dropdown,
+// including desktop hover interactions, responsive behaviour, and closing the menu
+// when clicking outside of it.
+
 // Product dropdown
 const toggle = document.querySelector(".products-toggle");
 const productsMenu = document.querySelector(".products-menu");

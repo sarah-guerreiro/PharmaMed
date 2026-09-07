@@ -2,6 +2,9 @@
 
 {% block admin_content %}
 
+<!-- AI assistance: ChatGPT assisted with implementing this reusable product form, which is used for both 
+ adding new products from the Products page and editing existing products from the Inventory page. -->
+
 <div class="section-heading pb-1 mb-3">
     <h1 class="fs-4">
         {% if mode == "edit" %}
@@ -196,7 +199,11 @@
     </div>   
     <div class="row">
         <div class="d-flex justify-content-end">
+
+            <!-- Save button -->
             <button type="submit" class="btn btn-sm btn-outline-success me-2" aria-label="Save product"><i class="fa-solid fa-check me-1" aria-hidden="true"></i>Save Product</button>
+            
+            <!-- Cancel button -->
             <a href="{{ url_for('admin.admin_inventory' if inventory_mode else 'admin.admin_products', page=base_params.page, search_query=base_params.search_query, sort=base_params.sort, direction=base_params.direction,
             filter_option=base_params.filter_option if inventory_mode else None) }}" class="btn btn-sm btn-outline-danger" aria-label="Cancel"><i class="fa-solid fa-xmark me-1" aria-hidden="true"></i>Cancel</a>
         </div>

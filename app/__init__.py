@@ -1,3 +1,7 @@
+# AI assistance: ChatGPT was consulted on refactoring the initial app.py
+# file and implementing Flask blueprints to separate application routes
+# into dedicated modules.
+
 import os
 
 from flask import Flask

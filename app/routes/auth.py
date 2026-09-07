@@ -160,6 +160,9 @@ def login():
     else:
         return render_template("login.html")
 
+# AI assistance: ChatGPT was consulted for guidance on implementing password reset tokens 
+# and token expiration.
+
 @auth_bp.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
 

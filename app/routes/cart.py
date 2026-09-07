@@ -1,3 +1,7 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, reviewing the structure of cart routes, and suggesting improvements
+# for handling both authenticated-user and anonymous-session carts.
+
 from flask import (
     Blueprint,
     jsonify,

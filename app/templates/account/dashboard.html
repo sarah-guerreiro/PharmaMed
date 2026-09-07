@@ -7,6 +7,8 @@
 </div>
 {% for order in orders %}
     <h2 class="fw-semibold fs-6 mb-3 mt-4">Check your last order</h2>
+    
+    <!-- Last order card -->
     <div class="card order-card mb-4">
         <ul class="list-group list-group-flush">
             <li class="list-group-item p-3">
@@ -28,6 +30,8 @@
                     </div>
                 </div>
             </li>
+
+            <!-- View details button -->
             <li class="list-group-item dark-item p-4">
                 <div class="text-center">
                     <a href="{{ url_for('account.order_details', order_id=order.id) }}" class="btn btn-sm action-btn" aria-label="View details for order {{ order.id }}">

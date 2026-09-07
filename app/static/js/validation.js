@@ -1,4 +1,4 @@
-// Remove red border and hide error message when users inputs on invalid field
+// Remove red border and hide error message when user inputs on invalid field
 document.querySelectorAll("input").forEach(input => {
 
     input.addEventListener("input", () => {

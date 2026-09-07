@@ -22,6 +22,7 @@
             </div>
         {% endif %}
 
+        <!-- Addresses cards -->
         {% if addresses %}
             <div class="row">
                 {% for address in addresses %}
@@ -41,11 +42,12 @@
             </div>
         {% endif %}
 
+        <!-- Add new address button -->
         <button type="button" id="addAddressBtn" class="btn action-btn mt-2 mb-3">
             Add New Address
         </button>
 
-        <!-- Add address -->
+        <!-- Add address form -->
         {% set form_error = form_error | default({}) %}
         <div id="addressForm" class="card p-4 mt-2 {% if form_error %}d-block{% else %}d-none{% endif %}">
             <div class="row">

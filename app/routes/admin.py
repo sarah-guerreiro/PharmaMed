@@ -1,3 +1,8 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, reviewing the structure of administrative routes, and suggesting
+# improvements to product, order, and inventory management, including sorting, 
+# filtering, and pagination. 
+
 import math
 import os
 import secrets

@@ -1,3 +1,6 @@
+-- AI assistance: ChatGPT was consulted for suggestions on structuring
+-- the database tables, relationships, and constraints.
+
 CREATE TABLE categories (
     category_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,

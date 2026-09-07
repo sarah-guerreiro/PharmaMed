@@ -2,12 +2,17 @@
 
 {% block admin_content %}
 
+<!-- AI assistance: ChatGPT assisted with implementing search, column sorting, filter dropdown and pagination, ensuring 
+ responsiveness across different screen sizes. -->
+
 <div class="section-heading pb-1 mb-5">
     <h1 class="fs-4">Inventory</h1>
 </div>
 
 <!-- Statistics cards -->
 <div class="row row-cols-1 row-cols-md-3 mb-5">
+    
+    <!-- Low stock products -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -26,6 +31,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Out of stock products -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -44,6 +51,8 @@
             </ul>
         </div>
     </div>
+
+    <!-- Inactive products -->
     <div class="col mb-3">
         <div class="card admin-card shadow-sm">
             <ul class="list-group list-group-flush text-center">
@@ -118,47 +127,48 @@
         </div>
 
         {% if products %}
+            <!-- Products info -->
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='id', direction='desc' if sort == 'id' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     ID
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='name', direction='desc' if sort == 'name' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-3">
                                     Product
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='brand', direction='desc' if sort == 'brand' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Brand
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='category', direction='desc' if sort == 'category' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Category
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='subcategory', direction='desc' if sort == 'subcategory' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Subcategory
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ url_for('admin.admin_inventory', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query) }}" 
+                                <a href="{{ url_for('admin.admin_inventory', sort='stock', direction='desc' if sort == 'stock' and direction == 'asc' else 'asc', search_query=base_params.search_query, filter_option=base_params.filter_option) }}" 
                                 class="text-decoration-none text-dark d-inline-flex align-items-center gap-1">
                                     Stock
                                     <i class="fa-solid fa-sort fa-sm" aria-hidden="true"></i>

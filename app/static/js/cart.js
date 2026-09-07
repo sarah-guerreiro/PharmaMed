@@ -1,3 +1,7 @@
+// AI assistance: ChatGPT was consulted for discussing implementation approaches, debugging, and reviewing 
+// the dynamic cart functionality, including updating cart quantities, removing items, updating item and cart totals, 
+// managing stock limits, updating the cart badge, and handling the empty-cart state without reloading the page.
+
 // Update cart badge count, cart item quantity, total items, item total and cart total
 document.querySelectorAll('.increase-btn, .decrease-btn, .remove-btn').forEach(button => {
     button.addEventListener('click', function () {

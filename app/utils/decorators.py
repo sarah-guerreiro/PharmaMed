@@ -1,3 +1,7 @@
+# AI assistance: ChatGPT was consulted on the design of administrator
+# authentication, including protection of administrative routes using
+# a custom decorator.
+
 from flask import (
     flash,
     redirect,

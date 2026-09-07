@@ -1,3 +1,6 @@
+# AI assistance: ChatGPT was consulted on structuring reusable SQL query
+# helpers for product price filtering, sorting, and pagination.
+
 def price_filter(args, query, query_params):
 
     min_price = args.get('min_price', type=float)

@@ -1,3 +1,8 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, reviewing the structure of product routes, and suggesting improvements
+# for handling category, brand, product detail, and search pages, including filtering,
+# sorting, pagination, breadcrumbs, and database queries.
+
 import math
 
 from flask import (

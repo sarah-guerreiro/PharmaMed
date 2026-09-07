@@ -1,3 +1,8 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, reviewing the structure of checkout and order routes, and suggesting
+# improvements for handling checkout, shipping addresses, order summary, stock 
+# validation, order creation and confirmation.
+
 from flask import (
     Blueprint, 
     flash,

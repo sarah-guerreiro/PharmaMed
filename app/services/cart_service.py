@@ -1,3 +1,8 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, and reviewing the implementation of session-based and database
+# shopping carts, including  merging an anonymous session cart into an authenticated 
+# user's database cart.
+
 from flask import session
 
 from flask_login import current_user

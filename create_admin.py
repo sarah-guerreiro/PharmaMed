@@ -1,3 +1,7 @@
+# AI assistance: ChatGPT was consulted on the design of administrator
+# authentication, including backend-only administrator account creation
+# and separate authentication from customers.
+
 import getpass
 import sqlite3
 
@@ -27,7 +31,7 @@ def create_admin():
     if existing_admin:
         print("Admin already exists.")
         conn.close()
-        exit()
+        return
 
     hashed_password = generate_password_hash(password)
 

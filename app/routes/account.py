@@ -1,3 +1,8 @@
+# AI assistance: ChatGPT was consulted for discussing implementation approaches,
+# debugging, reviewing route structure, and suggesting improvements to account
+# management functionality, including profile, addresses, orders, and password
+# management.
+
 from flask import (
     Blueprint, 
     flash, 
